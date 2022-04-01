@@ -1,0 +1,28 @@
+version: "3.6"
+
+services:
+  backend:
+    profiles: [ "dev" ]
+    build: .
+    command:
+      [
+          sh,
+          -c,
+          'java -Duser.timezone=GMT+08:00 $JAVA_OPTS -Dspring.profiles.active=$DEPLOY_GROUP -Djava.security.egd=file:/dev/./urandom -jar /app.jar',
+      ]
+    volumes:
+      - /home/finance/finance-backend/log/:/var/log
+      - /home/finance/finance-backend/tmp/:/tmp
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/finance?useUnicode=true&characterEncoding=utf8&useSSL=false
+      - SPRING_DATASOURCE_PASSWORD=2AB850A1-BC08-4DE5-925A-AA4FFC0048B0
+      - TZ=Asia/Shanghai
+    ports:
+      - 8080:8091
+    restart: always
+    networks:
+      - internal_network
+
+networks:
+  internal_network:
+    name: internal_network

@@ -1,0 +1,39 @@
+---
+# file: ansible/tasks.yml
+
+- hosts: '{{ deploy_group }}'
+  serial: 1
+  vars:
+    app_name: safety-admin-backend
+    app_path: /opt/aidootech/safety-admin-backend
+  tasks:
+    - name: clean app path
+      file:
+        path: '{{ app_path }}'
+        state: absent
+    - name: create app path
+      file:
+        path: '{{ app_path }}'
+        state: directory
+        owner: root
+        group: root
+    - name: copy package file into tmp dir
+      copy:
+        src: ../app.tar.gz
+        dest: '/tmp/{{ app_name }}.tar.gz'
+    - name: unarchive file to remote directory
+      unarchive:
+        src: '/tmp/{{ app_name }}.tar.gz'
+        dest: '{{ app_path }}'
+        owner: root
+        group: root
+        remote_src: yes
+    - name: remove package file from tmp dir
+      file:
+        path: '/tmp/{{ app_name }}.tar.gz'
+        state: absent
+    - name: start docker
+      environment:
+        DEPLOY_GROUP: "{{ deploy_group }}"
+        COMPOSE_PROFILES: "{{ deploy_group }}"
+      command: '{{ app_path }}/startDocker.sh'
