@@ -91,3 +91,22 @@ CREATE TABLE if not exists `subject` (
     `deleted` bit not null default false,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='科目表';
+
+CREATE TABLE if not exists `function` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `number` varchar(50) not null comment '功能编号',
+    `name` varchar(255) NOT NULL COMMENT '功能名称',
+    `parent_id` bigint(20) not null default 0 comment '父级ID',
+    `parent_number` varchar(50) not null comment '父级编号',
+    `has_leaf` bit not null default false comment '是否有叶子节点',
+    `level` int(11) not null comment '节点深度',
+    `type` enum('MENU', 'BUTTON') not null default 'MENU' comment '功能类型：MENU,BUTTON',
+    `permit_code` varchar(255) not null default '' comment '权限代码',
+    `sort_num` int(11) not null default 10 comment '排序编号升序',
+    `create_by` varchar(50) not null default 'admin',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` varchar(50) not null default 'admin',
+    `modify_time` datetime not null default current_timestamp,
+    `deleted` bit not null default false,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='功能表';

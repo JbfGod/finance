@@ -3,3 +3,30 @@ spring:
     name: finance-backend
   profiles:
     active: local
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: true
+        loginUsername: admin
+        loginPassword: 123456
+        allow:
+      web-stat-filter:
+        enabled: true
+
+mybatis-plus:
+  mapper-locations: classpath*:org/finance/domain/**/mapper/xml/*.xml
+  global-config:
+    banner: false
+    db-config:
+      logic-delete-field: deleted
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 返回类型为Map,显示null对应的字段
+    call-setters-on-nulls: true
