@@ -49,12 +49,12 @@ public class Customer implements Serializable {
     /**
      * 客户类型：租用、代理、租用+代理
      */
-    private String type;
+    private Type type;
 
     /**
-     * 客户状态：停用、启用
+     * 客户状态：true:启用, false:停用
      */
-    private String status;
+    private Boolean status;
 
     /**
      * 租赁生效时间
@@ -106,6 +106,10 @@ public class Customer implements Serializable {
     @TableLogic
     private Boolean deleted;
 
+    public enum Type {
+        RENT, PROXY, RENT_AND_PROXY
+    }
+
     public Long getId() {
         return id;
     }
@@ -146,19 +150,19 @@ public class Customer implements Serializable {
         this.categoryId = categoryId;
         return this;
     }
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public Customer setType(String type) {
+    public Customer setType(Type type) {
         this.type = type;
         return this;
     }
-    public String getStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public Customer setStatus(String status) {
+    public Customer setStatus(Boolean status) {
         this.status = status;
         return this;
     }
