@@ -20,6 +20,7 @@ spring:
       web-stat-filter:
         enabled: true
 
+
 mybatis-plus:
   mapper-locations: classpath*:org/finance/domain/**/mapper/xml/*.xml
   global-config:

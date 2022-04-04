@@ -13,7 +13,7 @@ spring:
     name: finance
     username: root
     password: root1997
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
   #redis 配置
   redis:
     database: 0
@@ -27,9 +27,6 @@ spring:
       shutdown-timeout: 100ms
     password: ''
     port: 6379
-  flyway:
-    enabled: true
-    locations: classpath:/db/migration
 #Mybatis输出sql日志
 logging:
   level:

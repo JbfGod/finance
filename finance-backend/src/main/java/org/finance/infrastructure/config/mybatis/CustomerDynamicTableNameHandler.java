@@ -2,12 +2,10 @@ package org.finance.infrastructure.config.mybatis;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.TableNameHandler;
 import org.finance.business.entity.User;
-import org.finance.infrastructure.config.security.SecurityUtil;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * @author jiangbangfa
@@ -21,11 +19,16 @@ public class CustomerDynamicTableNameHandler implements TableNameHandler {
         if (notSupportTables.contains(tableName)) {
             return tableName;
         }
-        User currentUser = SecurityUtil.getCurrentUser();
-        if (currentUser == null || currentUser.getCustomerId() == 0) {
+        User user = null;
+        try {
+            user = SecurityUtil.getCurrentUser();
+        } catch (Exception e) {
             return tableName;
         }
-        return String.format("%s_%s", tableName, currentUser.getCustomerId());
+        if (user.getCustomerId() == 0) {
+            return tableName;
+        }
+        return String.format("%s_%s", tableName, user.getCustomer().getTableIdentified());
     }
 
 }

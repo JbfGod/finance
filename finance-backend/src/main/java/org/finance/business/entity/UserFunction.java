@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import lombok.Data;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -13,15 +15,17 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 科目表
+ * 用户的功能列表
  * </p>
  *
  * @author jiangbangfa
- * @since 2022-04-02
+ * @since 2022-04-04
  */
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
-public class Subject implements Serializable {
+@TableName("user_function")
+public class UserFunction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,54 +36,14 @@ public class Subject implements Serializable {
     private Long id;
 
     /**
-     * 所属客户
+     * 功能编号
      */
-    private Long customerId;
+    private String userId;
 
     /**
-     * 所属行业
+     * 功能名称
      */
-    private Long industryId;
-
-    /**
-     * 科目编号
-     */
-    private String number;
-
-    /**
-     * 科目名称
-     */
-    private String name;
-
-    /**
-     * 父级ID
-     */
-    private Long parentId;
-
-    /**
-     * 父级编号
-     */
-    private String parentNumber;
-
-    /**
-     * 是否有叶子节点
-     */
-    private Boolean hasLeaf;
-
-    /**
-     * 节点深度
-     */
-    private Integer level;
-
-    /**
-     * 节点左值
-     */
-    private Integer leftValue;
-
-    /**
-     * 节点右值
-     */
-    private Integer rightValue;
+    private String functionId;
 
     @TableField(fill = FieldFill.INSERT)
     private String createBy;
@@ -95,5 +59,6 @@ public class Subject implements Serializable {
 
     @TableLogic
     private Boolean deleted;
+
 
 }

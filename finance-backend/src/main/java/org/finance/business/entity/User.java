@@ -5,8 +5,17 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * <p>
@@ -16,7 +25,9 @@ import java.time.LocalDateTime;
  * @author jiangbangfa
  * @since 2022-04-02
  */
-public class User implements Serializable {
+@Data
+@Accessors(chain = true)
+public class User implements Serializable, UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +36,16 @@ public class User implements Serializable {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+    /**
+     * 所属客户
+     */
+    private Long customerId;
+
+    /**
+     * 客户账户
+     */
+    private String customerAccount;
 
     /**
      * 登录用户名
@@ -37,9 +58,9 @@ public class User implements Serializable {
     private String password;
 
     /**
-     * 所属客户
+     * 用户角色
      */
-    private Long customerId;
+    private Role role;
 
     @TableField(fill = FieldFill.INSERT)
     private String createBy;
@@ -56,91 +77,58 @@ public class User implements Serializable {
     @TableLogic
     private Boolean deleted;
 
-    public Long getId() {
-        return id;
+    @TableField(exist = false)
+    private Customer customer;
+
+    public enum Role {
+        /**
+         * 管理员、每个客户下只有一个
+         */
+        ADMIN,
+        /**
+         * 普通员工、每个客户下可以有多个
+         */
+        NORMAL
     }
 
-    public User setId(Long id) {
-        this.id = id;
-        return this;
-    }
+    @Override
     public String getUsername() {
         return username;
     }
 
-    public User setUsername(String username) {
-        this.username = username;
-        return this;
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
     }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(this.role.name()));
+    }
+
+    @Override
     public String getPassword() {
         return password;
     }
 
-    public User setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public User setCustomerId(Long customerId) {
-        this.customerId = customerId;
-        return this;
-    }
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public User setCreateBy(String createBy) {
-        this.createBy = createBy;
-        return this;
-    }
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public User setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-        return this;
-    }
-    public String getModifyBy() {
-        return modifyBy;
-    }
-
-    public User setModifyBy(String modifyBy) {
-        this.modifyBy = modifyBy;
-        return this;
-    }
-    public LocalDateTime getModifyTime() {
-        return modifyTime;
-    }
-
-    public User setModifyTime(LocalDateTime modifyTime) {
-        this.modifyTime = modifyTime;
-        return this;
-    }
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public User setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-            "id=" + id +
-            ", username=" + username +
-            ", password=" + password +
-            ", customerId=" + customerId +
-            ", createBy=" + createBy +
-            ", createTime=" + createTime +
-            ", modifyBy=" + modifyBy +
-            ", modifyTime=" + modifyTime +
-            ", deleted=" + deleted +
-        "}";
-    }
 }

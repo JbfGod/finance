@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.finance.business.mapper.UserFunctionMapper">
+
+    <select id="listFunctionByUserId" resultType="org.finance.business.entity.Function">
+        select f.* from `function` f
+        inner join `user_function` uf
+        on (uf.user_id = #{userId} and uf.function_id = f.id)
+    </select>
+</mapper>

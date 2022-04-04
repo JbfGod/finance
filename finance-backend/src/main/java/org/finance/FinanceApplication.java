@@ -29,10 +29,11 @@ public class FinanceApplication extends SpringBootServletInitializer {
         String ip = InetAddress.getLocalHost().getHostAddress();
         String port = env.getProperty("server.port");
         log.info("\n----------------------------------------------------------\n\t" +
-                "Application Jeecg-Boot is running! Access URLs:\n\t" +
+                "Application is running! Access URLs:\n\t" +
                 "Local: \t\thttp://localhost:" + port + "/\n\t" +
                 "External: \thttp://" + ip + ":" + port + "/\n\t" +
                 "API Doc: \thttp://" + ip + ":" + port + "/doc.html\n" +
+                "用户：admin，密码：123456\n" +
                 "----------------------------------------------------------");
 
     }

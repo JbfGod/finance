@@ -26,6 +26,7 @@ public class OptionsRequestFilter implements Filter {
             resp.setStatus(HttpStatus.OK.value());
             chain.doFilter(request, response);
         }
+        chain.doFilter(request, response);
     }
 
 }

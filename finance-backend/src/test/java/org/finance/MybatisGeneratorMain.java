@@ -32,7 +32,10 @@ public class MybatisGeneratorMain {
                 .strategyConfig(builder -> {
                     builder.controllerBuilder().enableRestStyle().formatFileName("%sWeb")
                         .serviceBuilder().formatServiceImplFileName("%sService");
-                    builder.entityBuilder().enableChainModel().addTableFills(Arrays.asList(
+                    builder.entityBuilder()
+                            .enableLombok()
+                            .enableChainModel()
+                            .addTableFills(Arrays.asList(
                             new Column("create_by", FieldFill.INSERT),
                             new Column("create_time", FieldFill.INSERT),
                             new Column("modify_by", FieldFill.INSERT_UPDATE),

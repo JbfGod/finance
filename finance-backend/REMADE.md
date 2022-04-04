@@ -4,9 +4,14 @@
 
 2.配置SpringSecurity
 2.1.用户认证
-2.1.1 用户名密码 
-获取用户凭证UsernamePasswordAuthenticationFilter
-通过获取用户凭证DaoAuthenticationProvider进行相应的认证
+2.1.1 用户名密码
+UsernamePasswordAuthenticationFilter extends xxAuthenticationFilter:
+    extractParams(request) to build AuthenticationToken, then send token to xxAuthenticationProvider
+
+CustomerUsernamePasswordAuthenticationProvider extends xxAuthenticationProvider:
+    parse(token) to fetch user then match with token.
+    if match passed then authorization permission
+    else authentication failure
 
 2.1.2 JwtToken
 获取JwtToken JwtAuthenticationFilter

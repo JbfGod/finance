@@ -5,15 +5,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 客户表 前端控制器
+ * 用户的功能列表 前端控制器
  * </p>
  *
  * @author jiangbangfa
- * @since 2022-04-02
+ * @since 2022-04-04
  */
 @RestController
-@RequestMapping("/api/customer")
-public class CustomerWeb {
-
+@RequestMapping("/userFunction")
+public class UserFunctionWeb {
 
 }

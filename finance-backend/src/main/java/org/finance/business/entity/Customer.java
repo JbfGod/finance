@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -16,6 +19,8 @@ import java.time.LocalDateTime;
  * @author jiangbangfa
  * @since 2022-04-02
  */
+@Data
+@Accessors(chain = true)
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,9 +32,9 @@ public class Customer implements Serializable {
     private Long id;
 
     /**
-     * 登录账户
+     * 客户账户名称
      */
-    private Long userId;
+    private String account;
 
     /**
      * 客户名称
@@ -54,7 +59,7 @@ public class Customer implements Serializable {
     /**
      * 客户状态：true:启用, false:停用
      */
-    private Boolean status;
+    private Boolean enabled;
 
     /**
      * 租赁生效时间
@@ -91,6 +96,11 @@ public class Customer implements Serializable {
      */
     private String remark;
 
+    /**
+     * 客户的表标识
+     */
+    private String tableIdentified;
+
     @TableField(fill = FieldFill.INSERT)
     private String createBy;
 
@@ -107,7 +117,18 @@ public class Customer implements Serializable {
     private Boolean deleted;
 
     public enum Type {
-        RENT, PROXY, RENT_AND_PROXY
+        /**
+         * 租用
+         */
+        RENT,
+        /**
+         * 代理
+         */
+        PROXY,
+        /**
+         * 租用 + 代理
+         */
+        RENT_AND_PROXY
     }
 
     public Long getId() {
@@ -118,12 +139,12 @@ public class Customer implements Serializable {
         this.id = id;
         return this;
     }
-    public Long getUserId() {
-        return userId;
+    public String getAccount() {
+        return account;
     }
 
-    public Customer setUserId(Long userId) {
-        this.userId = userId;
+    public Customer setAccount(String account) {
+        this.account = account;
         return this;
     }
     public String getName() {
@@ -158,12 +179,12 @@ public class Customer implements Serializable {
         this.type = type;
         return this;
     }
-    public Boolean getStatus() {
-        return status;
+    public Boolean getEnabled() {
+        return enabled;
     }
 
-    public Customer setStatus(Boolean status) {
-        this.status = status;
+    public Customer setEnabled(Boolean enabled) {
+        this.enabled = enabled;
         return this;
     }
     public LocalDateTime getEffectTime() {
@@ -222,6 +243,16 @@ public class Customer implements Serializable {
         this.remark = remark;
         return this;
     }
+
+    public String getTableIdentified() {
+        return tableIdentified;
+    }
+
+    public Customer setTableIdentified(String tableIdentified) {
+        this.tableIdentified = tableIdentified;
+        return this;
+    }
+
     public String getCreateBy() {
         return createBy;
     }
@@ -267,12 +298,12 @@ public class Customer implements Serializable {
     public String toString() {
         return "Customer{" +
             "id=" + id +
-            ", userId=" + userId +
+            ", accountName=" + account +
             ", name=" + name +
             ", industryId=" + industryId +
             ", categoryId=" + categoryId +
             ", type=" + type +
-            ", status=" + status +
+            ", status=" + enabled +
             ", effectTime=" + effectTime +
             ", expireTime=" + expireTime +
             ", telephone=" + telephone +

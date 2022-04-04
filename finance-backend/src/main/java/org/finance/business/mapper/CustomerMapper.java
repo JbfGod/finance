@@ -1,7 +1,8 @@
 package org.finance.business.mapper;
 
-import org.finance.business.entity.Customer;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.finance.business.entity.Customer;
 
 /**
  * <p>
@@ -13,4 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface CustomerMapper extends BaseMapper<Customer> {
 
+    default Customer findByAccountName(String accountName) {
+        return selectOne(Wrappers.<Customer>lambdaQuery().eq(Customer::getAccount, accountName));
+    }
 }
