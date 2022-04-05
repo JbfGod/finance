@@ -1,5 +1,6 @@
 package org.finance.business.web.vo;
 
+import lombok.Data;
 import org.finance.business.entity.User;
 
 import java.time.LocalDateTime;
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 /**
  * @author jiangbangfa
  */
+@Data
 public class UserVO {
 
     private Long id;

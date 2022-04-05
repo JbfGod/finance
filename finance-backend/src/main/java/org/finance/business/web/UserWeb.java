@@ -1,10 +1,12 @@
 package org.finance.business.web;
 
+import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.User;
 import org.finance.business.service.UserService;
 import org.finance.business.web.vo.TreeFunctionVO;
+import org.finance.business.web.vo.UserVO;
+import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,16 +29,21 @@ public class UserWeb {
     @Resource
     private UserService userService;
 
+    @GetMapping("/self")
+    public R<UserVO> selfInfo() {
+        return R.ok(UserConvert.INSTANCE.toUserVO(userService.loadUserById(SecurityUtil.getCurrentUserId())));
+    }
+
     @GetMapping("/self/functions")
-    public ResponseEntity<List<TreeFunctionVO>> selfTreeFunctions() {
+    public R<List<TreeFunctionVO>> selfTreeFunctions() {
         User currentUser = SecurityUtil.getCurrentUser();
-        return ResponseEntity.ok(userService.getTreeFunctionsByUserId(currentUser.getId()));
+        return R.ok(userService.getTreeFunctionsByUserId(currentUser.getId()));
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<TreeFunctionVO>> list() {
+    public R<List<TreeFunctionVO>> list() {
         User currentUser = SecurityUtil.getCurrentUser();
-        return ResponseEntity.ok(userService.getTreeFunctionsByUserId(currentUser.getId()));
+        return R.ok(userService.getTreeFunctionsByUserId(currentUser.getId()));
     }
 
 }

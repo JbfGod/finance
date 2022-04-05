@@ -1,14 +1,16 @@
-import { SettingDrawer } from '@ant-design/pro-layout';
-import { PageLoading } from '@ant-design/pro-layout';
-import { request, history, Link } from 'umi';
+import {PageLoading, SettingDrawer} from '@ant-design/pro-layout';
+import {history, Link} from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
-import { BookOutlined, LinkOutlined } from '@ant-design/icons';
+import {currentUser as queryCurrentUser} from './services/ant-design-pro/api';
+import {BookOutlined, LinkOutlined} from '@ant-design/icons';
 import defaultSettings from '../config/defaultSettings';
+import * as userWeb from "@/services/swagger/userWeb";
+
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
+export {request} from "@/extend-config/request"
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
 export const initialStateConfig = {
@@ -17,20 +19,18 @@ export const initialStateConfig = {
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
-
 export async function getInitialState() {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser();
+      const msg = await userWeb.selfInfoUsingGET();
       return msg.data;
     } catch (error) {
       history.push(loginPath);
     }
-
     return undefined;
   }; // 如果不是登录页面，执行
 
-  if (history.location.pathname !== loginPath) {
+  if (localStorage.getItem("AccessToken") || history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
     return {
       fetchUserInfo,
@@ -58,20 +58,11 @@ export const layout = ({ initialState, setInitialState }) => {
 
       if (!initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);
+      } else if (initialState.currentUser) {
+        history.push("/welcome")
       }
     },
-    links: isDev
-      ? [
-          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-          <Link to="/~docs" key="docs">
-            <BookOutlined />
-            <span>业务组件文档</span>
-          </Link>,
-        ]
-      : [],
+    links: [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,

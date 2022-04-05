@@ -1,9 +1,11 @@
 package org.finance.infrastructure.config.security.filter;
 
 import com.alibaba.fastjson.JSON;
+import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.constants.Constants;
+import org.finance.infrastructure.constants.MessageEnum;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -15,8 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author jiangbangfa
@@ -49,16 +49,16 @@ public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthen
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         JwtAuthenticationToken token = (JwtAuthenticationToken) authResult;
-        response.setHeader("Authorization", "Bearer " + token.getJwt());
+        response.setContentType("application/json;charset=utf-8");
+        response.getWriter().print(JSON.toJSONString(R.ok("Bearer " + token.getJwt())));
+        response.getWriter().flush();
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json;charset=utf-8");
-        Map<String, String> map = new HashMap<>(5);
-        map.put("msg", "用户名或密码错误");
-        response.getWriter().print(JSON.toJSONString(map));
+        response.getWriter().print(JSON.toJSONString(R.error(MessageEnum.NO_AUTHENTICATION, "用户名或密码错误")));
         response.getWriter().flush();
     }
 }

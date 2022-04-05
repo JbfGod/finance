@@ -4,6 +4,7 @@ import org.finance.business.entity.Function;
 import org.finance.business.web.vo.TreeFunctionVO;
 import org.finance.infrastructure.util.CollectionUtil;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface FunctionConvert {
 
     FunctionConvert INSTANCE = Mappers.getMapper( FunctionConvert.class );
 
+    @Mappings({})
     TreeFunctionVO toTreeFunctionVO(Function function);
 
     default List<TreeFunctionVO> toTreeFunctionsVO(List<Function> functions) {
@@ -24,6 +26,5 @@ public interface FunctionConvert {
         return CollectionUtil.transformTree(treeFunctions, TreeFunctionVO::getNumber, TreeFunctionVO::getParentNumber
                 , TreeFunctionVO::getChildren, TreeFunctionVO::setChildren);
     }
-
 
 }

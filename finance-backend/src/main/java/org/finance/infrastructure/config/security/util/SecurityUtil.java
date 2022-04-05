@@ -18,12 +18,8 @@ public class SecurityUtil {
         throw new AuthenticationServiceException("找不到当前上下文用户失败");
     }
 
-    public static User getCurrentUserId () {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            return (User) authentication.getPrincipal();
-        }
-        return null;
+    public static Long getCurrentUserId () {
+        return getCurrentUser().getId();
     }
 
 }

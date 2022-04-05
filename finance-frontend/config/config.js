@@ -61,7 +61,7 @@ export default defineConfig({
     },
     {
       requestLibPath: "import { request } from 'umi'",
-      schemaPath: 'http://127.0.0.1:8080/swagger.json',
+      schemaPath: 'http://127.0.1.1:8080/api/downloadOpenapi',
       projectName: 'swagger',
     },
   ],

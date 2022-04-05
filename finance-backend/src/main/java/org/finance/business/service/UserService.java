@@ -69,9 +69,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     }
 
     @Override
-    @Cacheable(unless = "")
+    @Cacheable(value = "User", unless = "#result == null")
     public User loadUserById(Long userId) {
-        return null;
+        return baseMapper.selectById(userId);
     }
 
     @Override

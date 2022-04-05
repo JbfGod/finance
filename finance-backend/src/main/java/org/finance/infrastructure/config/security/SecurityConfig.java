@@ -5,6 +5,7 @@ import org.finance.infrastructure.config.security.filter.CustomerUsernamePasswor
 import org.finance.infrastructure.config.security.filter.JwtAuthenticationFilter;
 import org.finance.infrastructure.config.security.filter.OptionsRequestFilter;
 import org.finance.infrastructure.config.security.provider.CustomerUsernamePasswordAuthenticationProvider;
+import org.finance.infrastructure.config.security.provider.JwtAuthenticationProvider;
 import org.finance.infrastructure.constants.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -47,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST, Constants.LOGIN_URL).permitAll()
                 .antMatchers("/favicon.ico", "/doc.html", "/swagger.json"
-                        ,"/druid/**"
+                        ,"/druid/**", "/api/downloadOpenapi"
                         , "/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/swagger-resources/**", "/v2/api-docs")
                 .permitAll()
                 .antMatchers("/**").authenticated()
@@ -70,6 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(customerUsernamePasswordAuthenticationProvider());
+        auth.authenticationProvider(jwtAuthenticationProvider());
     }
 
     @Bean
@@ -91,5 +93,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         return new JwtAuthenticationFilter(authenticationManagerBean());
+    }
+
+    @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider() throws Exception {
+        return new JwtAuthenticationProvider(userService);
     }
 }

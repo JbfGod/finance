@@ -7,4 +7,5 @@
         inner join `user_function` uf
         on (uf.user_id = #{userId} and uf.function_id = f.id)
     </select>
+
 </mapper>

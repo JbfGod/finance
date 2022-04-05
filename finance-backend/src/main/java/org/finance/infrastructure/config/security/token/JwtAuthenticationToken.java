@@ -34,7 +34,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return this.getPrincipal();
+        return this.jwt;
     }
 
     public String getJwt() {
