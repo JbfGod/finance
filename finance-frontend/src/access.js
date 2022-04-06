@@ -2,8 +2,13 @@
  * @see https://umijs.org/zh-CN/plugins/plugin-access
  * */
 export default function access(initialState) {
-  const { currentUser } = initialState ?? {};
+  const { selfPermissions } = initialState ?? {};
+  const accessMap = (selfPermissions || []).reduce((curr, next) => {
+    curr[next] = true
+    return curr
+  }, {})
   return {
-    canAdmin: currentUser && currentUser.access === 'admin',
-  };
+    strictMode: true,
+    ...accessMap,
+  }
 }

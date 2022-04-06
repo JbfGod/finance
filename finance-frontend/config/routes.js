@@ -19,9 +19,66 @@ export default [
     ],
   },
   {
+    path: 'system',
+    name: '系统管理',
+    icon: 'simple',
+    local: false,
+    routes: [
+      {
+        path: '/system/user',
+        name: '用户管理',
+        icon: 'smile',
+        access: 'system:user',
+        component: './system/UserList/index',
+      },
+      {
+        path: '/system/customerCategory',
+        name: '客户分类管理',
+        icon: 'smile',
+        access: 'system:customerCategory',
+        component: './system/CustomerCategoryList/index',
+      },
+      {
+        path: '/system/customer',
+        name: '客户管理',
+        icon: 'smile',
+        access: 'system:customer',
+        component: './system/CustomerList/index',
+      },
+      {
+        component: './404',
+      },
+    ]
+  },
+  {
+    path: 'base',
+    name: '基础数据管理',
+    icon: 'simple',
+    access: 'base',
+    routes: [
+      {
+        path: '/base/industry',
+        name: '行业管理',
+        icon: 'smile',
+        access: 'base:industry',
+        component: './base/IndustryList/index',
+      },
+      {
+        path: '/base/subject',
+        name: '科目管理',
+        icon: 'smile',
+        access: 'base:subject',
+        component: './base/SubjectList/index',
+      },
+      {
+        component: './404',
+      },
+    ]
+  },
+  {
     path: '/welcome',
     name: 'welcome',
-    icon: 'smile',
+    icon: 'icon-danwei',
     component: './Welcome',
   },
   {

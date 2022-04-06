@@ -1,8 +1,8 @@
 import {LockOutlined, UserOutlined,} from '@ant-design/icons';
 import {message} from 'antd';
-import React, {useState} from 'react';
+import React from 'react';
 import {LoginForm, ProFormText} from '@ant-design/pro-form';
-import {FormattedMessage, history, useModel} from 'umi';
+import {history, useModel} from 'umi';
 import {login} from '@/services/login';
 import styles from './index.less';
 import MyIcon from "@/components/Icon";
@@ -66,12 +66,7 @@ const Login = () => {
             rules={[
               {
                 required: true,
-                message: (
-                  <FormattedMessage
-                    id="pages.login.username.required"
-                    defaultMessage="请输入用户名!"
-                  />
-                ),
+                message: "请输入用户名!",
               },
             ]}
           />
@@ -85,12 +80,7 @@ const Login = () => {
             rules={[
               {
                 required: true,
-                message: (
-                  <FormattedMessage
-                    id="pages.login.password.required"
-                    defaultMessage="请输入密码！"
-                  />
-                ),
+                message: "请输入密码！",
               },
             ]}
           />

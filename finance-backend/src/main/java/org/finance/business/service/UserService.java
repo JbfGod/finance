@@ -2,14 +2,13 @@ package org.finance.business.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.finance.business.convert.FunctionConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Function;
 import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
+import org.finance.business.mapper.FunctionMapper;
 import org.finance.business.mapper.UserFunctionMapper;
 import org.finance.business.mapper.UserMapper;
-import org.finance.business.web.vo.TreeFunctionVO;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
@@ -40,6 +39,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     private CustomerMapper customerMapper;
     @Resource
     private UserFunctionMapper userFunctionMapper;
+    @Resource
+    private FunctionMapper functionMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -87,13 +88,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Cacheable("User")
     public List<Function> getFunctionsByUserId(Long userId) {
         return userFunctionMapper.listFunctionByUserId(userId);
-    }
-
-    @Cacheable("User")
-    public List<TreeFunctionVO> getTreeFunctionsByUserId(Long userId) {
-        return FunctionConvert.INSTANCE.toTreeFunctionsVO(
-            userFunctionMapper.listFunctionByUserId(userId)
-        );
     }
 
 }

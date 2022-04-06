@@ -27,7 +27,7 @@ const GlobalHeaderRight = () => {
         placeholder="站内搜索"
         defaultValue="umi ui"
         options={[
-          {
+          /*{
             label: <a href="https://umijs.org/zh/guide/umi-ui.html">umi ui</a>,
             value: 'umi ui',
           },
@@ -42,21 +42,20 @@ const GlobalHeaderRight = () => {
           {
             label: <a href="https://prolayout.ant.design/">Pro Layout</a>,
             value: 'Pro Layout',
-          },
+          },*/
         ]} // onSearch={value => {
         //   console.log('input', value);
         // }}
       />
-      <span
+      {/*<span
         className={styles.action}
         onClick={() => {
           window.open('https://pro.ant.design/docs/getting-started');
         }}
       >
         <QuestionCircleOutlined />
-      </span>
+      </span>*/}
       <Avatar />
-      <SelectLang className={styles.action} />
     </Space>
   );
 };

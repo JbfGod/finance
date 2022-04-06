@@ -72,6 +72,11 @@ public class Function implements Serializable {
     private String url;
 
     /**
+     * 图标
+     */
+    private String icon;
+
+    /**
      * 权限代码
      */
     private String permitCode;

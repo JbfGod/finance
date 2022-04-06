@@ -1,9 +1,7 @@
 import {PageLoading, SettingDrawer} from '@ant-design/pro-layout';
-import {history, Link} from 'umi';
+import {history} from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import {currentUser as queryCurrentUser} from './services/ant-design-pro/api';
-import {BookOutlined, LinkOutlined} from '@ant-design/icons';
 import defaultSettings from '../config/defaultSettings';
 import * as userWeb from "@/services/swagger/userWeb";
 
@@ -32,9 +30,11 @@ export async function getInitialState() {
 
   if (localStorage.getItem("AccessToken") || history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
+    const {data : selfPermissions} = await userWeb.selfPermissionUsingGET()
     return {
       fetchUserInfo,
       currentUser,
+      selfPermissions,
       settings: defaultSettings,
     };
   }
@@ -52,17 +52,31 @@ export const layout = ({ initialState, setInitialState }) => {
     waterMarkProps: {
       content: initialState?.currentUser?.name,
     },
+    access: {
+      strictMode: true,
+    },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history; // 如果没有登录，重定向到 login
-
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      const currentUser = initialState?.currentUser
+      if (location.pathname === loginPath) {
+        if (currentUser) {
+          history.push("/welcome");
+        }
+      } else if (!currentUser) {
         history.push(loginPath);
-      } else if (initialState.currentUser) {
-        history.push("/welcome")
       }
     },
-    links: [],
+    menu: {
+      params: {
+        userId: initialState?.currentUser?.id,
+      },
+      request: async (params, defaultMenuData) => {
+        // initialState.currentUser 中包含了所有用户信息
+        const resp = await userWeb.selfMenusUsingGET();
+        return resp.data
+      },
+    },
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,

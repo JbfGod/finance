@@ -110,6 +110,7 @@ CREATE TABLE if not exists `function` (
     `level` int(11) not null comment '节点深度',
     `type` enum('MENU', 'BUTTON') not null default 'MENU' comment '功能类型：MENU,BUTTON',
     `url` varchar(255) not null default '' comment '访问链接',
+    `icon` varchar(255) not null default '' comment '图标',
     `permit_code` varchar(255) not null default '' comment '权限代码',
     `sort_num` int(11) not null default 10 comment '排序编号升序',
     `create_by` varchar(50) not null default 'admin',
@@ -139,15 +140,15 @@ CREATE TABLE if not exists `user_function` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户的功能列表';
 
-replace into `function` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, permit_code)values
-(1, '01', '系统管理', 0, '', true, 1, 'MENU', '', ''),
-(2, '0101', '用户管理', 0, '01', true, 1, 'MENU', '', ''),
-(3, '0102', '用户权限管理', 0, '01', true, 1, 'MENU', '', ''),
-(4, '0103', '客户分类管理', 0, '01', true, 1, 'MENU', '', ''),
-(5, '0104', '客户管理', 0, '01', true, 1, 'MENU', '', ''),
-(20, '02', '客户基础数据管理', 0, '', true, 1, 'MENU', '', ''),
-(21, '0201', '行业管理', 0, '02', true, 1, 'MENU', '', ''),
-(22, '0202', '科目管理', 0, '02', true, 1, 'MENU', '', '');
+replace into `function` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code)values
+(1, '01', '系统管理', 0, '', true, 1, 'MENU', '/system', '', ''),
+(2, '0101', '用户管理', 0, '01', true, 1, 'MENU', '/system/user', '', 'system:user'),
+(3, '0102', '用户权限管理', 0, '01', true, 1, 'MENU', '/system/grantUserPermission', '', 'system:user'),
+(4, '0103', '客户分类管理', 0, '01', true, 1, 'MENU', '/system/customerCategory', '', 'system:customerCategory'),
+(5, '0104', '客户管理', 0, '01', true, 1, 'MENU', '/system/customer', '', 'system:customer'),
+(20, '02', '基础数据管理', 0, '', true, 1, 'MENU', '/base', '', ''),
+(21, '0201', '行业管理', 0, '02', true, 1, 'MENU', '/base/industry', '', 'base:industry'),
+(22, '0202', '科目管理', 0, '02', true, 1, 'MENU', '/base/subject', '', 'base:subject');
 
 delete from `user_function` where user_id = 1;
 insert into `user_function` (user_id, function_id)
