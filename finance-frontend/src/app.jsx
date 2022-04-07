@@ -21,7 +21,7 @@ export async function getInitialState() {
   const fetchUserInfo = async () => {
     try {
       const msg = await userWeb.selfInfoUsingGET();
-      return msg.data;
+      return msg.data
     } catch (error) {
       history.push(loginPath);
     }
@@ -30,11 +30,10 @@ export async function getInitialState() {
 
   if (localStorage.getItem("AccessToken") || history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
-    const {data : selfPermissions} = await userWeb.selfPermissionUsingGET()
+
     return {
       fetchUserInfo,
       currentUser,
-      selfPermissions,
       settings: defaultSettings,
     };
   }
@@ -49,13 +48,10 @@ export const layout = ({ initialState, setInitialState }) => {
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
-    waterMarkProps: {
-      content: initialState?.currentUser?.name,
-    },
     access: {
       strictMode: true,
     },
-    footerRender: () => <Footer />,
+    footerRender: () => null,//<Footer />,
     onPageChange: () => {
       const { location } = history; // 如果没有登录，重定向到 login
       const currentUser = initialState?.currentUser
@@ -72,6 +68,11 @@ export const layout = ({ initialState, setInitialState }) => {
         userId: initialState?.currentUser?.id,
       },
       request: async (params, defaultMenuData) => {
+        if (!params.userId) {
+          return []
+        }
+        const {data : selfPermissions} = await userWeb.selfPermissionUsingGET()
+        setInitialState((preInitialState) => ({ ...preInitialState, selfPermissions }))
         // initialState.currentUser 中包含了所有用户信息
         const resp = await userWeb.selfMenusUsingGET();
         return resp.data

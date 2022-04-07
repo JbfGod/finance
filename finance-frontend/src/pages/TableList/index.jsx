@@ -79,10 +79,6 @@ const handleRemove = async (selectedRows) => {
 };
 
 const TableList = () => {
-  /**
-   * @en-US Pop-up window of new window
-   * @zh-CN 新建窗口的弹窗
-   *  */
   const [createModalVisible, handleModalVisible] = useState(false);
   /**
    * @en-US The pop-up window of the distribution update window
@@ -94,10 +90,6 @@ const TableList = () => {
   const actionRef = useRef();
   const [currentRow, setCurrentRow] = useState();
   const [selectedRowsState, setSelectedRows] = useState([]);
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
 
   const columns = [
     {

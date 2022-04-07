@@ -14,11 +14,11 @@ public interface CustomerUserService {
     /**
      * 根据客户编号和用户名查询用户信息
      * @param customerAccount
-     * @param username
+     * @param account
      * @return
      * @throws UsernameNotFoundException
      */
-    User loadUserByCustomerAccountAndUsername(String customerAccount, String username) throws UsernameNotFoundException;
+    User loadUserByCustomerAndAccount(String customerAccount, String account) throws UsernameNotFoundException;
 
     /**
      * @param userId

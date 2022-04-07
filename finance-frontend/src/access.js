@@ -8,7 +8,7 @@ export default function access(initialState) {
     return curr
   }, {})
   return {
-    strictMode: true,
+    can : true,
     ...accessMap,
   }
 }

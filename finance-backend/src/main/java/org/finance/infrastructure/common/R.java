@@ -37,6 +37,10 @@ public class R<T> implements Serializable {
         this.success = success;
     }
 
+    public static <T> R<T> ok() {
+        return new R<T>(true).setMessage("操作成功！").setShowType(SHOW_TYPE_NOTIFICATION);
+    }
+
     public static <T> R<T> ok(T data) {
         return new R<T>(true).setData(data);
     }
@@ -44,10 +48,6 @@ public class R<T> implements Serializable {
     public static <T> R<T> ok(T data, String message) {
         return new R<T>(true).setData(data)
                 .setShowType(SHOW_TYPE_NOTIFICATION).setMessage(message);
-    }
-
-    public static <T> R<T> page(T data) {
-        return new R<T>(true).setData(data).setShowType(SHOW_TYPE_PAGE);
     }
 
     public static <T> R<T> error(String errorCode, String errorMsg) {

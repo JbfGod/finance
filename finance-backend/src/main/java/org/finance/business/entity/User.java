@@ -48,9 +48,14 @@ public class User implements Serializable, UserDetails {
     private String customerAccount;
 
     /**
-     * 登录用户名
+     * 用户姓名
      */
-    private String username;
+    private String name;
+
+    /**
+     * 登录账号
+     */
+    private String account;
 
     /**
      * 登陆密码
@@ -93,7 +98,7 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return account;
     }
 
     @Override

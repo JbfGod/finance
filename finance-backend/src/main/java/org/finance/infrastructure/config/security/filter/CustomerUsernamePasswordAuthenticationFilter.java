@@ -6,6 +6,9 @@ import org.finance.infrastructure.config.security.token.CustomerUsernamePassword
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.constants.MessageEnum;
+import org.finance.infrastructure.util.CacheAttr;
+import org.finance.infrastructure.util.CacheKeyUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -23,24 +26,26 @@ import java.io.IOException;
  */
 public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public CustomerUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public CustomerUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, RedisTemplate<String, Object> redisTemplate) {
         super(new AntPathRequestMatcher(Constants.LOGIN_URL, "POST"), authenticationManager);
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         //从json中获取username和password
-        String customerAccount = null, username = null, password = null;
+        String customerAccount = null, account = null, password = null;
         customerAccount = request.getParameter("customerAccount");
-        username = request.getParameter("username");
+        account = request.getParameter("account");
         password = request.getParameter("password");
         customerAccount = customerAccount == null ? "" : customerAccount;
-        username = username == null ? "" : username;
+        account = account == null ? "" : account;
         password = password == null ? "" : password;
 
         CustomerUsernamePasswordAuthenticationToken token = new CustomerUsernamePasswordAuthenticationToken(
-                customerAccount, username, password
+                customerAccount, account, password
         );
         token.setDetails(this.authenticationDetailsSource.buildDetails(request));
         return this.getAuthenticationManager().authenticate(token);
@@ -48,9 +53,15 @@ public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthen
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        JwtAuthenticationToken token = (JwtAuthenticationToken) authResult;
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authResult;
+        String token = jwtAuth.getJwt().getToken();
+
+        // 将token写入缓存
+        CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
+        redisTemplate.opsForValue().set(cacheAttr.getKey(), token, cacheAttr.getTimeout());
+
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().print(JSON.toJSONString(R.ok("Bearer " + token.getJwt())));
+        response.getWriter().print(JSON.toJSONString(R.ok("Bearer " + token)));
         response.getWriter().flush();
     }
 

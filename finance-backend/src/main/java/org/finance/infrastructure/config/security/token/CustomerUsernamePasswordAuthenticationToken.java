@@ -9,8 +9,8 @@ public class CustomerUsernamePasswordAuthenticationToken extends UsernamePasswor
 
     private String customerAccount;
 
-    public CustomerUsernamePasswordAuthenticationToken(String customerAccount, String username, String password) {
-        super(username, password);
+    public CustomerUsernamePasswordAuthenticationToken(String customerAccount, String account, String password) {
+        super(account, password);
         this.customerAccount = customerAccount;
     }
 
@@ -23,7 +23,7 @@ public class CustomerUsernamePasswordAuthenticationToken extends UsernamePasswor
         return this.customerAccount;
     }
 
-    public String getUsername() {
+    public String getAccount() {
         Object principal = this.getPrincipal();
         return principal == null ? "" : principal.toString();
     }

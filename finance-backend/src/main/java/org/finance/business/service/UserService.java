@@ -10,6 +10,8 @@ import org.finance.business.mapper.FunctionMapper;
 import org.finance.business.mapper.UserFunctionMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.infrastructure.config.security.CustomerUserService;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
+import org.finance.infrastructure.util.AssertUtil;
 import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
 import org.springframework.cache.annotation.Cacheable;
@@ -45,15 +47,15 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public User loadUserByCustomerAccountAndUsername(String customerAccount, String username) throws UsernameNotFoundException {
-        CacheAttr cacheAttr = CacheKeyUtil.getUser(customerAccount, username);
+    public User loadUserByCustomerAndAccount(String customerAccount, String account) throws UsernameNotFoundException {
+        CacheAttr cacheAttr = CacheKeyUtil.getUser(customerAccount, account);
         Object cacheUser = redisTemplate.opsForValue().get(cacheAttr.getKey());
         if (cacheUser != null) {
             return (User) cacheUser;
         }
         User user = baseMapper.selectOne(Wrappers.<User>lambdaQuery()
                 .eq(User::getCustomerAccount, customerAccount)
-                .eq(User::getUsername, username)
+                .eq(User::getAccount, account)
         );
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在");
@@ -90,4 +92,16 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
         return userFunctionMapper.listFunctionByUserId(userId);
     }
 
+    public void updatePassword(long userId, String password) {
+        baseMapper.updateById(new User().setId(userId).setPassword(SecurityUtil.encodePassword(password)));
+    }
+
+    public void addUser(User user) {
+        boolean exists = this.baseMapper.exists(Wrappers.<User>lambdaQuery()
+                .eq(User::getCustomerId, user.getCustomerId())
+                .eq(User::getAccount, user.getAccount())
+        );
+        AssertUtil.isFalse(exists, "用户账号已存在！");
+        baseMapper.insert(user);
+    }
 }

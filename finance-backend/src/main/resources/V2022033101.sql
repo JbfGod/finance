@@ -1,6 +1,7 @@
 CREATE TABLE if not exists `user` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `username` varchar(50) NOT NULL COMMENT '登录用户名',
+    `name` varchar(50) NOT NULL COMMENT '用户姓名',
+    `account` varchar(50) NOT NULL COMMENT '登录账号',
     `password` varchar(255) DEFAULT NULL COMMENT '登陆密码',
     `role` enum('ADMIN', 'NORMAL') not null default 'NORMAL' comment '用户角色',
     `customer_account` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户账户',
@@ -11,10 +12,10 @@ CREATE TABLE if not exists `user` (
     `modify_time` datetime not null default current_timestamp,
     `deleted` bit not null default false,
     PRIMARY KEY (`id`),
-    unique key (`customer_id`, `username`)
+    unique key (`customer_id`, `account`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
-replace into `user` (id, username, password)
-values(1, 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7OvWTjhXG16QSpH5k28U6o1BK0q');
+replace into `user` (id, name, account, password)
+values(1, '超级管理员', 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7OvWTjhXG16QSpH5k28U6o1BK0q');
 
 CREATE TABLE if not exists `customer` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -130,8 +131,8 @@ CREATE TABLE if not exists `sequence` (
 
 CREATE TABLE if not exists `user_function` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `user_id` varchar(50) not null comment '功能编号',
-    `function_id` varchar(255) NOT NULL COMMENT '功能名称',
+    `user_id` bigint(20) not null comment '用户ID',
+    `function_id` varchar(255) NOT NULL COMMENT '功能ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
     `modify_by` varchar(50) not null default 'admin',

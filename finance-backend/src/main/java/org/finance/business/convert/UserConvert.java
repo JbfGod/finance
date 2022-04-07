@@ -1,8 +1,12 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.User;
-import org.finance.business.web.vo.UserVO;
+import org.finance.business.web.request.AddUserRequest;
+import org.finance.business.web.request.UpdateUserRequest;
+import org.finance.business.web.vo.UserListVO;
+import org.finance.business.web.vo.UserSelfVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -13,5 +17,14 @@ public interface UserConvert {
 
     UserConvert INSTANCE = Mappers.getMapper( UserConvert.class );
 
-    UserVO toUserVO(User user);
+    UserSelfVO toUserSelfVO(User user);
+
+    UserListVO toUserListVO(User user);
+
+    @Mapping(target = "role", expression = "java(org.finance.business.entity.User.Role.NORMAL)")
+    @Mapping(target = "password", expression
+            = "java(org.finance.infrastructure.config.security.util.SecurityUtil.encodePassword(req.getPassword()))")
+    User toUser(AddUserRequest req, Long customerId, String customerAccount);
+
+    User toUser(UpdateUserRequest req);
 }

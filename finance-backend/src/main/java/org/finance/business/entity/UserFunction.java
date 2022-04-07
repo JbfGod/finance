@@ -36,14 +36,14 @@ public class UserFunction implements Serializable {
     private Long id;
 
     /**
-     * 功能编号
+     * 用户ID
      */
-    private String userId;
+    private Long userId;
 
     /**
-     * 功能名称
+     * 功能ID
      */
-    private String functionId;
+    private Long functionId;
 
     @TableField(fill = FieldFill.INSERT)
     private String createBy;

@@ -7,9 +7,11 @@ export default [
         path: '/user',
         routes: [
           {
+            layout: false,
             name: 'login',
             path: '/user/login',
             component: './user/Login',
+            access: "can"
           },
         ],
       },
@@ -61,14 +63,14 @@ export default [
         name: '行业管理',
         icon: 'smile',
         access: 'base:industry',
-        component: './base/IndustryList/index',
+        component: './Welcome',
       },
       {
         path: '/base/subject',
         name: '科目管理',
         icon: 'smile',
         access: 'base:subject',
-        component: './base/SubjectList/index',
+        component: './TableList',
       },
       {
         component: './404',
@@ -80,6 +82,7 @@ export default [
     name: 'welcome',
     icon: 'icon-danwei',
     component: './Welcome',
+    access: "can"
   },
   {
     path: '/admin',
@@ -104,9 +107,11 @@ export default [
     icon: 'table',
     path: '/list',
     component: './TableList',
+    access: "can"
   },
   {
     path: '/',
+    access: "can",
     redirect: '/welcome',
   },
   {

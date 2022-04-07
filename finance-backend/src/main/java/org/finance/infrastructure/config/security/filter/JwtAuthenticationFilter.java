@@ -1,11 +1,16 @@
 package org.finance.infrastructure.config.security.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
+import org.finance.infrastructure.config.security.util.JwtTokenUtil;
 import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.constants.MessageEnum;
+import org.finance.infrastructure.util.CacheAttr;
+import org.finance.infrastructure.util.CacheKeyUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -20,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author jiangbangfa
@@ -29,11 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthenticationManager authenticationManager;
     private final AntPathRequestMatcher ignorePathMatcher;
-    private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
         this.ignorePathMatcher = new AntPathRequestMatcher(Constants.LOGIN_URL, "POST");
         this.authenticationManager = authenticationManager;
+        this.authenticationDetailsSource = new WebAuthenticationDetailsSource();
     }
 
     @Override
@@ -43,16 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String authorizationToken = request.getHeader("Authorization").substring("Bearer ".length());
-        JwtAuthenticationToken token = new JwtAuthenticationToken(authorizationToken);
-
-        token.setDetails(this.authenticationDetailsSource.buildDetails(request));
-
         try {
+            DecodedJWT jwt = JwtTokenUtil.getDecodedJWT(authorizationToken);
+            JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
+            token.setDetails(this.authenticationDetailsSource.buildDetails(request));
             Authentication authenticate = this.authenticationManager.authenticate(token);
             if (authenticate == null) {
                 return;
             }
-            successfulAuthentication(authenticate);
+            successfulAuthentication(jwt, authenticate);
             doFilter(request, response, filterChain);
         } catch (Exception e) {
             log.info("JWT Invalid", e);
@@ -65,7 +73,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return !ignorePathMatcher.matcher(request).isMatch() && authHeader != null && authHeader.startsWith("Bearer ");
     }
 
-    protected void successfulAuthentication(Authentication authResult) {
+    protected void successfulAuthentication(DecodedJWT jwt, Authentication authResult) {
+        // 1小时续签一下jwt
+        CacheAttr cacheAttr = CacheKeyUtil.getToken(jwt.getToken());
+        Long expire = redisTemplate.getExpire(cacheAttr.getKey(), TimeUnit.HOURS);
+        if (expire == null || expire < 23) {
+            redisTemplate.expire(jwt.getToken(), cacheAttr.getTimeout());
+        }
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);

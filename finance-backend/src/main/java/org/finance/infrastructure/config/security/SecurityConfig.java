@@ -37,7 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserService userService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-
+    @Resource
+    private UserLogoutHandler userLogoutHandler;
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -65,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new OptionsRequestFilter(), CorsFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), LogoutFilter.class)
                 .addFilterAt(customerUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .logout().logoutUrl("/api/logout");
+                .logout().logoutUrl("/api/logout").addLogoutHandler(userLogoutHandler);
     }
 
     @Override
@@ -82,21 +83,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public CustomerUsernamePasswordAuthenticationFilter customerUsernamePasswordAuthenticationFilter() throws Exception {
-        return new CustomerUsernamePasswordAuthenticationFilter(authenticationManagerBean());
+        return new CustomerUsernamePasswordAuthenticationFilter(authenticationManagerBean(), redisTemplate);
     }
 
     @Bean
     public CustomerUsernamePasswordAuthenticationProvider customerUsernamePasswordAuthenticationProvider() {
-        return new CustomerUsernamePasswordAuthenticationProvider(userService, redisTemplate);
+        return new CustomerUsernamePasswordAuthenticationProvider(userService);
     }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        return new JwtAuthenticationFilter(authenticationManagerBean());
+        return new JwtAuthenticationFilter(authenticationManagerBean(), redisTemplate);
     }
 
     @Bean
     public JwtAuthenticationProvider jwtAuthenticationProvider() throws Exception {
-        return new JwtAuthenticationProvider(userService);
+        return new JwtAuthenticationProvider(userService, redisTemplate);
     }
 }

@@ -9,15 +9,17 @@ import java.time.LocalDateTime;
  * @author jiangbangfa
  */
 @Data
-public class UserVO {
+public class UserSelfVO {
 
     private Long id;
 
     private Long customerId;
 
+    private String name;
+
     private String customerAccount;
 
-    private String username;
+    private String account;
 
     private User.Role role;
 

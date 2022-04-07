@@ -5,19 +5,20 @@ import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.config.security.util.JwtTokenUtil;
-import org.finance.infrastructure.util.CacheAttr;
-import org.finance.infrastructure.util.CacheKeyUtil;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 /**
  * @author jiangbangfa
@@ -28,11 +29,9 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
     private final PasswordEncoder passwordEncoder;
     private final CustomerUserService customerUserService;
     private volatile String userNotFoundEncodedPassword;
-    private final RedisTemplate<String, Object> redisTemplate;
 
-    public CustomerUsernamePasswordAuthenticationProvider(CustomerUserService customerUserService, RedisTemplate<String, Object> redisTemplate) {
+    public CustomerUsernamePasswordAuthenticationProvider(CustomerUserService customerUserService) {
         this.customerUserService = customerUserService;
-        this.redisTemplate = redisTemplate;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -46,7 +45,7 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         prepareTimingAttackProtection();
         CustomerUsernamePasswordAuthenticationToken token = (CustomerUsernamePasswordAuthenticationToken) authentication;
         try {
-            UserDetails loadedUser = this.customerUserService.loadUserByCustomerAccountAndUsername(customerId, token.getUsername());
+            UserDetails loadedUser = this.customerUserService.loadUserByCustomerAndAccount(customerId, token.getAccount());
             if (loadedUser == null) {
                 throw new InternalAuthenticationServiceException(
                         "CustomerUserDetailsService returned null, which is an interface contract violation");
@@ -68,16 +67,14 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
     @Override
     protected Authentication createSuccessAuthentication(Object principal, Authentication authentication, UserDetails user) {
         User dbUser = (User) principal;
-
-        // 生成访问令牌Token, 并写入缓存
+        // 生成访问令牌
         String token = JwtTokenUtil.generateTokenByUser(dbUser.getId());
-        CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
-        redisTemplate.opsForValue().set(cacheAttr.getKey(), "true", cacheAttr.getTimeout());
-
-        JwtAuthenticationToken result = new JwtAuthenticationToken(token
-                , this.customerUserService.loadAuthoritiesByUserId(dbUser.getId()));
+        // 查询权限
+        List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(dbUser.getId());
+        authorities.add(new SimpleGrantedAuthority(String.format("ROLE_%s", dbUser.getRole())));
+        // 构造Authentication
+        JwtAuthenticationToken result = new JwtAuthenticationToken(JwtTokenUtil.getDecodedJWT(token), authorities);
         result.setDetails(authentication.getDetails());
-
         return result;
     }
 
