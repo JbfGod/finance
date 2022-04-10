@@ -6,7 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -14,16 +15,17 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 客户分类表
+ * 客户的功能列表
  * </p>
  *
  * @author jiangbangfa
- * @since 2022-04-02
+ * @since 2022-04-09
  */
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
-@TableName("customer_category")
-public class CustomerCategory implements Serializable {
+@TableName("customer_function")
+public class CustomerFunction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,54 +36,14 @@ public class CustomerCategory implements Serializable {
     private Long id;
 
     /**
-     * 客户编号
+     * 客户ID
      */
-    private String number;
+    private Long customerId;
 
     /**
-     * 客户名称
+     * 功能ID
      */
-    private String name;
-
-    /**
-     * 父级ID
-     */
-    private Long parentId;
-
-    /**
-     * 父级编号
-     */
-    private String parentNumber;
-
-    /**
-     * 是否有叶子节点
-     */
-    private Boolean hasLeaf;
-
-    /**
-     * 节点深度
-     */
-    private Integer level;
-
-    /**
-     * 节点左值
-     */
-    private Integer leftValue;
-
-    /**
-     * 节点右值
-     */
-    private Integer rightValue;
-
-    /**
-     * 根级别ID
-     */
-    private Long rootId;
-
-    /**
-     * 备注
-     */
-    private String remark;
+    private Long functionId;
 
     @TableField(fill = FieldFill.INSERT)
     private String createBy;
@@ -97,5 +59,6 @@ public class CustomerCategory implements Serializable {
 
     @TableLogic
     private Boolean deleted;
+
 
 }

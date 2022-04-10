@@ -1,4 +1,4 @@
-import {message, notification} from '@umijs/plugin-request/lib/ui';
+import {message, notification} from "antd";
 import {history} from "@/.umi/core/history";
 import {ErrorShowType} from "@/.umi/plugin-request/request";
 
@@ -17,95 +17,75 @@ const codeMessage = {
   500: '服务器发生错误，请检查服务器。',
   502: '网关错误。',
   503: '服务不可用，服务器暂时过载或维护。',
-  504: '网关超时。',
-};
-const DEFAULT_ERROR_PAGE = '/exception';
+  504: '网关超时。'
+}
+const DEFAULT_ERROR_PAGE = '/exception'
+
 const authHeaderInterceptor = (url, options) => {
   const token = localStorage.getItem("AccessToken")
   const authHeader = token ? {Authorization: token} : {};
+  let loadingKey;
+  switch (options?.method.toLowerCase()) {
+    case "post":
+    case "delete":
+    case "put":
+      loadingKey = [options.url, options.method, new Date().getTime()]
+      message.loading({content: "操作中...", key: loadingKey})
+  }
   return {
-    options: {...options, interceptors: true, headers: authHeader},
+    options: {...options, interceptors: true, headers: authHeader, loadingKey},
   };
 };
-const errorAdaptor = (resData) => {
-  return {
-    ...resData,
-    errorMessage: resData.message,
+const responseInterceptor = async (response, options) => {
+  const data = await response.clone().json();
+  if (data.success) {
+    switch (options?.method.toLowerCase()) {
+      case "post":
+      case "delete":
+      case "put":
+        if (data.showType === ErrorShowType.NOTIFICATION) {
+          message.success({content: data.message || "操作成功", key: options.loadingKey})
+        }
+    }
+    return response
   }
+  // const errorCode = data?.errorCode
+  let errorMessage = data?.message
+  if (response.status === 504) {
+    errorMessage = "服务器异常！"
+  }
+  switch (data?.showType) {
+    case ErrorShowType.SILENT:
+      // do nothing
+      break;
+    case ErrorShowType.WARN_MESSAGE:
+      message.warn({content: errorMessage, key: options.loadingKey})
+      break
+    case ErrorShowType.ERROR_MESSAGE:
+    case ErrorShowType.NOTIFICATION:
+      message.error({content: errorMessage, key: options.loadingKey})
+      break;
+    case ErrorShowType.REDIRECT:
+      message.error({content: errorMessage, key: options.loadingKey})
+      history.push({
+        pathname: DEFAULT_ERROR_PAGE,
+        query: {errorCode: data.errorCode, errorMessage: errorMessage}
+      })
+      break
+    default:
+      message.error(errorMessage)
+      break
+  }
+  return response
 }
 export const request = {
   requestInterceptors: [authHeaderInterceptor],
+  responseInterceptors: [responseInterceptor],
   errorConfig: {
-    adaptor: (resData) => {
-      return {
-        ...resData,
-        errorMessage: resData.message,
-      }
-    }
+    adaptor: () => ({})
   },
   errorHandler: (error) => {
-    const status = error?.response?.status
-    if (status === 504) {
-      notification.error({
-        description: error.response.statusText,
-        message: '服务器异常',
-      });
-      throw error
-    }
-    if (error?.request?.options?.skipErrorHandler) {
-      throw error;
-    }
-    let errorInfo;
-    if (error.name === 'ResponseError' && error.data && error.request) {
-      const ctx = {
-        req: error.request,
-        res: error.response,
-      };
-      errorInfo = errorAdaptor(error.data, ctx);
-      error.message = errorInfo?.errorMessage || error.message;
-      error.info = errorInfo;
-    }
-    errorInfo = error.info;
-
-    if (errorInfo) {
-      let errorMessage = errorInfo?.errorMessage;
-      if (!errorMessage) {
-        errorMessage = error.response.statusText
-      }
-      const errorCode = errorInfo?.errorCode;
-      const errorPage = DEFAULT_ERROR_PAGE;
-
-      switch (errorInfo?.showType) {
-        case ErrorShowType.SILENT:
-          // do nothing
-          break;
-        case ErrorShowType.WARN_MESSAGE:
-          message.warn(errorMessage);
-          break;
-        case ErrorShowType.ERROR_MESSAGE:
-          message.error(errorMessage);
-          break;
-        case ErrorShowType.NOTIFICATION:
-          notification.open({
-            description: errorMessage,
-            message: errorCode,
-          });
-          break;
-        case ErrorShowType.REDIRECT:
-          // @ts-ignore
-          history.push({
-            pathname: errorPage,
-            query: {errorCode, errorMessage},
-          });
-          // redirect to error page
-          break;
-        default:
-          message.error(errorMessage);
-          break;
-      }
-    } else {
-      message.error(error.message || 'Request error, please retry.');
-    }
-    throw error;
-  },
+    console.error("error", error)
+    throw error
+  }
 }

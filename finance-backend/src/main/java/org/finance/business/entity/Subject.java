@@ -81,6 +81,11 @@ public class Subject implements Serializable {
      */
     private Integer rightValue;
 
+    /**
+     * 根级别ID
+     */
+    private Long rootId;
+
     @TableField(fill = FieldFill.INSERT)
     private String createBy;
 

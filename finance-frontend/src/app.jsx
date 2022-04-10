@@ -1,7 +1,6 @@
 import {PageLoading, SettingDrawer} from '@ant-design/pro-layout';
 import {history} from 'umi';
 import RightContent from '@/components/RightContent';
-import Footer from '@/components/Footer';
 import defaultSettings from '../config/defaultSettings';
 import * as userWeb from "@/services/swagger/userWeb";
 

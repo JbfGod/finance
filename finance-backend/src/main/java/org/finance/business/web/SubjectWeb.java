@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2022-04-02
  */
 @RestController
-@RequestMapping("/subject")
+@RequestMapping("/api/subject")
 public class SubjectWeb {
 
 }

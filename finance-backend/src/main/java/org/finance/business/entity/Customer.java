@@ -32,7 +32,12 @@ public class Customer implements Serializable {
     private Long id;
 
     /**
-     * 客户账户名称
+     * 用户账号
+     */
+    private String userAccount;
+
+    /**
+     * 客户账号
      */
     private String account;
 

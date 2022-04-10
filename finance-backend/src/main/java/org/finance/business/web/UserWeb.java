@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.FunctionConvert;
 import org.finance.business.convert.UserConvert;
-import org.finance.business.convert.UserFunctionConvert;
 import org.finance.business.entity.Function;
 import org.finance.business.entity.User;
 import org.finance.business.service.UserFunctionService;
@@ -77,8 +76,16 @@ public class UserWeb {
         return R.ok(permissions);
     }
 
+    @GetMapping("/{userId}/functions")
+    public R<List<Long>> functionIdsOfUser(@PathVariable("userId") long userId) {
+        List<Long> functionIds = userService.getFunctionsByUserId(userId)
+                .stream().map(Function::getId)
+                .collect(Collectors.toList());
+        return R.ok(functionIds);
+    }
+
     @GetMapping("/page")
-    public RPage<UserListVO> page(QueryUserRequest request) {
+    public RPage<UserListVO> pageUser(QueryUserRequest request) {
         IPage<UserListVO> pages = userService.page(request.extractPage(), Wrappers.<User>lambdaQuery()
             .likeRight(StringUtils.hasText(request.getCustomerAccount()), User::getCustomerAccount, request.getCustomerAccount())
             .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
@@ -89,13 +96,13 @@ public class UserWeb {
     }
 
     @PostMapping("/grantFunctions")
-    public R grantFunctions(@RequestBody @Valid GrantFunctionsToUserRequest request) {
-        userFunctionService.saveBatch(UserFunctionConvert.INSTANCE.toUserFunction(request));
+    public R grantFunctionsToUser(@RequestBody @Valid GrantFunctionsToUserRequest request) {
+        userFunctionService.grantFunctionsToUser(request.getUserId(), request.getFunctionIds());
         return R.ok();
     }
 
     @PostMapping("/add")
-    public R add(@RequestBody @Valid AddUserRequest request) {
+    public R addUser(@RequestBody @Valid AddUserRequest request) {
         User currentUser = SecurityUtil.getCurrentUser();
         User user = UserConvert.INSTANCE.toUser(request, currentUser.getCustomerId(), currentUser.getCustomerAccount());
         userService.addUser(user);
@@ -103,7 +110,7 @@ public class UserWeb {
     }
 
     @PutMapping("/update")
-    public R update(@RequestBody @Valid UpdateUserRequest request) {
+    public R updateUser(@RequestBody @Valid UpdateUserRequest request) {
         User user = UserConvert.INSTANCE.toUser(request);
         userService.saveOrUpdate(user);
         return R.ok();
@@ -123,13 +130,13 @@ public class UserWeb {
     }
 
     @PutMapping("/resetPassword")
-    public R resetPassword(@RequestBody @Valid UpdateUserPasswordRequest request) {
+    public R resetUserPassword(@RequestBody @Valid UpdateUserPasswordRequest request) {
         userService.updatePassword(request.getId(), request.getPassword());
         return R.ok();
     }
 
     @DeleteMapping("/delete/{id}")
-    public R delete(@PathVariable("id") long id) {
+    public R deleteUser(@PathVariable("id") long id) {
         AssertUtil.isFalse(SecurityUtil.getCurrentUserId() == id, "不能删除当前操作用户！");
         userService.removeById(id);
         return R.ok();

@@ -1,16 +1,21 @@
 package org.finance.infrastructure.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.finance.infrastructure.constants.MessageEnum;
 
 import java.io.Serializable;
 
+import static org.finance.infrastructure.constants.MessageEnum.BAD_REQUEST;
+import static org.finance.infrastructure.constants.MessageEnum.BIZ_ERROR;
+
 /**
  * @author jiangbangfa
  */
 @Data
 @Accessors(chain = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class R<T> implements Serializable {
 
     /**
@@ -42,12 +47,16 @@ public class R<T> implements Serializable {
     }
 
     public static <T> R<T> ok(T data) {
-        return new R<T>(true).setData(data);
+        return new R<T>(true).setShowType(SHOW_TYPE_SILENT).setData(data);
     }
 
     public static <T> R<T> ok(T data, String message) {
         return new R<T>(true).setData(data)
                 .setShowType(SHOW_TYPE_NOTIFICATION).setMessage(message);
+    }
+
+    public static <T> R<T> error(String errorMsg) {
+        return R.error(BIZ_ERROR, errorMsg);
     }
 
     public static <T> R<T> error(String errorCode, String errorMsg) {
@@ -65,9 +74,23 @@ public class R<T> implements Serializable {
                 .setErrorCode(messageEnum.getCode()).setMessage(message);
     }
 
+    public static <T> R<T> warn(String errorMsg) {
+        return R.warn(BAD_REQUEST, errorMsg);
+    }
+
     public static <T> R<T> warn(String errorCode, String errorMsg) {
         return new R<T>(false).setShowType(SHOW_TYPE_WARN)
                 .setErrorCode(errorCode).setMessage(errorMsg);
+    }
+
+    public static <T> R<T> warn(MessageEnum messageEnum) {
+        return new R<T>(false).setShowType(SHOW_TYPE_WARN)
+                .setErrorCode(messageEnum.getCode()).setMessage(messageEnum.getMessage());
+    }
+
+    public static <T> R<T> warn(MessageEnum messageEnum, String message) {
+        return new R<T>(false).setShowType(SHOW_TYPE_WARN)
+                .setErrorCode(messageEnum.getCode()).setMessage(message);
     }
 
     public R<T> setSuccess(boolean success) {

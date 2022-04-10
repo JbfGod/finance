@@ -11,8 +11,7 @@ CREATE TABLE if not exists `user` (
     `modify_by` varchar(50) not null default 'admin',
     `modify_time` datetime not null default current_timestamp,
     `deleted` bit not null default false,
-    PRIMARY KEY (`id`),
-    unique key (`customer_id`, `account`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
 replace into `user` (id, name, account, password)
 values(1, '超级管理员', 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7OvWTjhXG16QSpH5k28U6o1BK0q');
@@ -20,6 +19,7 @@ values(1, '超级管理员', 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7O
 CREATE TABLE if not exists `customer` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `account` varchar(50) not null comment '客户账户',
+    `user_account` varchar(50) not null comment '客户账户',
     `name` varchar(255) NOT NULL COMMENT '客户名称',
     `industry_id` bigint(20) not null comment '所属行业',
     `category_id` bigint(20) not null comment '客户类别',
@@ -46,11 +46,13 @@ CREATE TABLE if not exists `customer_category` (
     `number` varchar(50) not null comment '客户编号',
     `name` varchar(255) NOT NULL COMMENT '客户名称',
     `parent_id` bigint(20) not null default 0 comment '父级ID',
-    `parent_number` varchar(50) not null comment '父级编号',
+    `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
-    `level` int(11) not null comment '节点深度',
-    `left_value` int(11) not null comment '节点左值',
-    `right_value` int(11) not null comment '节点右值',
+    `level` int(11) not null default 1 comment '节点深度',
+    `left_value` int(11) not null default 1 comment '节点左值',
+    `right_value` int(11) not null default 2 comment '节点右值',
+    `root_id` int(11) not null comment '根级别ID',
+    `remark` varchar(500) comment '备注',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
     `modify_by` varchar(50) not null default 'admin',
@@ -66,11 +68,12 @@ CREATE TABLE if not exists `industry` (
     `number` varchar(50) not null comment '行业编号',
     `name` varchar(255) NOT NULL COMMENT '行业名称',
     `parent_id` bigint(20) not null default 0 comment '父级ID',
-    `parent_number` varchar(50) not null comment '父级编号',
+    `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
-    `level` int(11) not null comment '节点深度',
-    `left_value` int(11) not null comment '节点左值',
-    `right_value` int(11) not null comment '节点右值',
+    `level` int(11) not null default 1 comment '节点深度',
+    `left_value` int(11) not null default 1 comment '节点左值',
+    `right_value` int(11) not null default 2 comment '节点右值',
+    `root_id` int(11) not null comment '根级别ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
     `modify_by` varchar(50) not null default 'admin',
@@ -87,11 +90,12 @@ CREATE TABLE if not exists `subject` (
     `number` varchar(50) not null comment '科目编号',
     `name` varchar(255) NOT NULL COMMENT '科目名称',
     `parent_id` bigint(20) not null default 0 comment '父级ID',
-    `parent_number` varchar(50) not null comment '父级编号',
+    `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
-    `level` int(11) not null comment '节点深度',
-    `left_value` int(11) not null comment '节点左值',
-    `right_value` int(11) not null comment '节点右值',
+    `level` int(11) not null default 1 comment '节点深度',
+    `left_value` int(11) not null default 1 comment '节点左值',
+    `right_value` int(11) not null default 2 comment '节点右值',
+    `root_id` int(11) not null comment '根级别ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
     `modify_by` varchar(50) not null default 'admin',
@@ -106,9 +110,9 @@ CREATE TABLE if not exists `function` (
     `number` varchar(50) not null comment '功能编号',
     `name` varchar(255) NOT NULL COMMENT '功能名称',
     `parent_id` bigint(20) not null default 0 comment '父级ID',
-    `parent_number` varchar(50) not null comment '父级编号',
+    `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
-    `level` int(11) not null comment '节点深度',
+    `level` int(11) not null default 1 comment '节点深度',
     `type` enum('MENU', 'BUTTON') not null default 'MENU' comment '功能类型：MENU,BUTTON',
     `url` varchar(255) not null default '' comment '访问链接',
     `icon` varchar(255) not null default '' comment '图标',
@@ -138,8 +142,22 @@ CREATE TABLE if not exists `user_function` (
     `modify_by` varchar(50) not null default 'admin',
     `modify_time` datetime not null default current_timestamp,
     `deleted` bit not null default false,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    unique key (`user_id`, `function_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户的功能列表';
+
+CREATE TABLE if not exists `customer_function` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `function_id` bigint(20) NOT NULL COMMENT '功能ID',
+    `create_by` varchar(50) not null default 'admin',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` varchar(50) not null default 'admin',
+    `modify_time` datetime not null default current_timestamp,
+    `deleted` bit not null default false,
+    PRIMARY KEY (`id`),
+    unique key (`customer_id`, `function_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户的功能列表';
 
 replace into `function` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code)values
 (1, '01', '系统管理', 0, '', true, 1, 'MENU', '/system', '', ''),

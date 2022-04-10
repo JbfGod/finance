@@ -1,7 +1,8 @@
 import React from 'react';
-import {PageContainer} from '@ant-design/pro-layout';
-import {Alert, Card, Typography} from 'antd';
+import { PageContainer } from '@ant-design/pro-layout';
+import { Alert, Card, Typography } from 'antd';
 import styles from './Welcome.less';
+import FormRegister from './FormRegister';
 
 const CodePreview = ({ children }) => (
   <pre className={styles.pre}>
@@ -14,6 +15,7 @@ const CodePreview = ({ children }) => (
 const Welcome = () => {
   return (
     <PageContainer>
+      <FormRegister />
       <Card>
         <Alert
           message="Faster and stronger heavy-duty components have been released."

@@ -36,7 +36,10 @@ export default () => {
       render: (dom, row, index, action) => {
         return [
           <a key="edit" onClick={() => action?.startEditable(row.id)}>编辑</a>,
-          <ExtConfirmDel key="del" onConfirm={() => userWeb.deleteUsingDELETE({id : row.id})}/>,
+          <ExtConfirmDel key="del" onConfirm={() => {
+            userWeb.deleteUserUsingDELETE({id : row.id})
+            actionRef.current?.reload()
+          }}/>,
           <a key="resetPwd" onClick={() => {
             setTmpOperateId(row.id)
             handleUpdateModalVisible(true)
@@ -47,17 +50,16 @@ export default () => {
   ]
   const {editable} = hooks.useTableForm({
     onSave: (key, row) => {
-      const hide = message.loading("保存中...")
-      return userWeb.updateUsingPUT({
+      return userWeb.updateUserUsingPUT({
         id: key,
         name: row.name
-      }).finally(hide)
+      })
     }
   })
   return (
     <PageContainer>
       <ExProTable actionRef={actionRef} columns={columns}
-        request={userWeb.pageUsingGET}
+        request={userWeb.pageUserUsingGET}
         onNew={()=>handleModalVisible(true)}
         editable={editable}
       />
@@ -66,12 +68,10 @@ export default () => {
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
           const password = value.password || "123456"
-          const hide = message.loading("操作中...")
-          userWeb.addUsingPOST({...value, password}).then(() => {
-            message.success("操作成功！")
+          userWeb.addUserUsingPOST({...value, password}).then(() => {
             handleModalVisible(false)
             actionRef.current?.reload()
-          }).finally(hide)
+          })
         }}
       >
         <ProFormText name="name" label="用户姓名" rules={nameRules} />
@@ -114,12 +114,10 @@ export default () => {
         visible={updateModalVisible} modalProps={{destroyOnClose:true}}
         onVisibleChange={handleUpdateModalVisible}
         onFinish={async (value) => {
-          const hide = message.loading("操作中...")
-          return userWeb.resetPasswordUsingPUT({id : tmpOperateId, password: value.password}).then(() => {
-            message.success("操作成功！")
+          return userWeb.resetUserPasswordUsingPUT({id : tmpOperateId, password: value.password}).then(() => {
             handleUpdateModalVisible(false)
             actionRef.current?.reload()
-          }).finally(hide)
+          })
         }}
       >
         <ProFormText.Password name="pwd" label="新密码"

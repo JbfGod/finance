@@ -21,6 +21,7 @@ public class Sequence implements Serializable {
 
     private static final long serialVersionUID = 1L;
     public final static String CATEGORY_CUSTOMER = "CUSTOMER";
+    public final static String TREE_ROOT_ID = "TREE_ROOT_ID";
 
     /**
      * 主键
