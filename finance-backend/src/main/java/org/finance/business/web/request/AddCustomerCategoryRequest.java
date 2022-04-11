@@ -15,7 +15,7 @@ public class AddCustomerCategoryRequest {
 
     @NotBlank(message = "类别编号不能为空！")
     @Size(min = 2, max = 20, message = "类别编号只允许有2-20个字符！")
-    @Pattern(regexp = "[0-9a-zA-Z]{5,25}", message = "类别编号只允许包含数字和字母")
+    @Pattern(regexp = "[0-9a-zA-Z]+", message = "类别编号只允许包含数字和字母")
     private String number;
 
     @NotBlank(message = "类别名称不能为空！")

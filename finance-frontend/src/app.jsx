@@ -71,10 +71,9 @@ export const layout = ({ initialState, setInitialState }) => {
           return []
         }
         const {data : selfPermissions} = await userWeb.selfPermissionUsingGET()
-        setInitialState((preInitialState) => ({ ...preInitialState, selfPermissions }))
-        // initialState.currentUser 中包含了所有用户信息
-        const resp = await userWeb.selfMenusUsingGET();
-        return resp.data
+        const {data: treeMenus} = await userWeb.selfMenusUsingGET();
+        setInitialState((preInitialState) => ({ ...preInitialState, selfPermissions, treeMenus }))
+        return treeMenus
       },
     },
     menuHeaderRender: undefined,

@@ -77,6 +77,11 @@ public class Industry implements Serializable {
     private Integer rightValue;
 
     /**
+     * 备注
+     */
+    private String remark;
+
+    /**
      * 根级别ID
      */
     private Long rootId;

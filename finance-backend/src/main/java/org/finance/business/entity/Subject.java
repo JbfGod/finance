@@ -86,6 +86,11 @@ public class Subject implements Serializable {
      */
     private Long rootId;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     @TableField(fill = FieldFill.INSERT)
     private String createBy;
 

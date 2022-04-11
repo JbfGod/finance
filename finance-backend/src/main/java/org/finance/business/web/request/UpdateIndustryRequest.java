@@ -12,11 +12,11 @@ import javax.validation.constraints.Size;
 @Data
 public class UpdateIndustryRequest {
 
-    @NotNull(message = "类别ID不能为空")
+    @NotNull(message = "行业ID不能为空")
     private Long id;
 
-    @NotBlank(message = "类别名称不能为空！")
-    @Size(min = 2, max = 20, message = "类别名称只允许有2-20个字符！")
+    @NotBlank(message = "行业名称不能为空！")
+    @Size(min = 2, max = 20, message = "行业名称只允许有2-20个字符！")
     private String name;
 
     @Size(max = 255, message = "备注信息不能超出255个字符")

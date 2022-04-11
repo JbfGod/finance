@@ -54,3 +54,24 @@ export function useArrayToTree(dataArray,
   })
   return [dataByKey, treeArray]
 }
+
+export function useFlatTree(treeData = [], childrenField = "children") {
+  const flatArray = []
+  const recursion = (node)  => {
+    if (node == null) {
+      return
+    }
+    flatArray.push(node)
+    const children = node[childrenField]
+    if (children == null || children.length === 0) {
+      return
+    }
+    for (let i = 0; i < children.length; i++) {
+      recursion(children[i])
+    }
+  }
+  for (let i = 0; i < treeData.length; i++) {
+    recursion(treeData[i])
+  }
+  return flatArray
+}

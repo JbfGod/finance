@@ -63,7 +63,7 @@ export default [
         name: '行业管理',
         icon: 'smile',
         access: 'base:industry',
-        component: './Welcome',
+        component: './base/IndustryList',
       },
       {
         path: '/base/subject',

@@ -1,26 +1,20 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {PageContainer} from '@ant-design/pro-layout';
-import {Col, message, Tree} from "antd";
+import {Col, Tree} from "antd";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
+import * as hooks from "@/utils/hooks";
 import {useArrayToTree} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
-import {ModalForm, ProFormItem, ProFormRadio, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
+import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
-import * as userWeb from "@/services/swagger/userWeb";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
-import * as hooks from "@/utils/hooks";
 import styles from "./index.less"
 
 export default () => {
   const [createModalVisible, handleModalVisible] = useState(false)
-  const [updateModalVisible, handleUpdateModalVisible] = useState(false)
   const [categories, setCategories] = useState([])
   const [selectedCategoryId, setSelectedCategoryId] = useState(0)
   const [dataByKey, treeData] = useArrayToTree([{id: 0, number: "0", name: "全部"}, ...categories])
-  const fetchCategories = async () => {
-    const resp = await customerCategoryWeb.listCustomerCategoryUsingGET()
-    setCategories(resp.data)
-  }
   const actionRef = useRef()
   const columns = [
     {
