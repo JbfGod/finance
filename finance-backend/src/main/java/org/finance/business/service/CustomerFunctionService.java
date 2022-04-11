@@ -3,7 +3,9 @@ package org.finance.business.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.CustomerFunction;
+import org.finance.business.entity.Function;
 import org.finance.business.mapper.CustomerFunctionMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,11 @@ public class CustomerFunctionService extends ServiceImpl<CustomerFunctionMapper,
                 .map(funcId -> new CustomerFunction().setCustomerId(customerId).setFunctionId(funcId))
                 .collect(Collectors.toList());
         this.saveBatch(customerFunctions);
+    }
+
+    @Cacheable("CustomerFunctionService")
+    public List<Function> listFunctionByCustomerId(long customerId) {
+        return baseMapper.listFunctionByCustomerId(customerId);
     }
 
 }

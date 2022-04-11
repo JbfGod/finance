@@ -3,9 +3,11 @@ package org.finance.business.web;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.CustomerConvert;
+import org.finance.business.convert.FunctionConvert;
 import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.CustomerFunction;
+import org.finance.business.entity.Function;
 import org.finance.business.entity.User;
 import org.finance.business.service.CustomerFunctionService;
 import org.finance.business.service.CustomerService;
@@ -14,6 +16,7 @@ import org.finance.business.web.request.GrantFunctionsToCustomerRequest;
 import org.finance.business.web.request.QueryCustomerRequest;
 import org.finance.business.web.request.UpdateUserRequest;
 import org.finance.business.web.vo.CustomerListVO;
+import org.finance.business.web.vo.TreeFunctionVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
@@ -49,7 +52,7 @@ public class CustomerWeb {
     @Resource
     private CustomerFunctionService customerFunctionService;
 
-    @GetMapping("/{customerId}/functions")
+    @GetMapping("/{customerId}/functionIds")
     public R<List<Long>> functionIdsOfCustomer(@PathVariable("customerId") long customerId) {
         List<Long> functionIds = customerFunctionService.list(
             Wrappers.<CustomerFunction>lambdaQuery()
@@ -57,6 +60,12 @@ public class CustomerWeb {
                 .eq(CustomerFunction::getCustomerId, customerId)
         ).stream().map(CustomerFunction::getFunctionId).collect(Collectors.toList());
         return R.ok(functionIds);
+    }
+
+    @GetMapping("/{customerId}/treeFunction")
+    public R<List<TreeFunctionVO>> treeFunctionOfCustomer(@PathVariable("customerId") long customerId) {
+        List<Function> functions = customerFunctionService.listFunctionByCustomerId(customerId);
+        return R.ok(FunctionConvert.INSTANCE.toTreeFunctionVO(functions));
     }
 
     @GetMapping("/page")

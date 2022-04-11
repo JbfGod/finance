@@ -69,6 +69,14 @@ public class CustomerCategoryWeb {
 
     @PutMapping("/update")
     public R updateCustomerCategory(@RequestBody @Valid UpdateCustomerCategoryRequest request) {
+        CustomerCategory dbCategory = customerCategoryService.getById(request.getId());
+        CustomerCategory anyCategory = customerCategoryService.getOne(Wrappers.<CustomerCategory>lambdaQuery()
+                .eq(CustomerCategory::getParentId, dbCategory.getParentId())
+                .eq(CustomerCategory::getName, request.getName())
+                .last("limit 1")
+        );
+        AssertUtil.isTrue(anyCategory == null || anyCategory.getId().equals(dbCategory.getId())
+                , "同一级目录下不能定义相同的类别名称！");
         customerCategoryService.updateById(CustomerCategoryConvert.INSTANCE.toCustomerCategory(request));
         return R.ok();
     }

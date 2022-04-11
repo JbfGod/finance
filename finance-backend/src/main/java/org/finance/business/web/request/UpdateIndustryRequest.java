@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
  * @author jiangbangfa
  */
 @Data
-public class UpdateCustomerCategoryRequest {
+public class UpdateIndustryRequest {
 
     @NotNull(message = "类别ID不能为空")
     private Long id;

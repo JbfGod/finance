@@ -6,7 +6,6 @@ import org.finance.business.entity.Customer;
 import org.finance.business.entity.Function;
 import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
-import org.finance.business.mapper.FunctionMapper;
 import org.finance.business.mapper.UserFunctionMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.infrastructure.config.security.CustomerUserService;
@@ -41,8 +40,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     private CustomerMapper customerMapper;
     @Resource
     private UserFunctionMapper userFunctionMapper;
-    @Resource
-    private FunctionMapper functionMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -85,11 +82,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
                 .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-    }
-
-    @Cacheable("User")
-    public List<Function> getFunctionsByUserId(Long userId) {
-        return userFunctionMapper.listFunctionByUserId(userId);
     }
 
     public void updatePassword(long userId, String password) {

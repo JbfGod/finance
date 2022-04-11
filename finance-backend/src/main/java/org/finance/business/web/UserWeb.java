@@ -62,14 +62,14 @@ public class UserWeb {
     public R<List<UserOwnedMenuVO>> selfMenus() {
         User currentUser = SecurityUtil.getCurrentUser();
         List<UserOwnedMenuVO> ownedMenus = FunctionConvert.INSTANCE.toTreeMenus(
-                userService.getFunctionsByUserId(currentUser.getId()));
+                userFunctionService.getFunctionsByUserId(currentUser.getId()));
         return R.ok(ownedMenus);
     }
 
     @GetMapping("/self/permissions")
     public R<List<String>> selfPermission() {
         User currentUser = SecurityUtil.getCurrentUser();
-        List<String> permissions = userService.getFunctionsByUserId(currentUser.getId())
+        List<String> permissions = userFunctionService.getFunctionsByUserId(currentUser.getId())
                 .stream().map(Function::getPermitCode)
                 .filter(StringUtils::hasText)
                 .collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class UserWeb {
 
     @GetMapping("/{userId}/functions")
     public R<List<Long>> functionIdsOfUser(@PathVariable("userId") long userId) {
-        List<Long> functionIds = userService.getFunctionsByUserId(userId)
+        List<Long> functionIds = userFunctionService.getFunctionsByUserId(userId)
                 .stream().map(Function::getId)
                 .collect(Collectors.toList());
         return R.ok(functionIds);

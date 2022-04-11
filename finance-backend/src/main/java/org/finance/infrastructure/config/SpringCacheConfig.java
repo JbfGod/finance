@@ -18,8 +18,8 @@ public class SpringCacheConfig extends CachingConfigurerSupport {
     @Override
     public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder("spring:");
-            sb.append(target.getClass().getName()).append(":").append(method.getName());
+            StringBuilder sb = new StringBuilder();
+            sb.append(method.getName());
             for (Object obj : params) {
                 if (obj != null) {
                     sb.append(":").append(obj);

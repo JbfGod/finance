@@ -31,7 +31,7 @@ public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper,
     public void add(CustomerCategory customerCategory) {
         Long parentId = customerCategory.getParentId();
         if (parentId == 0) {
-            Sequence sequence = new Sequence().setUseCategory(Sequence.TREE_ROOT_ID);
+            Sequence sequence = new Sequence().setUseCategory(Sequence.TREE_ROOT_ID_OF_CUSTOMER_CATEGORY);
             sequenceMapper.insert(sequence);
             customerCategory.setHasLeaf(false);
             customerCategory.setLevel(1);

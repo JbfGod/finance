@@ -139,9 +139,6 @@ CREATE TABLE if not exists `user_function` (
     `function_id` varchar(255) NOT NULL COMMENT '功能ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
-    `modify_by` varchar(50) not null default 'admin',
-    `modify_time` datetime not null default current_timestamp,
-    `deleted` bit not null default false,
     PRIMARY KEY (`id`),
     unique key (`user_id`, `function_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户的功能列表';
@@ -152,9 +149,6 @@ CREATE TABLE if not exists `customer_function` (
     `function_id` bigint(20) NOT NULL COMMENT '功能ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
-    `modify_by` varchar(50) not null default 'admin',
-    `modify_time` datetime not null default current_timestamp,
-    `deleted` bit not null default false,
     PRIMARY KEY (`id`),
     unique key (`customer_id`, `function_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户的功能列表';
@@ -162,7 +156,7 @@ CREATE TABLE if not exists `customer_function` (
 replace into `function` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code)values
 (1, '01', '系统管理', 0, '', true, 1, 'MENU', '/system', '', ''),
 (2, '0101', '用户管理', 0, '01', true, 1, 'MENU', '/system/user', '', 'system:user'),
-(3, '0102', '用户权限管理', 0, '01', true, 1, 'MENU', '/system/grantUserPermission', '', 'system:user'),
+-- (3, '0102', '用户权限管理', 0, '01', true, 1, 'MENU', '/system/grantUserPermission', '', 'system:user'),
 (4, '0103', '客户分类管理', 0, '01', true, 1, 'MENU', '/system/customerCategory', '', 'system:customerCategory'),
 (5, '0104', '客户管理', 0, '01', true, 1, 'MENU', '/system/customer', '', 'system:customer'),
 (20, '02', '基础数据管理', 0, '', true, 1, 'MENU', '/base', '', ''),
@@ -172,3 +166,7 @@ replace into `function` (id, number, name, parent_id, parent_number, has_leaf, l
 delete from `user_function` where user_id = 1;
 insert into `user_function` (user_id, function_id)
 select 1, f.id from `function` f;
+
+delete from `customer_function` where customer_id = 0;
+insert into `customer_function` (customer_id, function_id)
+select 0, f.id from `function` f;

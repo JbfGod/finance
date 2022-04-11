@@ -12,6 +12,8 @@ public class UserListVO {
 
     private Long id;
 
+    private Long customerId;
+
     private String name;
 
     private String customerAccount;

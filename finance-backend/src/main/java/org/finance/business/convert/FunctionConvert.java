@@ -27,7 +27,7 @@ public interface FunctionConvert {
 
     TreeFunctionVO toTreeFunctionVO(Function function);
 
-    default List<TreeFunctionVO> toTreeFunctionsVO(List<Function> functions) {
+    default List<TreeFunctionVO> toTreeFunctionVO(List<Function> functions) {
         List<TreeFunctionVO> treeFunctions = functions.stream().map(this::toTreeFunctionVO).collect(Collectors.toList());
         return CollectionUtil.transformTree(treeFunctions, TreeFunctionVO::getNumber, TreeFunctionVO::getParentNumber
                 , TreeFunctionVO::getChildren, TreeFunctionVO::setChildren);

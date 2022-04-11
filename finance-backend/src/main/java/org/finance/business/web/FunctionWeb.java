@@ -28,7 +28,7 @@ public class FunctionWeb {
 
     @GetMapping("/tree")
     public R<List<TreeFunctionVO>> treeFunctions() {
-        return R.ok(FunctionConvert.INSTANCE.toTreeFunctionsVO(functionService.list()));
+        return R.ok(FunctionConvert.INSTANCE.toTreeFunctionVO(functionService.list()));
     }
 
 }
