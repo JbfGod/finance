@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.finance.infrastructure.common.R;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,7 +29,7 @@ public class ExceptionAdviceWeb {
         return R.error(e.getMessage());
     }
 
-    @ExceptionHandler({ConstraintViolationException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler({ConstraintViolationException.class, BindException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R handleValidationException(Exception e) {
         if (e instanceof ConstraintViolationException) {
@@ -37,8 +37,8 @@ public class ExceptionAdviceWeb {
             for (ConstraintViolation<?> error : except.getConstraintViolations()) {
                 return R.warn(error.getMessage());
             }
-        } else if (e instanceof MethodArgumentNotValidException) {
-            MethodArgumentNotValidException except = (MethodArgumentNotValidException) e;
+        } else if (e instanceof BindException) {
+            BindException except = (BindException) e;
             for (ObjectError error : except.getBindingResult().getAllErrors()) {
                 return R.warn(error.getDefaultMessage());
             }

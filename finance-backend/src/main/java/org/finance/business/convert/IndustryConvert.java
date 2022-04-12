@@ -31,7 +31,7 @@ public interface IndustryConvert {
     default List<TreeIndustryVO> toTreeIndustryVO(List<Industry> categories) {
         List<TreeIndustryVO> treeCategories = categories.stream().map(this::toTreeIndustryVO)
                 .collect(Collectors.toList());
-        return CollectionUtil.transformTree(treeCategories, TreeIndustryVO::getId, TreeIndustryVO::getParentNumber
+        return CollectionUtil.transformTree(treeCategories, TreeIndustryVO::getId, TreeIndustryVO::getParentId
                 , TreeIndustryVO::getChildren, TreeIndustryVO::setChildren);
     }
     

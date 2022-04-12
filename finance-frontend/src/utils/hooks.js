@@ -11,6 +11,17 @@ export function useBoolean(initialValue = false) {
   ]
 }
 
+export function useModalWithParam(visible = false, params = {}) {
+  const [modal, setModal] = useState({visible, ...params})
+  const handleModalVisible = (v) => {
+    setModal({...modal, visible: v})
+  }
+  const openModal = (params) => {
+    setModal({visible: true, ...params})
+  }
+  return [modal, handleModalVisible, openModal]
+}
+
 export function useCurrentUser() {
   const { initialState } = useModel('@@initialState')
   return initialState?.currentUser

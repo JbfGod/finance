@@ -27,7 +27,6 @@ const GlobalHeaderRight = () => {
       label: <div onClick={() => history.push(menu.path)}><a>{menu.name}</a></div>,
       value: menu.name
     }))
-  console.log(searchKey)
   return (
     <Space className={className}>
       <HeaderSearch

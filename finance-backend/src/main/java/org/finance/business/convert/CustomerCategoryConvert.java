@@ -31,7 +31,7 @@ public interface CustomerCategoryConvert {
     default List<TreeCustomerCategoryVO> toTreeCustomerCategoryVO(List<CustomerCategory> categories) {
         List<TreeCustomerCategoryVO> treeCategories = categories.stream().map(this::toTreeCustomerCategoryVO)
                 .collect(Collectors.toList());
-        return CollectionUtil.transformTree(treeCategories, TreeCustomerCategoryVO::getId, TreeCustomerCategoryVO::getParentNumber
+        return CollectionUtil.transformTree(treeCategories, TreeCustomerCategoryVO::getId, TreeCustomerCategoryVO::getParentId
                 , TreeCustomerCategoryVO::getChildren, TreeCustomerCategoryVO::setChildren);
     }
 }

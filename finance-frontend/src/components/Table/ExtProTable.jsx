@@ -13,6 +13,7 @@ export default function ExProTable(props) {
         </Button>,
       ]
     } : {}),
+    scroll: {y:600},
     ...props
   }
   return (

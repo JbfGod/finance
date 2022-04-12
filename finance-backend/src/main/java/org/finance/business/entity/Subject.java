@@ -52,6 +52,16 @@ public class Subject implements Serializable {
     private String name;
 
     /**
+     * 科目类型
+     */
+    private Type type;
+
+    /**
+     * 辅助结算
+     */
+    private AssistSettlement assistSettlement;
+
+    /**
      * 父级ID
      */
     private Long parentId;
@@ -105,5 +115,45 @@ public class Subject implements Serializable {
 
     @TableLogic
     private Boolean deleted;
+
+    public enum Type {
+        /**
+         * 科目
+         */
+        SUBJECT,
+        /**
+         * 花费
+         */
+        COST,
+        /**
+         * 科目+花费
+         */
+        SUBJECT_AND_COST,
+        ;
+    }
+
+    public enum AssistSettlement {
+        /**
+         * 无
+         */
+        NOTHING,
+        /**
+         * 供应商
+         */
+        SUPPLIER,
+        /**
+         * 客户
+         */
+        CUSTOMER,
+        /**
+         * 员工
+         */
+        EMPLOYEE,
+        /**
+         * 银行
+         */
+        BANK,
+        ;
+    }
 
 }

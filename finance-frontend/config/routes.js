@@ -70,7 +70,7 @@ export default [
         name: '科目管理',
         icon: 'smile',
         access: 'base:subject',
-        component: './TableList',
+        component: './base/SubjectList',
       },
       {
         component: './404',

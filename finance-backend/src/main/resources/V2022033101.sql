@@ -90,6 +90,8 @@ CREATE TABLE if not exists `subject` (
     `industry_id` bigint(20) not null comment '所属行业',
     `number` varchar(50) not null comment '科目编号',
     `name` varchar(255) NOT NULL COMMENT '科目名称',
+    `type` enum('SUBJECT', 'COST', 'SUBJECT_AND_COST') not null default 'SUBJECT' comment '科目类型,SUBJECT:科目、COST:费用、SUBJECT_AND_COST:科目和结算',
+    `assist_settlement` enum('NOTHING', 'SUPPLIER', 'CUSTOMER', 'EMPLOYEE', 'BANK') not null default 'NOTHING' comment '辅助结算，自己翻译',
     `parent_id` bigint(20) not null default 0 comment '父级ID',
     `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
