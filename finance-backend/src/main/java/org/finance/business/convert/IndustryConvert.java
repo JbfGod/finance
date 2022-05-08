@@ -24,12 +24,12 @@ public interface IndustryConvert {
 
     Industry toIndustry(UpdateIndustryRequest request);
 
-    TreeIndustryVO toTreeIndustryVO(Industry category);
+    TreeIndustryVO toTreeIndustryVO(Industry industry);
 
-    IndustryVO toIndustryVO(Industry category);
+    IndustryVO toIndustryVO(Industry industry);
 
-    default List<TreeIndustryVO> toTreeIndustryVO(List<Industry> categories) {
-        List<TreeIndustryVO> treeCategories = categories.stream().map(this::toTreeIndustryVO)
+    default List<TreeIndustryVO> toTreeIndustryVO(List<Industry> industries) {
+        List<TreeIndustryVO> treeCategories = industries.stream().map(this::toTreeIndustryVO)
                 .collect(Collectors.toList());
         return CollectionUtil.transformTree(treeCategories, TreeIndustryVO::getId, TreeIndustryVO::getParentId
                 , TreeIndustryVO::getChildren, TreeIndustryVO::setChildren);

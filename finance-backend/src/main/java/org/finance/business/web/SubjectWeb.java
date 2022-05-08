@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.SubjectConvert;
 import org.finance.business.entity.Subject;
 import org.finance.business.service.SubjectService;
+import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddSubjectRequest;
 import org.finance.business.web.request.QuerySubjectRequest;
 import org.finance.business.web.request.UpdateSubjectRequest;
@@ -39,11 +40,13 @@ public class SubjectWeb {
 
     @Resource
     private SubjectService subjectService;
+    @Resource
+    private UserService userService;
 
     @GetMapping("/tree")
     public R<List<TreeSubjectVO>> treeSubject(@Valid QuerySubjectRequest request) {
         List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
-                .eq(Subject::getIndustryId, request.getIndustryId()));
+                .eq(request.getIndustryId() != null, Subject::getIndustryId, request.getIndustryId()));
         return R.ok(SubjectConvert.INSTANCE.toTreeSubjectVO(subjects));
     }
 

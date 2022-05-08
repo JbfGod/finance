@@ -4,16 +4,11 @@ export default [
     layout: false,
     routes: [
       {
-        path: '/user',
-        routes: [
-          {
-            layout: false,
-            name: 'login',
-            path: '/user/login',
-            component: './user/Login',
-            access: "can"
-          },
-        ],
+        path: '/user/login',
+        layout: false,
+        name: 'login',
+        component: './user/Login',
+        access: "can"
       },
       {
         component: './404',
@@ -42,10 +37,17 @@ export default [
       },
       {
         path: '/system/customer',
-        name: '客户管理',
+        name: '客户档案',
         icon: 'smile',
         access: 'system:customer',
         component: './system/CustomerList/index',
+      },
+      {
+        path: '/system/customerGrantPermissionPage',
+        name: '客户授权管理',
+        icon: 'smile',
+        access: 'system:customer:grantPermissionPage',
+        component: './system/CustomerList/CustomerGrantPermission',
       },
       {
         component: './404',
@@ -53,7 +55,7 @@ export default [
     ]
   },
   {
-    path: 'base',
+    path: '/base',
     name: '基础数据管理',
     icon: 'simple',
     access: 'base',
@@ -83,36 +85,6 @@ export default [
     icon: 'icon-danwei',
     component: './Welcome',
     access: "can"
-  },
-  {
-    path: '/admin',
-    name: 'admin',
-    icon: 'crown',
-    access: 'canAdmin',
-    component: './Admin',
-    routes: [
-      {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        icon: 'smile',
-        component: './Welcome',
-      },
-      {
-        component: './404',
-      },
-    ],
-  },
-  {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
-    access: "can"
-  },
-  {
-    path: '/',
-    access: "can",
-    redirect: '/welcome',
   },
   {
     component: './404',

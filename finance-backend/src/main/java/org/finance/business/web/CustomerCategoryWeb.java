@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.CustomerCategoryConvert;
 import org.finance.business.entity.CustomerCategory;
 import org.finance.business.service.CustomerCategoryService;
+import org.finance.business.service.CustomerService;
 import org.finance.business.web.request.AddCustomerCategoryRequest;
 import org.finance.business.web.request.UpdateCustomerCategoryRequest;
 import org.finance.business.web.vo.CustomerCategoryVO;
@@ -37,6 +38,8 @@ import java.util.stream.Collectors;
 public class CustomerCategoryWeb {
 
     @Resource
+    private CustomerService customerService;
+    @Resource
     private CustomerCategoryService customerCategoryService;
 
     @GetMapping("/tree")
@@ -58,11 +61,17 @@ public class CustomerCategoryWeb {
                 .eq(CustomerCategory::getNumber, request.getNumber())
         ) > 0;
         AssertUtil.isFalse(numberExists, String.format("类别编号：%s，已存在！", request.getNumber()));
+
         boolean nameExists = customerCategoryService.count(Wrappers.<CustomerCategory>lambdaQuery()
                 .eq(CustomerCategory::getParentId, request.getParentId())
                 .eq(CustomerCategory::getName, request.getName())
         ) > 0;
         AssertUtil.isFalse(nameExists, "同一级目录下不能定义相同的类别名称！");
+
+        if (request.getParentId() > 0) {
+            AssertUtil.isFalse(customerService.existsByCategoryId(request.getParentId()), "新增子级失败，当前类别存在关联的客户");
+        }
+
         customerCategoryService.add(CustomerCategoryConvert.INSTANCE.toCustomerCategory(request));
         return R.ok();
     }
@@ -83,6 +92,7 @@ public class CustomerCategoryWeb {
 
     @DeleteMapping("/delete/{id}")
     public R deleteCustomerCategory(@PathVariable("id") long id) {
+        AssertUtil.isFalse(customerService.existsByCategoryId(id), "删除失败，当前类别存在关联的客户");
         customerCategoryService.delete(id);
         return R.ok();
     }

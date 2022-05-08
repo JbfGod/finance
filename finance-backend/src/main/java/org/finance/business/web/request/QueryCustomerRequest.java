@@ -17,9 +17,11 @@ public class QueryCustomerRequest extends AbstractPageRequest {
 
     private Long categoryId;
 
+    private Long industryId;
+
     private Customer.Type type;
 
-    private Boolean enabled;
+    private Customer.Status status;
 
     private String telephone;
 

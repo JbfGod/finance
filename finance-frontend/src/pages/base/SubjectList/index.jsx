@@ -1,28 +1,36 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {PageContainer} from '@ant-design/pro-layout';
-import {Button, Col, Empty, Tree} from "antd";
+import {Button, Col, Empty, Tree, message} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam} from "@/utils/hooks";
+import {useModalWithParam, useTableExpandable} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import constants from "@/constants";
+import PageContainer from "@/components/PageContainer";
 
 export default () => {
-  const [createModal, handleModal, openModal] = useModalWithParam()
-  const [selectedIndustryId, setSelectedIndustryId] = useState(0)
-  const [selectedSubjectId, setSelectedSubjectId] = useState(0)
+  const [expandable, onLoad] = useTableExpandable()
+  const [selectedIndustry, setSelectedIndustry] = useState({id: 0, number: "0"})
   const [industryTreeData, setIndustryTreeData] = useState([])
-  const [expandIndustryKeys, setExpandIndustryKeys] = useState([0])
+  const [createModal, handleModal, openModal] = useModalWithParam()
+
+  const openModalWithCheck = (params) => {
+    if (params.parentId === 0 && (selectedIndustry.hasLeaf || selectedIndustry.id === 0)) {
+      return message.warn("新增科目只能选择叶子节点的行业！")
+    }
+    openModal(params)
+  }
+
+  // 加载行业数据
   const fetchTreeIndustry = async () => {
     const {data} = await industryWeb.treeIndustryUsingGET()
     setIndustryTreeData([{id: 0, number: "0", name: "全部行业", children: data}])
-    setSelectedIndustryId(data?.[0]?.id || 0)
   }
+  // 初始化行业数据
   useEffect(() => {
     fetchTreeIndustry()
   }, [])
@@ -45,6 +53,13 @@ export default () => {
       }
     },
     {
+      title: "科目方向", dataIndex: "direction", valueType: "select"
+      , fieldProps: {
+        allowClear: false,
+        options: constants.SUBJECT_DIRECTIONS
+      }
+    },
+    {
       title: "辅助结算", dataIndex: "assistSettlement", valueType: "select"
       , fieldProps: {
         allowClear: false,
@@ -57,9 +72,13 @@ export default () => {
     },
     {
       title: '操作', dataIndex: 'id',
-      width: 150, valueType: 'option',
+      width: 180, valueType: 'option',
       render: (dom, row, index, action) => {
         return [
+          <a key="addSub" onClick={(e) => {
+            e.stopPropagation()
+            openModal({parentId : row.id, industryId: row.industryId})
+          }}>新增子级</a>,
           <a key="edit" onClick={() => action?.startEditable(row.id)}>编辑</a>,
           <ExtConfirmDel key="del" onConfirm={async () => {
             await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
@@ -80,16 +99,11 @@ export default () => {
       {hasIndustry ? (
         <ProCard ghost gutter={[8, 0]}>
           <ProCard colSpan={5} bordered className="cardCommon">
-            <Tree showLine={true} selectedKeys={[selectedIndustryId]} expandedKeys={expandIndustryKeys}
-                  titleRender={(node) => node.id ? `[${node.number}]` : "" + node.name}
+            <Tree showLine={true} selectedKeys={[selectedIndustry.id]} defaultExpandAll
                   fieldNames={{title: "name", key: "id"}} treeData={industryTreeData}
-                  onExpand={(expandKeys) => {
-                    setExpandIndustryKeys([...expandKeys])
-                  }}
-                  onSelect={(keys) => {
-                    const key = keys?.[0]
-                    key && (setSelectedIndustryId(keys?.[0]))
-                    if (key > 0 && key !== selectedIndustryId) {
+                  onSelect={(keys, {node}) => {
+                    setSelectedIndustry(node)
+                    if (node.id !== selectedIndustry.id) {
                       actionRef.current?.reload()
                     }
                   }}
@@ -97,20 +111,20 @@ export default () => {
           </ProCard>
           <Col span={19}>
             <ExProTable pagination={false} actionRef={actionRef} columns={columns}
-                        expandable={{expandRowByClick:true}}
-                        search={false} onNew={() => openModal({parentId:0,industryId:selectedIndustryId})}
+                        expandable={expandable} onLoad={onLoad}
+                        search={false} onNew={() => openModalWithCheck({parentId: 0})}
                         editable={editable}
-                        request={async () => subjectWeb.treeSubjectUsingGET({industryId: selectedIndustryId})}
+                        request={async () => subjectWeb.treeSubjectUsingGET({industryId: selectedIndustry.id || undefined})}
             />
             <ModalForm title="新增科目" width="400px" visible={createModal.visible}
-                       initialValues={{type: "SUBJECT", assistSettlement: "NOTHING"}}
+                       initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
                        modalProps={{destroyOnClose: true}}
                        onVisibleChange={handleModal}
                        onFinish={async (value) => {
                          await subjectWeb.addSubjectUsingPOST({
                            ...value,
-                           industryId: selectedIndustryId,
-                           parentId: selectedSubjectId
+                           industryId: selectedIndustry.id || createModal.industryId,
+                           parentId: createModal.parentId
                          }).then(() => {
                            handleModal(false)
                            actionRef.current?.reload()
@@ -127,8 +141,9 @@ export default () => {
                              {required: true, message: "科目名称不能为空！"},
                            ]}
               />
-              <ProFormSelect allowClear={false} name="type" label="类型" options={constants.SUBJECT_TYPES}/>
-              <ProFormSelect allowClear={false} name="assistSettlement" label="辅助结算"
+              <ProFormSelect name="type" allowClear={false} label="类型" options={constants.SUBJECT_TYPES}/>
+              <ProFormSelect name="direction" allowClear={false} label="科目方向" options={constants.SUBJECT_DIRECTIONS}/>
+              <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
                              options={constants.SUBJECT_ASSIST_SETTLEMENT}/>
               <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>
             </ModalForm>

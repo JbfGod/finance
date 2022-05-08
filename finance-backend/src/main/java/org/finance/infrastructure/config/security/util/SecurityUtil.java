@@ -21,6 +21,10 @@ public class SecurityUtil {
         throw new AuthenticationServiceException("找不到当前上下文用户失败");
     }
 
+    public static Long getCustomerId() {
+        return getCurrentUser().getCustomerId();
+    }
+
     public static Long getCurrentUserId () {
         return getCurrentUser().getId();
     }

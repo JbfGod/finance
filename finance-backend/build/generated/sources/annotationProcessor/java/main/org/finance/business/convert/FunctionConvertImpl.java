@@ -2,13 +2,14 @@ package org.finance.business.convert;
 
 import javax.annotation.Generated;
 import org.finance.business.entity.Function;
+import org.finance.business.web.vo.FunctionIdentifiedVO;
 import org.finance.business.web.vo.TreeFunctionVO;
 import org.finance.business.web.vo.UserOwnedMenuVO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2022-04-11T19:12:16+0800",
-    comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-7.1.jar, environment: Java 1.8.0_261 (Oracle Corporation)"
+    date = "2022-05-08T17:22:59+0800",
+    comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-7.1.1.jar, environment: Java 1.8.0_261 (Oracle Corporation)"
 )
 public class FunctionConvertImpl implements FunctionConvert {
 
@@ -49,5 +50,20 @@ public class FunctionConvertImpl implements FunctionConvert {
         treeFunctionVO.setSortNum( function.getSortNum() );
 
         return treeFunctionVO;
+    }
+
+    @Override
+    public FunctionIdentifiedVO toFunctionIdentifiedVO(Function function) {
+        if ( function == null ) {
+            return null;
+        }
+
+        FunctionIdentifiedVO functionIdentifiedVO = new FunctionIdentifiedVO();
+
+        functionIdentifiedVO.setId( function.getId() );
+        functionIdentifiedVO.setNumber( function.getNumber() );
+        functionIdentifiedVO.setHasLeaf( function.getHasLeaf() );
+
+        return functionIdentifiedVO;
     }
 }

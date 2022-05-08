@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -79,9 +78,6 @@ public class User implements Serializable, UserDetails {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
 
-    @TableLogic
-    private Boolean deleted;
-
     @TableField(exist = false)
     private Customer customer;
 
@@ -90,6 +86,14 @@ public class User implements Serializable, UserDetails {
          * 管理员、每个客户下只有一个
          */
         ADMIN,
+        /**
+         * 审批人员
+         */
+        APPROVER,
+        /**
+         * 机关人员
+         */
+        OFFICER,
         /**
          * 普通员工、每个客户下可以有多个
          */

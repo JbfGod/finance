@@ -29,6 +29,8 @@ public class AddSubjectRequest {
     @NotNull(message = "请选择科目类型")
     private Subject.Type type;
 
+    private Subject.Direction direction;
+
     private Subject.AssistSettlement assistSettlement;
 
     @NotNull(message = "父级ID不能为空")

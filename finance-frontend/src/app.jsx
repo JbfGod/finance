@@ -3,6 +3,7 @@ import {history} from 'umi';
 import RightContent from '@/components/RightContent';
 import defaultSettings from '../config/defaultSettings';
 import * as userWeb from "@/services/swagger/userWeb";
+import * as common from "@/utils/common";
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -27,7 +28,7 @@ export async function getInitialState() {
     return undefined;
   }; // 如果不是登录页面，执行
 
-  if (localStorage.getItem("AccessToken") || history.location.pathname !== loginPath) {
+  if (common.getAccessToken() || history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
 
     return {

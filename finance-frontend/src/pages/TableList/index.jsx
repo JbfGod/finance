@@ -1,7 +1,8 @@
 import {PlusOutlined} from '@ant-design/icons';
 import {Button, Drawer, Input, message} from 'antd';
 import React, {useRef, useState} from 'react';
-import {FooterToolbar, PageContainer} from '@ant-design/pro-layout';
+import PageContainer from "@/components/PageContainer";
+import {FooterToolbar} from '@ant-design/pro-layout';
 import ProTable from '@ant-design/pro-table';
 import {ModalForm, ProFormText, ProFormTextArea} from '@ant-design/pro-form';
 import ProDescriptions from '@ant-design/pro-descriptions';

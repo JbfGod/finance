@@ -1,6 +1,6 @@
 import React from 'react';
-import {PageContainer} from '@ant-design/pro-layout';
-import {Alert, Card, Typography} from 'antd';
+import PageContainer from "@/components/PageContainer";
+import {Card, Typography} from 'antd';
 import styles from './Welcome.less';
 
 const CodePreview = ({ children }) => (

@@ -1,16 +1,17 @@
-import React, {useRef, useState} from 'react';
-import {PageContainer} from '@ant-design/pro-layout';
-import {Col, Tree} from "antd";
+import React, {useRef} from 'react';
+import PageContainer from "@/components/PageContainer";
+import {Col} from "antd";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import * as hooks from "@/utils/hooks";
+import {useModalWithParam, useTableExpandable} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
-import {useModalWithParam} from "@/utils/hooks";
 
 export default () => {
   const [createModal, handleModal, openModal] = useModalWithParam()
+  const [expandable, onLoad] = useTableExpandable()
   const actionRef = useRef()
   const columns = [
     {
@@ -54,7 +55,7 @@ export default () => {
       <ProCard ghost gutter={[8, 0]}>
         <Col span={24}>
           <ExProTable pagination={false} actionRef={actionRef} columns={columns}
-                      expandable={{expandRowByClick:true}}
+                      onLoad={onLoad} expandable={expandable}
                       search={false} onNew={() => openModal({parentId : 0})}
                       editable={editable}
                       request={industryWeb.treeIndustryUsingGET}

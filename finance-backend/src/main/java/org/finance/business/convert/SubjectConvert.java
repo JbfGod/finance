@@ -24,12 +24,12 @@ public interface SubjectConvert {
 
     Subject toSubject(UpdateSubjectRequest request);
 
-    TreeSubjectVO toTreeSubjectVO(Subject category);
+    TreeSubjectVO toTreeSubjectVO(Subject subject);
 
-    SubjectVO toSubjectVO(Subject category);
+    SubjectVO toSubjectVO(Subject subject);
 
-    default List<TreeSubjectVO> toTreeSubjectVO(List<Subject> categories) {
-        List<TreeSubjectVO> treeCategories = categories.stream().map(this::toTreeSubjectVO)
+    default List<TreeSubjectVO> toTreeSubjectVO(List<Subject> subjects) {
+        List<TreeSubjectVO> treeCategories = subjects.stream().map(this::toTreeSubjectVO)
                 .collect(Collectors.toList());
         return CollectionUtil.transformTree(treeCategories, TreeSubjectVO::getId, TreeSubjectVO::getParentId
                 , TreeSubjectVO::getChildren, TreeSubjectVO::setChildren);

@@ -88,8 +88,7 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         String presentedPassword = authentication.getCredentials().toString();
         if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
             this.logger.debug("Failed to authenticate since password does not match stored value");
-            throw new BadCredentialsException(this.messages
-                    .getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+            throw new BadCredentialsException("用户名或密码错误");
         }
     }
 

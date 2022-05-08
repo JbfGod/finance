@@ -9,8 +9,8 @@ import org.finance.business.web.vo.UserSelfVO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2022-04-11T19:12:16+0800",
-    comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-7.1.jar, environment: Java 1.8.0_261 (Oracle Corporation)"
+    date = "2022-05-08T18:25:17+0800",
+    comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-7.1.1.jar, environment: Java 1.8.0_261 (Oracle Corporation)"
 )
 public class UserConvertImpl implements UserConvert {
 
@@ -68,6 +68,7 @@ public class UserConvertImpl implements UserConvert {
         if ( req != null ) {
             user.setName( req.getName() );
             user.setAccount( req.getAccount() );
+            user.setRole( req.getRole() );
         }
         if ( customerId != null ) {
             user.setCustomerId( customerId );
@@ -75,7 +76,23 @@ public class UserConvertImpl implements UserConvert {
         if ( customerAccount != null ) {
             user.setCustomerAccount( customerAccount );
         }
-        user.setRole( org.finance.business.entity.User.Role.NORMAL );
+        user.setPassword( org.finance.infrastructure.config.security.util.SecurityUtil.encodePassword(req.getPassword()) );
+
+        return user;
+    }
+
+    @Override
+    public User toAdminUser(AddUserRequest req) {
+        if ( req == null ) {
+            return null;
+        }
+
+        User user = new User();
+
+        user.setName( req.getName() );
+        user.setAccount( req.getAccount() );
+
+        user.setRole( org.finance.business.entity.User.Role.ADMIN );
         user.setPassword( org.finance.infrastructure.config.security.util.SecurityUtil.encodePassword(req.getPassword()) );
 
         return user;

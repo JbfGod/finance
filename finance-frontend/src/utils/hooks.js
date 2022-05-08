@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {useModel} from "umi";
 import {Form} from "antd";
+import * as common from "@/utils/common";
 
 export function useBoolean(initialValue = false) {
   const [value, setValue] = useState(initialValue)
@@ -23,18 +24,36 @@ export function useModalWithParam(visible = false, params = {}) {
 }
 
 export function useCurrentUser() {
-  const { initialState } = useModel('@@initialState')
+  const {initialState} = useModel('@@initialState')
   return initialState?.currentUser
 }
 
 export function useTableForm(editableOptions) {
   const [form] = Form.useForm()
   const editable = {
-    form, type:"single",
+    form, type: "single",
     actionRender: (row, config, defaultDom) => [defaultDom.save, defaultDom.cancel],
     ...editableOptions
   }
   return {form, editable}
+}
+
+export function useTableExpandable(key = "id", enhanceDataChange) {
+  const [firstLoadFlag, setFirstLoadFlag] = useState(false)
+  const [expandedKeys, setExpandedKeys] = useState([])
+  const onLoad = (dataSource) => {
+    enhanceDataChange && enhanceDataChange(dataSource)
+    if (firstLoadFlag) {
+      setFirstLoadFlag(true)
+      return
+    }
+    setExpandedKeys(common.flatTree(dataSource).map(data => data.id))
+  }
+  const expandable = {
+    expandRowByClick: true,
+    expandedRowKeys: expandedKeys,
+    onExpandedRowsChange: setExpandedKeys}
+  return [expandable, onLoad]
 }
 
 export function useArrayToTree(dataArray,
@@ -64,25 +83,4 @@ export function useArrayToTree(dataArray,
     children.push(node)
   })
   return [dataByKey, treeArray]
-}
-
-export function useFlatTree(treeData = [], childrenField = "children") {
-  const flatArray = []
-  const recursion = (node)  => {
-    if (node == null) {
-      return
-    }
-    flatArray.push(node)
-    const children = node[childrenField]
-    if (children == null || children.length === 0) {
-      return
-    }
-    for (let i = 0; i < children.length; i++) {
-      recursion(children[i])
-    }
-  }
-  for (let i = 0; i < treeData.length; i++) {
-    recursion(treeData[i])
-  }
-  return flatArray
 }

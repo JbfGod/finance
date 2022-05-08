@@ -23,6 +23,8 @@ public class UpdateSubjectRequest {
     @NotNull(message = "科目类型不能为空！")
     private Subject.Type type;
 
+    private Subject.Direction direction;
+
     private Subject.AssistSettlement assistSettlement;
 
     @Size(max = 255, message = "备注信息不能超出255个字符")

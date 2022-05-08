@@ -1,6 +1,7 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.Function;
+import org.finance.business.web.vo.FunctionIdentifiedVO;
 import org.finance.business.web.vo.TreeFunctionVO;
 import org.finance.business.web.vo.UserOwnedMenuVO;
 import org.finance.infrastructure.util.CollectionUtil;
@@ -26,6 +27,8 @@ public interface FunctionConvert {
     UserOwnedMenuVO toUserOwnedMenuVO(Function f);
 
     TreeFunctionVO toTreeFunctionVO(Function function);
+
+    FunctionIdentifiedVO toFunctionIdentifiedVO(Function function);
 
     default List<TreeFunctionVO> toTreeFunctionVO(List<Function> functions) {
         List<TreeFunctionVO> treeFunctions = functions.stream().map(this::toTreeFunctionVO).collect(Collectors.toList());

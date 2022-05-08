@@ -20,9 +20,10 @@ import java.io.Serializable;
 public class Sequence implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    public final static String CATEGORY_CUSTOMER = "CUSTOMER";
-    public final static String TREE_ROOT_ID_OF_CUSTOMER_CATEGORY = "TREE_ROOT_ID_OF_CUSTOMER_CATEGORY";
-    public final static String TREE_ROOT_ID_OF_INDUSTRY = "TREE_ROOT_ID_OF_INDUSTRY";
+    /**
+     * 用途：客户所属表标识
+     */
+    public final static String CATEGORY_CUSTOMER_TBL_ID = "CATEGORY_CUSTOMER_TBL_ID";
 
     /**
      * 主键

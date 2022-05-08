@@ -2,16 +2,11 @@ package org.finance.business.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.finance.business.entity.Sequence;
 import org.finance.business.entity.Subject;
-import org.finance.business.mapper.SequenceMapper;
 import org.finance.business.mapper.SubjectMapper;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 
 /**
  * <p>
@@ -24,28 +19,31 @@ import javax.annotation.Resource;
 @Service
 public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
 
-    @Resource
-    private SequenceMapper sequenceMapper;
-
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = Exception.class)
     public void add(Subject subject) {
         Long parentId = subject.getParentId();
         if (parentId == 0) {
-            Sequence sequence = new Sequence().setUseCategory(Sequence.TREE_ROOT_ID_OF_INDUSTRY);
-            sequenceMapper.insert(sequence);
             subject.setHasLeaf(false);
-            subject.setLevel(1);
             subject.setParentNumber("0");
+            subject.setLevel(1);
             subject.setLeftValue(1);
             subject.setRightValue(2);
-            subject.setRootId(sequence.getId());
+            subject.setRootId(0L);
             baseMapper.insert(subject);
+            baseMapper.updateById(subject.setRootId(subject.getId()));
             return;
         }
         Subject parentSubject = baseMapper.selectById(parentId);
         Long industryId = parentSubject.getIndustryId();
         Integer pRightValue = parentSubject.getRightValue();
         Long rootId = parentSubject.getRootId();
+
+        if (!parentSubject.getHasLeaf()) {
+            this.update(Wrappers.<Subject>lambdaUpdate()
+                    .set(Subject::getHasLeaf, true)
+                    .eq(Subject::getId, parentId)
+            );
+        }
 
         subject.setHasLeaf(false);
         subject.setParentNumber(parentSubject.getNumber());
@@ -68,7 +66,6 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
         baseMapper.insert(subject);
     }
 
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
     public void delete(long id) {
         Subject dbSubject = baseMapper.selectById(id);
         AssertUtil.isTrue(dbSubject != null, "行业不存在，删除失败！");
@@ -78,5 +75,8 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
                 .le(Subject::getRightValue, dbSubject.getRightValue())
         );
     }
-    
+
+    public boolean existsByIndustryId(long industryId) {
+        return baseMapper.exists(Wrappers.<Subject>lambdaQuery().eq(Subject::getIndustryId, industryId));
+    }
 }

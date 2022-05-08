@@ -3,7 +3,6 @@ package org.finance.infrastructure.config.mybatis;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.schema.Column;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 
@@ -39,11 +38,6 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
     @Override
     public boolean ignoreTable(String tableName) {
         return ignoreTables.contains(tableName);
-    }
-
-    @Override
-    public boolean ignoreInsert(List<Column> columns, String tenantIdColumn) {
-        return TenantLineHandler.super.ignoreInsert(columns, tenantIdColumn);
     }
 
 }

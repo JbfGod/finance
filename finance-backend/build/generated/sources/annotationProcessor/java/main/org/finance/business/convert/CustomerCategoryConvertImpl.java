@@ -9,8 +9,8 @@ import org.finance.business.web.vo.TreeCustomerCategoryVO;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2022-04-12T11:34:37+0800",
-    comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-7.1.jar, environment: Java 1.8.0_261 (Oracle Corporation)"
+    date = "2022-05-08T14:23:21+0800",
+    comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-7.1.1.jar, environment: Java 1.8.0_261 (Oracle Corporation)"
 )
 public class CustomerCategoryConvertImpl implements CustomerCategoryConvert {
 

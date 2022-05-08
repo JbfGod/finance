@@ -6,6 +6,8 @@ import {history, useModel} from 'umi';
 import {login} from '@/services/login';
 import styles from './index.less';
 import MyIcon from "@/components/Icon";
+import constants from "@/constants";
+import * as common from "@/utils/common";
 
 const Login = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
@@ -20,7 +22,8 @@ const Login = () => {
 
   const handleSubmit = async (values) => {
     const resp = await login({ ...values })
-    localStorage.setItem("AccessToken", resp.data)
+    common.setAccessToken(resp.data)
+    localStorage.setItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT, values.customerAccount)
     message.success("登录成功！");
     await fetchUserInfo();
     /** 此方法会跳转到 redirect 参数所在的位置 */
@@ -33,9 +36,11 @@ const Login = () => {
     <div className={styles.container}>
       <div className={styles.content}>
         <LoginForm
-          logo={<MyIcon type="icon-shouzhangben"/>}
-          title="慧记账平台"
+          className={styles.loginForm}
+          /*logo={<MyIcon type="icon-shouzhangben"/>}*/
+          title={<h2 className={styles.loginTitle}>慧记账平台</h2>}
           initialValues={{
+            customerAccount: localStorage.getItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT),
             autoLogin: true,
           }}
           onFinish={async (values) => {
@@ -59,6 +64,7 @@ const Login = () => {
           <ProFormText
             name="account"
             fieldProps={{
+              autoComplete:false,
               size: 'large',
               prefix: <UserOutlined className={styles.prefixIcon} />,
             }}
@@ -73,6 +79,7 @@ const Login = () => {
           <ProFormText.Password
             name="password"
             fieldProps={{
+              autoComplete:false,
               size: 'large',
               prefix: <LockOutlined className={styles.prefixIcon} />,
             }}

@@ -13,22 +13,37 @@
   height: 40px;
   line-height: 44px;
   text-align: right;
+
   :global(.ant-dropdown-trigger) {
     margin-right: 24px;
   }
 }
 
-.content {
+div.content {
   flex: 1;
   padding: 32px 0;
+
+  :global {
+    .ant-pro-form-login-main {
+      width: 400px;
+    }
+
+    .ant-pro-form-login-container {
+      justify-content: center;
+    }
+  }
+
+  form {
+    border-radius: 5px;
+    background: #0000009e;
+  }
 }
 
 @media (min-width: @screen-md-min) {
   .container {
-    background-image: url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg');
+    background-image: url('/login_background.png');
     background-repeat: no-repeat;
-    background-position: center 110px;
-    background-size: 100%;
+    background-size: 100% 100%;
   }
 
   .content {
@@ -47,4 +62,14 @@
   &:hover {
     color: @primary-color;
   }
+}
+
+.loginTitle {
+  color: #0e9bff;
+  font-weight: bold;
+}
+
+.loginForm {
+  padding: 20px 20px;
+  color: white;
 }

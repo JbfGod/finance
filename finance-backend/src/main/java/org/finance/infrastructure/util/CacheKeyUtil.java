@@ -13,6 +13,6 @@ public final class CacheKeyUtil {
     }
 
     public static CacheAttr getToken(String token) {
-        return new CacheAttr(String.format("AuthenticationToken:%s", token), Duration.ofDays(1));
+        return new CacheAttr(String.format("AuthenticationToken:%s", token), Duration.ofMinutes(60));
     }
 }

@@ -12,11 +12,11 @@ import java.util.List;
  */
 public class CustomerDynamicTableNameHandler implements TableNameHandler {
 
-    public final List<String> notSupportTables = Arrays.asList("user");
+    public final List<String> supportTables = Arrays.asList("subject", "industry");
 
     @Override
     public String dynamicTableName(String sql, String tableName) {
-        if (notSupportTables.contains(tableName)) {
+        if (!supportTables.contains(tableName)) {
             return tableName;
         }
         User user = null;

@@ -17,6 +17,20 @@ export default defineConfig({
     siderWidth: 208,
     ...defaultSettings,
   },
+  openAPI: [
+    {
+      requestLibPath: "import { request } from 'umi'",
+      // 或者使用在线的版本
+      // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
+      schemaPath: join(__dirname, 'oneapi.json'),
+      mock: false,
+    },
+    {
+      requestLibPath: "import { request } from 'umi'",
+      schemaPath: 'http://127.0.1.1:8080/api/downloadOpenapi',
+      projectName: 'swagger',
+    },
+  ],
   access: {
     strictMode: true
   },
@@ -47,20 +61,6 @@ export default defineConfig({
   },
   // Fast Refresh 热更新
   fastRefresh: {},
-  openAPI: [
-    {
-      requestLibPath: "import { request } from 'umi'",
-      // 或者使用在线的版本
-      // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
-      schemaPath: join(__dirname, 'oneapi.json'),
-      mock: false,
-    },
-    {
-      requestLibPath: "import { request } from 'umi'",
-      schemaPath: 'http://127.0.1.1:8080/api/downloadOpenapi',
-      projectName: 'swagger',
-    },
-  ],
   nodeModulesTransform: {
     type: 'none',
   },

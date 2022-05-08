@@ -1,13 +1,13 @@
-import React, {useRef, useState} from 'react';
-import {PageContainer} from '@ant-design/pro-layout';
-import {Col, Tree} from "antd";
+import React, {useRef} from 'react';
+import PageContainer from "@/components/PageContainer";
+import {Col} from "antd";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
 import * as hooks from "@/utils/hooks";
+import {useModalWithParam} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
-import {useModalWithParam} from "@/utils/hooks";
 
 export default () => {
   const [createModal, handleModal, openModal] = useModalWithParam()

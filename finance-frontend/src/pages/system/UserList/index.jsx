@@ -1,34 +1,46 @@
 import React, {useRef, useState} from "react";
-import {PageContainer} from "@ant-design/pro-layout";
+import PageContainer from "@/components/PageContainer";
 import * as userWeb from "@/services/swagger/userWeb";
-import {ModalForm, ProFormItem, ProFormRadio, ProFormText} from "@ant-design/pro-form";
+import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import * as hooks from "@/utils/hooks";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import FunctionDrawerForm from "@/pages/FunctionDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
+import {useModalWithParam} from "@/utils/hooks";
+import {Badge} from "antd";
+import constants from "@/constants";
 
 const nameRules = [
   {required: true, message: "用户姓名不能为空！"},
   {min: 2, max: 20, message: "用户姓名只允许有2-20个字符！"}
 ]
+const renderBadge = (active = false) => {
+  return (
+    <Badge
+      style={{
+        marginTop: -2,
+        marginLeft: 4,
+        color: active ? '#1890FF' : '#999',
+        backgroundColor: active ? '#E6F7FF' : '#eee',
+      }}
+    />
+  );
+};
 
 export default () => {
   const [createModalVisible, handleModalVisible] = useState(false)
   const [updateModalVisible, handleUpdateModalVisible] = useState(false)
-  const [grantDrawer, setGrantDrawer] = useState({visible: false, selectedFunctionIds: null, user: null})
-  const handleGrantDrawerVisible = (visible) => {
-    const newValue = visible ? {...grantDrawer, visible} : {visible}
-    setGrantDrawer(newValue)
-  }
-  const [grantFunctionDrawerVisible, handleGrantFunctionDrawerVisible] = useState(false)
+  const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
+    functionData: [], selectedFunctionIds: [], user: null
+  })
   const [tmpOperateUser, setTmpOperateUser] = useState()
   const actionRef = useRef()
   const isSuperCustomer = hooks.useCurrentUser().customerId === 0
 
   const columns = [
     {
-      title: "客户账号", dataIndex: "customerAccount", editable: false,
+      title: "客户编号", dataIndex: "customerAccount", editable: false,
       hideInTable: !isSuperCustomer, search: isSuperCustomer
     },
     {
@@ -50,12 +62,10 @@ export default () => {
           }}/>,
           <a key="grant" onClick={async () => {
             const {data: selectedFunctionIds} = await userWeb.functionIdsOfUserUsingGET({userId: row.id})
-            const {data : functionData} = await customerWeb.treeFunctionOfCustomerUsingGET({customerId: row.customerId})
-            setGrantDrawer({
-              user: row, visible: true,
-              functionData, selectedFunctionIds
+            const {data: functionData} = await customerWeb.treeFunctionOfCustomerUsingGET({customerId: row.customerId})
+            openGrantDrawer({
+              user: row, functionData, selectedFunctionIds
             })
-            handleGrantFunctionDrawerVisible(true)
           }}>授权</a>,
           <a key="resetPwd" onClick={() => {
             setTmpOperateUser(row)
@@ -73,14 +83,41 @@ export default () => {
       })
     }
   })
+  const [activeTabKey, setActiveTabKey] = useState('NORMAL');
+  const toolbar = {
+    menu: {
+      type: 'tab',
+      activeKey: activeTabKey,
+      items: [
+        {
+          key: 'NORMAL',
+          label: <span>操作人员{renderBadge(activeTabKey === 'NORMAL')}</span>,
+        },
+        {
+          key: 'APPROVER',
+          label: <span>审批人员{renderBadge(activeTabKey === 'APPROVER')}</span>,
+        },
+        {
+          key: 'OFFICER',
+          label: <span>机关人员{renderBadge(activeTabKey === 'OFFICER')}</span>,
+        },
+      ],
+      onChange: (key) => {
+        setActiveTabKey(key);
+      },
+    }
+  }
   return (
     <PageContainer>
       <ExProTable actionRef={actionRef} columns={columns}
+                  toolbar={toolbar}
+                  params={{role: activeTabKey}}
                   request={userWeb.pageUserUsingGET}
                   onNew={() => handleModalVisible(true)}
                   editable={editable}
       />
       <ModalForm title="新增用户" width="400px"
+                 initialValues={{role: "NORMAL"}}
                  visible={createModalVisible} modalProps={{destroyOnClose: true}}
                  onVisibleChange={handleModalVisible}
                  onFinish={async (value) => {
@@ -91,6 +128,7 @@ export default () => {
                    })
                  }}
       >
+        <ProFormSelect name="role" allowClear={false} label="用户类型" options={constants.USER_ROLES}/>
         <ProFormText name="name" label="用户姓名" rules={nameRules}/>
         <ProFormText name="account" label="登录账号"
                      rules={[
@@ -162,16 +200,14 @@ export default () => {
           }
         </ProFormItem>
       </ModalForm>
-      {grantDrawer.visible && (
-        <FunctionDrawerForm title="功能授权" width="500px" visible={true}
-                            drawerProps={{destroyOnClose: true}} functionData={grantDrawer.functionData}
-                            initialValues={{functionIds: grantDrawer.selectedFunctionIds}}
-                            onVisibleChange={handleGrantDrawerVisible}
-                            onFinish={async (v) => {
-                              return userWeb.grantFunctionsToUserUsingPOST({...v, userId: grantDrawer.user.id})
-                            }}
-        />
-      )}
+      <FunctionDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
+                          drawerProps={{destroyOnClose: true}} functionData={grantDrawer.functionData}
+                          initialValues={{functionIds: grantDrawer.selectedFunctionIds}}
+                          onVisibleChange={handleGrantDrawerVisible}
+                          onFinish={async (v) => {
+                            return userWeb.grantFunctionsToUserUsingPOST({...v, userId: grantDrawer.user.id})
+                          }}
+      />
     </PageContainer>
   )
 }

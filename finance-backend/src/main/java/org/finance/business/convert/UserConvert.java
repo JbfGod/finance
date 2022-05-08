@@ -21,10 +21,14 @@ public interface UserConvert {
 
     UserListVO toUserListVO(User user);
 
-    @Mapping(target = "role", expression = "java(org.finance.business.entity.User.Role.NORMAL)")
     @Mapping(target = "password", expression
             = "java(org.finance.infrastructure.config.security.util.SecurityUtil.encodePassword(req.getPassword()))")
     User toUser(AddUserRequest req, Long customerId, String customerAccount);
+
+    @Mapping(target = "role", expression = "java(org.finance.business.entity.User.Role.ADMIN)")
+    @Mapping(target = "password", expression
+            = "java(org.finance.infrastructure.config.security.util.SecurityUtil.encodePassword(req.getPassword()))")
+    User toAdminUser(AddUserRequest req);
 
     User toUser(UpdateUserRequest req);
 }

@@ -5,8 +5,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.Function;
 import org.finance.business.entity.UserFunction;
 import org.finance.business.mapper.UserFunctionMapper;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +23,6 @@ import java.util.stream.Collectors;
 public class UserFunctionService extends ServiceImpl<UserFunctionMapper, UserFunction> {
 
     @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(value = "UserFunctionService", key = "'getFunctionsByUserId:' + #userId")
     public void grantFunctionsToUser(long userId, List<Long> functionIds) {
         baseMapper.delete(Wrappers.<UserFunction>lambdaQuery().eq(UserFunction::getUserId, userId));
         List<UserFunction> userFunctions = functionIds.stream()
@@ -34,7 +31,6 @@ public class UserFunctionService extends ServiceImpl<UserFunctionMapper, UserFun
         this.saveBatch(userFunctions);
     }
 
-    @Cacheable("UserFunctionService")
     public List<Function> getFunctionsByUserId(long userId) {
         return baseMapper.listFunctionByUserId(userId);
     }

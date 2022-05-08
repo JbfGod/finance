@@ -1,10 +1,10 @@
 import {Space} from 'antd';
 import React, {useState} from 'react';
-import {useModel, history} from 'umi';
+import {history, useModel} from 'umi';
 import Avatar from './AvatarDropdown';
 import HeaderSearch from '../HeaderSearch';
 import styles from './index.less';
-import {useFlatTree} from "@/utils/hooks";
+import * as common from "@/utils/common";
 
 const GlobalHeaderRight = () => {
   const {initialState} = useModel('@@initialState');
@@ -21,7 +21,7 @@ const GlobalHeaderRight = () => {
     className = `${styles.right}  ${styles.dark}`;
   }
   const {treeMenus} = initialState
-  const searchOptions = useFlatTree(treeMenus, "routes")
+  const searchOptions = common.flatTree(treeMenus, "routes")
     .filter(menu => !searchKey || menu.name.includes(searchKey))
     .map(menu => ({
       label: <div onClick={() => history.push(menu.path)}><a>{menu.name}</a></div>,

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -30,11 +29,6 @@ public class Industry implements Serializable {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-    /**
-     * 所属客户
-     */
-    private Long customerId;
 
     /**
      * 行业编号
@@ -97,8 +91,5 @@ public class Industry implements Serializable {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
-
-    @TableLogic
-    private Boolean deleted;
 
 }

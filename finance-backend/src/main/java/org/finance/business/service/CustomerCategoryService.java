@@ -3,15 +3,10 @@ package org.finance.business.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.CustomerCategory;
-import org.finance.business.entity.Sequence;
 import org.finance.business.mapper.CustomerCategoryMapper;
-import org.finance.business.mapper.SequenceMapper;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 
 /**
  * <p>
@@ -24,27 +19,30 @@ import javax.annotation.Resource;
 @Service
 public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper, CustomerCategory> {
 
-    @Resource
-    private SequenceMapper sequenceMapper;
-
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = Exception.class)
     public void add(CustomerCategory customerCategory) {
         Long parentId = customerCategory.getParentId();
         if (parentId == 0) {
-            Sequence sequence = new Sequence().setUseCategory(Sequence.TREE_ROOT_ID_OF_CUSTOMER_CATEGORY);
-            sequenceMapper.insert(sequence);
             customerCategory.setHasLeaf(false);
             customerCategory.setLevel(1);
             customerCategory.setParentNumber("0");
             customerCategory.setLeftValue(1);
             customerCategory.setRightValue(2);
-            customerCategory.setRootId(sequence.getId());
+            customerCategory.setRootId(0L);
             baseMapper.insert(customerCategory);
+            baseMapper.updateById(customerCategory.setRootId(customerCategory.getId()));
             return;
         }
         CustomerCategory parentCategory = baseMapper.selectById(parentId);
         Integer pRightValue = parentCategory.getRightValue();
         Long rootId = parentCategory.getRootId();
+
+        if (!parentCategory.getHasLeaf()) {
+            this.update(Wrappers.<CustomerCategory>lambdaUpdate()
+                    .set(CustomerCategory::getHasLeaf, true)
+                    .eq(CustomerCategory::getId, parentId)
+            );
+        }
 
         customerCategory.setHasLeaf(false);
         customerCategory.setParentNumber(parentCategory.getNumber());
@@ -65,7 +63,6 @@ public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper,
         baseMapper.insert(customerCategory);
     }
 
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
     public void delete(long id) {
         CustomerCategory dbCategory = baseMapper.selectById(id);
         AssertUtil.isTrue(dbCategory != null, "客户类别不存在，删除失败！");

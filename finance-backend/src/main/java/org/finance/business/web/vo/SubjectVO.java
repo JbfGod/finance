@@ -13,9 +13,13 @@ public class SubjectVO {
 
     private String number;
 
+    private Long industryId;
+
     private String name;
 
     private Subject.Type type;
+
+    private Subject.Direction direction;
 
     private Subject.AssistSettlement assistSettlement;
 

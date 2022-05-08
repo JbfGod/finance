@@ -1,5 +1,6 @@
 package org.finance.business.web.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.finance.business.entity.Customer;
 
@@ -17,7 +18,9 @@ public class CustomerListVO {
 
     private String name;
 
-    private String industry;
+    private String contactName;
+
+    private Long industryId;
 
     private String category;
 
@@ -25,8 +28,10 @@ public class CustomerListVO {
 
     private Boolean enabled;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime effectTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expireTime;
 
     private String telephone;
@@ -38,5 +43,8 @@ public class CustomerListVO {
     private Boolean useForeignExchange;
 
     private String remark;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime createTime;
 
 }

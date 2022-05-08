@@ -67,9 +67,9 @@ public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthen
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().print(JSON.toJSONString(R.error(MessageEnum.NO_AUTHENTICATION, "用户名或密码错误")));
+        response.getWriter().print(JSON.toJSONString(R.error(MessageEnum.NO_AUTHENTICATION, failed.getMessage())));
         response.getWriter().flush();
     }
 }

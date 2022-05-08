@@ -10,11 +10,13 @@ import org.finance.business.mapper.UserFunctionMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
+import org.finance.infrastructure.exception.HxException;
 import org.finance.infrastructure.util.AssertUtil;
 import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,6 +64,13 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
             if (customer == null) {
                 throw new UsernameNotFoundException("用户不存在");
             }
+            if (!customer.getEnabled()) {
+                throw new DisabledException("客户已被禁用");
+            }
+            Customer.Status status = customer.getStatus();
+            if (status == Customer.Status.INITIALIZING) {
+                throw new HxException("客户数据初始化中，请稍后尝试...");
+            }
             user.setCustomer(customer);
         }
         redisTemplate.opsForValue().set(cacheAttr.getKey(), user, cacheAttr.getTimeout());
@@ -71,7 +80,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Override
     @Cacheable(value = "User", unless = "#result == null")
     public User loadUserById(Long userId) {
-        return baseMapper.selectById(userId);
+        User user = baseMapper.selectById(userId);
+        Customer customer = customerMapper.findByAccountName(user.getCustomerAccount());
+        user.setCustomer(customer);
+        return user;
     }
 
     @Override

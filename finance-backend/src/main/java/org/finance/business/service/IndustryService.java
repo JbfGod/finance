@@ -3,15 +3,10 @@ package org.finance.business.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.Industry;
-import org.finance.business.entity.Sequence;
 import org.finance.business.mapper.IndustryMapper;
-import org.finance.business.mapper.SequenceMapper;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 
 /**
  * <p>
@@ -24,27 +19,30 @@ import javax.annotation.Resource;
 @Service
 public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
 
-    @Resource
-    private SequenceMapper sequenceMapper;
-
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = Exception.class)
     public void add(Industry industry) {
         Long parentId = industry.getParentId();
         if (parentId == 0) {
-            Sequence sequence = new Sequence().setUseCategory(Sequence.TREE_ROOT_ID_OF_INDUSTRY);
-            sequenceMapper.insert(sequence);
-            industry.setHasLeaf(false);
             industry.setLevel(1);
+            industry.setHasLeaf(false);
             industry.setParentNumber("0");
             industry.setLeftValue(1);
             industry.setRightValue(2);
-            industry.setRootId(sequence.getId());
+            industry.setRootId(0L);
             baseMapper.insert(industry);
+            baseMapper.updateById(industry.setRootId(industry.getId()));
             return;
         }
         Industry parentIndustry = baseMapper.selectById(parentId);
         Integer pRightValue = parentIndustry.getRightValue();
         Long rootId = parentIndustry.getRootId();
+
+        if (!parentIndustry.getHasLeaf()) {
+            this.update(Wrappers.<Industry>lambdaUpdate()
+                    .set(Industry::getHasLeaf, true)
+                    .eq(Industry::getId, parentId)
+            );
+        }
 
         industry.setHasLeaf(false);
         industry.setParentNumber(parentIndustry.getNumber());
@@ -65,7 +63,6 @@ public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
         baseMapper.insert(industry);
     }
 
-    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
     public void delete(long id) {
         Industry dbIndustry = baseMapper.selectById(id);
         AssertUtil.isTrue(dbIndustry != null, "行业不存在，删除失败！");

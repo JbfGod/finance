@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -32,11 +31,6 @@ public class Subject implements Serializable {
     private Long id;
 
     /**
-     * 所属客户
-     */
-    private Long customerId;
-
-    /**
      * 所属行业
      */
     private Long industryId;
@@ -55,6 +49,11 @@ public class Subject implements Serializable {
      * 科目类型
      */
     private Type type;
+
+    /**
+     * 科目方向
+     */
+    private Direction direction;
 
     /**
      * 辅助结算
@@ -113,9 +112,9 @@ public class Subject implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
 
-    @TableLogic
-    private Boolean deleted;
-
+    /**
+     * 科目类型
+     */
     public enum Type {
         /**
          * 科目
@@ -132,6 +131,9 @@ public class Subject implements Serializable {
         ;
     }
 
+    /**
+     * 辅助结算
+     */
     public enum AssistSettlement {
         /**
          * 无
@@ -153,6 +155,22 @@ public class Subject implements Serializable {
          * 银行
          */
         BANK,
+        ;
+    }
+
+    public enum Direction {
+        /**
+         * 借
+         */
+        BORROW,
+        /**
+         * 贷
+         */
+        LOAN,
+        /**
+         * 无
+         */
+        NOTHING,
         ;
     }
 

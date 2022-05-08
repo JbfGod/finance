@@ -6,6 +6,7 @@ import org.finance.business.convert.FunctionConvert;
 import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Function;
 import org.finance.business.entity.User;
+import org.finance.business.service.CustomerFunctionService;
 import org.finance.business.service.UserFunctionService;
 import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddUserRequest;
@@ -52,6 +53,8 @@ public class UserWeb {
     private UserService userService;
     @Resource
     private UserFunctionService userFunctionService;
+    @Resource
+    private CustomerFunctionService customerFunctionService;
 
     @GetMapping("/self")
     public R<UserSelfVO> selfInfo() {
@@ -60,17 +63,12 @@ public class UserWeb {
 
     @GetMapping("/self/menus")
     public R<List<UserOwnedMenuVO>> selfMenus() {
-        User currentUser = SecurityUtil.getCurrentUser();
-        List<UserOwnedMenuVO> ownedMenus = FunctionConvert.INSTANCE.toTreeMenus(
-                userFunctionService.getFunctionsByUserId(currentUser.getId()));
-        return R.ok(ownedMenus);
+        return R.ok(FunctionConvert.INSTANCE.toTreeMenus(this.getSelfFunctions()));
     }
 
     @GetMapping("/self/permissions")
     public R<List<String>> selfPermission() {
-        User currentUser = SecurityUtil.getCurrentUser();
-        List<String> permissions = userFunctionService.getFunctionsByUserId(currentUser.getId())
-                .stream().map(Function::getPermitCode)
+        List<String> permissions = this.getSelfFunctions().stream().map(Function::getPermitCode)
                 .filter(StringUtils::hasText)
                 .collect(Collectors.toList());
         return R.ok(permissions);
@@ -79,18 +77,22 @@ public class UserWeb {
     @GetMapping("/{userId}/functions")
     public R<List<Long>> functionIdsOfUser(@PathVariable("userId") long userId) {
         List<Long> functionIds = userFunctionService.getFunctionsByUserId(userId)
-                .stream().map(Function::getId)
+                .stream().filter(func -> !func.getHasLeaf())
+                .map(Function::getId)
                 .collect(Collectors.toList());
         return R.ok(functionIds);
     }
 
     @GetMapping("/page")
     public RPage<UserListVO> pageUser(QueryUserRequest request) {
+        User currentUser = SecurityUtil.getCurrentUser();
         IPage<UserListVO> pages = userService.page(request.extractPage(), Wrappers.<User>lambdaQuery()
-            .likeRight(StringUtils.hasText(request.getCustomerAccount()), User::getCustomerAccount, request.getCustomerAccount())
-            .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
-            .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())
-            .orderByDesc(User::getCreateBy)
+                .eq(User::getRole, request.getRole())
+                .eq(currentUser.getCustomerId() > 0, User::getCustomerId, currentUser.getCustomerId())
+                .likeRight(StringUtils.hasText(request.getCustomerAccount()), User::getCustomerAccount, request.getCustomerAccount())
+                .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
+                .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())
+                .orderByDesc(User::getCreateBy)
         ).convert(UserConvert.INSTANCE::toUserListVO);
         return RPage.build(pages);
     }
@@ -140,6 +142,18 @@ public class UserWeb {
         AssertUtil.isFalse(SecurityUtil.getCurrentUserId() == id, "不能删除当前操作用户！");
         userService.removeById(id);
         return R.ok();
+    }
+
+    private List<Function> getSelfFunctions() {
+        List<Function> functions;
+        User currentUser = SecurityUtil.getCurrentUser();
+        // 若果是管理员用户直接获取所在客户单位的功能菜单
+        if (currentUser.getRole() == User.Role.ADMIN && currentUser.getCustomerId() > 0) {
+            functions = customerFunctionService.listFunctionByCustomerId(currentUser.getCustomerId());
+        } else {
+            functions = userFunctionService.getFunctionsByUserId(currentUser.getId());
+        }
+        return functions;
     }
 
 }

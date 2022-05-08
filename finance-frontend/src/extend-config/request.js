@@ -1,6 +1,8 @@
 import {message, notification} from "antd";
 import {history} from "@/.umi/core/history";
 import {ErrorShowType} from "@/.umi/plugin-request/request";
+import constants from "@/constants";
+import * as common from "@/utils/common";
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -20,25 +22,34 @@ const codeMessage = {
   504: '网关超时。'
 }
 const DEFAULT_ERROR_PAGE = '/exception'
-
+const IGNORE_URL = ["/api/login"]
 const authHeaderInterceptor = (url, options) => {
-  const token = localStorage.getItem("AccessToken")
+  const token = common.getAccessToken()
   const authHeader = token ? {Authorization: token} : {};
   let loadingKey;
   switch (options?.method.toLowerCase()) {
     case "post":
     case "delete":
     case "put":
-      loadingKey = [options.url, options.method, new Date().getTime()]
-      message.loading({content: "操作中...", key: loadingKey})
+      if (!IGNORE_URL.includes(url)) {
+        loadingKey = [options.url, options.method, new Date().getTime()]
+        message.loading({content: "操作中...", key: loadingKey})
+      }
   }
   return {
     options: {...options, interceptors: true, headers: authHeader, loadingKey},
   };
 };
 const responseInterceptor = async (response, options) => {
+  if (response.status === 504) {
+    notification.error({
+      description: "服务器请求超时",
+      message: "网络异常",
+    });
+    return response
+  }
   const data = await response.clone().json();
-  if (data.success) {
+  if (data.success && !IGNORE_URL.includes(options.url)) {
     switch (options?.method.toLowerCase()) {
       case "post":
       case "delete":
@@ -51,9 +62,6 @@ const responseInterceptor = async (response, options) => {
   }
   // const errorCode = data?.errorCode
   let errorMessage = data?.message
-  if (response.status === 504) {
-    errorMessage = "服务器异常！"
-  }
   switch (data?.showType) {
     case ErrorShowType.SILENT:
       // do nothing
