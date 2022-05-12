@@ -43,6 +43,9 @@ export default () => {
       title: "级数", dataIndex: "level", editable: false
     },
     {
+      title: "所属行业", dataIndex: "industry", editable: false,
+    },
+    {
       title: "科目名称", dataIndex: "name"
     },
     {
@@ -99,7 +102,7 @@ export default () => {
       {hasIndustry ? (
         <ProCard ghost gutter={[8, 0]}>
           <ProCard colSpan={5} bordered className="cardCommon">
-            <Tree showLine={true} selectedKeys={[selectedIndustry.id]} defaultExpandAll
+            <Tree showLine={{showLeafIcon: false}} selectedKeys={[selectedIndustry.id]} defaultExpandAll
                   fieldNames={{title: "name", key: "id"}} treeData={industryTreeData}
                   onSelect={(keys, {node}) => {
                     setSelectedIndustry(node)

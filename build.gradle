@@ -1,0 +1,57 @@
+plugins {
+    id("org.springframework.boot") version "2.6.5"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("java")
+}
+
+group 'org.finance'
+version '1.0-SNAPSHOT'
+
+allprojects {
+    repositories {
+        maven{ url 'https://maven.aliyun.com/repository/central' }
+        maven{ url 'https://maven.aliyun.com/repository/public' }
+        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin'}
+        mavenCentral()
+    }
+}
+
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-web:2.6.5')
+    implementation('org.springframework.boot:spring-boot-starter-security:2.6.5')
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.5'
+    implementation 'org.activiti:activiti-spring-boot-starter-basic:6.0.0'
+    implementation('com.alibaba:druid-spring-boot-starter:1.2.8')
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.6.5'
+    implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.1'
+    implementation 'com.baomidou:mybatis-plus-generator:3.5.2'
+    implementation('com.github.xiaoymin:knife4j-spring-boot-starter:3.0.3')
+    /*implementation 'io.springfox:springfox-swagger2:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'*/
+
+
+    implementation 'org.apache.commons:commons-pool2:2.11.1'
+    implementation 'org.freemarker:freemarker:2.3.31'
+    implementation('com.alibaba:fastjson:1.2.80')
+    implementation('cn.hutool:hutool-core:5.7.22')
+    implementation('com.auth0:java-jwt:3.19.0')
+
+    compileOnly 'org.mapstruct:mapstruct:1.4.2.Final'
+    compileOnly 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    compileOnly('org.projectlombok:lombok:1.18.22')
+
+    runtimeOnly('mysql:mysql-connector-java:8.0.28')
+
+    annotationProcessor('org.projectlombok:lombok:1.18.22')
+    annotationProcessor 'org.mapstruct:mapstruct:1.4.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.6.5')
+    testImplementation('org.springframework.security:spring-security-test:5.6.2')
+}
+
+test {
+    useJUnitPlatform()
+}

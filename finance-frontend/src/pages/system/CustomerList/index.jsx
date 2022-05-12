@@ -156,11 +156,8 @@ export default () => {
           <ProCard colSpan={4} bordered className="cardCommon">
             <Tree showLine={{showLeafIcon: false}}
               // titleRender={(node) => (node.id ? `[${node.number}] ` : "") + node.name}
-                  selectedKeys={[selectedCategoryId]} expandedKeys={expandCustomerCategoryKeys}
+                  selectedKeys={[selectedCategoryId]} defaultExpandAll={true}
                   fieldNames={{title: "name", key: "id"}} treeData={customerCategoryTreeData}
-                  onExpand={(expandKeys) => {
-                    setExpandCustomerCategoryKeys([...expandKeys])
-                  }}
                   onSelect={(keys, {node}) => {
                     setSelectedCategory(node)
                     if (node.id !== selectedCategoryId) {
