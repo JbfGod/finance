@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Accessors(chain = true)
-public class Function implements Serializable {
+public class Resource implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

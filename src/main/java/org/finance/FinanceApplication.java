@@ -19,7 +19,6 @@ import java.net.UnknownHostException;
 @Slf4j
 @EnableScheduling
 @SpringBootApplication(exclude={
-        org.activiti.spring.boot.SecurityAutoConfiguration.class,
         SecurityAutoConfiguration.class
 })
 public class FinanceApplication extends SpringBootServletInitializer {

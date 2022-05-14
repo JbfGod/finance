@@ -10,11 +10,11 @@ import java.util.List;
  * @author jiangbangfa
  */
 @Data
-public class GrantFunctionsToUserRequest {
+public class GrantResourcesToCustomerRequest {
 
-    @NotNull(message = "用户ID不能为空")
-    private Long userId;
+    @NotNull(message = "客户ID不能为空")
+    private Long customerId;
 
     @Size(min = 1, message = "至少选择一个功能权限")
-    private List<Long> functionIds;
+    private List<Long> resourceIds;
 }

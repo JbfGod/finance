@@ -1,7 +1,7 @@
 package org.finance.business.web.vo;
 
 import lombok.Data;
-import org.finance.business.entity.Function;
+import org.finance.business.entity.Resource;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * @author jiangbangfa
  */
 @Data
-public class TreeFunctionVO {
+public class TreeResourceVO {
 
     private Long id;
 
@@ -23,7 +23,7 @@ public class TreeFunctionVO {
 
     private Integer level;
 
-    private Function.Type type;
+    private Resource.Type type;
 
     private String url;
 
@@ -31,6 +31,6 @@ public class TreeFunctionVO {
 
     private Integer sortNum;
 
-    private List<TreeFunctionVO> children;
+    private List<TreeResourceVO> children;
 
 }

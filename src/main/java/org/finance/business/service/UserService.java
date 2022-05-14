@@ -3,10 +3,10 @@ package org.finance.business.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.Customer;
-import org.finance.business.entity.Function;
+import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
-import org.finance.business.mapper.UserFunctionMapper;
+import org.finance.business.mapper.UserResourceMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
@@ -23,7 +23,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,11 +37,11 @@ import java.util.stream.Collectors;
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> implements CustomerUserService {
 
-    @Resource
+    @javax.annotation.Resource
     private CustomerMapper customerMapper;
-    @Resource
-    private UserFunctionMapper userFunctionMapper;
-    @Resource
+    @javax.annotation.Resource
+    private UserResourceMapper userResourceMapper;
+    @javax.annotation.Resource
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
@@ -57,15 +56,15 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
                 .eq(User::getAccount, account)
         );
         if (user == null) {
-            throw new UsernameNotFoundException("用户不存在");
+            throw new UsernameNotFoundException("用户名或密码不正确！");
         }
         if (user.getCustomerId() != 0) {
             Customer customer = customerMapper.findByAccountName(customerAccount);
             if (customer == null) {
-                throw new UsernameNotFoundException("用户不存在");
+                throw new UsernameNotFoundException("用户名或密码不正确！");
             }
             if (!customer.getEnabled()) {
-                throw new DisabledException("客户已被禁用");
+                throw new DisabledException("客户已被禁用！");
             }
             Customer.Status status = customer.getStatus();
             if (status == Customer.Status.INITIALIZING) {
@@ -89,8 +88,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Override
     @Cacheable("User")
     public List<GrantedAuthority> loadAuthoritiesByUserId(Long userId) {
-        return userFunctionMapper.listFunctionByUserId(userId)
-                .stream().map(Function::getPermitCode)
+        return userResourceMapper.listResourceByUserId(userId)
+                .stream().map(Resource::getPermitCode)
                 .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

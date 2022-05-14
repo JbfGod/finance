@@ -16,7 +16,7 @@ import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.IndustryMapper;
 import org.finance.business.mapper.SequenceMapper;
 import org.finance.business.mapper.SubjectMapper;
-import org.finance.business.mapper.UserFunctionMapper;
+import org.finance.business.mapper.UserResourceMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.business.task.CustomerTask;
 import org.finance.infrastructure.constants.Constants;
@@ -45,8 +45,6 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private UserFunctionMapper userFunctionMapper;
-    @Resource
     private SequenceMapper sequenceMapper;
     @Resource
     private SubjectMapper subjectMapper;
@@ -63,9 +61,9 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(long id) {
-        Customer customer = baseMapper.selectById(id);
+        // Customer customer = baseMapper.selectById(id);
         baseMapper.deleteById(id);
-        baseMapper.dropRelatedTblByTableIdentified(customer.getTableIdentified());
+        // baseMapper.dropRelatedTblByTableIdentified(customer.getTableIdentified());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -132,13 +130,13 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
         // Copy industry data to new customer
         Map<String, Industry> industryByNumber = new HashMap<>(20);
-        industryById.values().stream().filter(industry -> industry.getParentId() == Constants.DEFAULT_CUSTOMER_ID).forEach(industry -> {
+        industryById.values().forEach(industry -> {
             recursionInsertIndustry(customerId, IndustryConvert.INSTANCE.clone(industry), industryById, industryByNumber);
         });
 
         // Copy subject data to new customer
         Map<String, Subject> subjectByNumber = new HashMap<>(20);
-        subjectById.values().stream().filter(sub -> sub.getParentId() == Constants.DEFAULT_CUSTOMER_ID).forEach(sub -> {
+        subjectById.values().forEach(sub -> {
             recursionInsertSubject(customerId, SubjectConvert.INSTANCE.clone(sub), subjectById, subjectByNumber, industryById, industryByNumber);
         });
     }
@@ -147,6 +145,9 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
             long customerId, Subject sub, Map<Long, Subject> subjectById, Map<String, Subject> subjectByNumber,
             Map<Long, Industry> industryById, Map<String, Industry> industryByNumber
     ) {
+        if (subjectByNumber.get(sub.getNumber()) != null) {
+            return;
+        }
         Industry industry = industryById.get(sub.getIndustryId());
         if (industry == null) {
             return;
@@ -155,12 +156,12 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         if (industry == null) {
             return;
         }
+        subjectByNumber.put(sub.getNumber(), sub);
         Long parentId = sub.getParentId();
         if (parentId == Constants.DEFAULT_CUSTOMER_ID) {
             subjectMapper.insert(sub.setId(null).setCustomerId(customerId).setIndustryId(industry.getId()));
             return;
         }
-        subjectByNumber.put(sub.getNumber(), sub);
         Subject pSubject = subjectByNumber.get(sub.getParentNumber());
         if (pSubject == null) {
             pSubject =  SubjectConvert.INSTANCE.clone(subjectById.get(parentId));
@@ -170,6 +171,9 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
     }
 
     private void recursionInsertIndustry(long customerId, Industry industry, Map<Long, Industry> industryById, Map<String, Industry> industryByNumber) {
+        if (industryByNumber.get(industry.getNumber()) != null) {
+            return;
+        }
         industryByNumber.put(industry.getNumber(), industry);
         Long parentId = industry.getParentId();
         if (parentId == Constants.DEFAULT_CUSTOMER_ID) {
@@ -181,6 +185,6 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
             pIndustry =  IndustryConvert.INSTANCE.clone(industryById.get(parentId));
             recursionInsertIndustry(customerId, pIndustry, industryById, industryByNumber);
         }
-        industryMapper.insert(industry.setId(null).setCustomerId(customerId).setParentId(pIndustry.getParentId()));
+        industryMapper.insert(industry.setId(null).setCustomerId(customerId).setParentId(pIndustry.getId()));
     }
 }

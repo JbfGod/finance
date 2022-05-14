@@ -18,29 +18,29 @@ export function TreeInput({value = [], initialValue, onChange, ...props}) {
                checkedKeys={checkedKeys}/>
 }
 
-export function GrantFunctionForm({functionData, functionIdentifies, ...props}) {
+export function GrantResourceForm({resourceData, resourceIdentifies, ...props}) {
   const [form] = useForm()
   useEffect(() => {
-    form.setFieldsValue({functionIds: functionIdentifies.map(v => v.id)})
-  }, [functionIdentifies])
+    form.setFieldsValue({resourceIds: resourceIdentifies.map(v => v.id)})
+  }, [resourceIdentifies])
   return (
     <ProForm form={form} {...props}>
-      <ProFormItem name="functionIds">
+      <ProFormItem name="resourceIds">
         <TreeInput defaultExpandAll={true}
-                   initialValue={functionIdentifies.filter(v => !v.hasLeaf).map(v => v.id)}
+                   initialValue={resourceIdentifies.filter(v => !v.hasLeaf).map(v => v.id)}
                    fieldNames={{title: "name", key: "id"}}
-                   treeData={functionData}/>
+                   treeData={resourceData}/>
       </ProFormItem>
     </ProForm>
   )
 }
 
-export default function FunctionDrawerForm({functionData, ...props}) {
+export default function ResourceDrawerForm({resourceData, ...props}) {
   const [form] = useForm()
   return (
     <DrawerForm form={form} {...props}>
-      <ProFormItem name="functionIds">
-        <TreeInput defaultExpandAll={true} fieldNames={{title: "name", key: "id"}} treeData={functionData}/>
+      <ProFormItem name="resourceIds">
+        <TreeInput defaultExpandAll={true} fieldNames={{title: "name", key: "id"}} treeData={resourceData}/>
       </ProFormItem>
     </DrawerForm>
   )

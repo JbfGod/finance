@@ -23,9 +23,8 @@ import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
 import constants from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
-import * as functionWeb from "@/services/swagger/functionWeb";
 import * as industryWeb from "@/services/swagger/industryWeb";
-import FunctionDrawerForm from "@/pages/FunctionDrawerForm";
+import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
@@ -34,7 +33,7 @@ export default () => {
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
   const [expandCustomerCategoryKeys, setExpandCustomerCategoryKeys] = useState([0])
   const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
-    functionData: [], selectedFunctionIds: [], customer: null
+    resourceData: [], selectedResourceIds: [], customer: null
   })
   const [createModal, handleModal, openModal] = useModalWithParam()
 
@@ -138,10 +137,10 @@ export default () => {
             openEditModal({initialValues: row})
           }}>编辑</a>,
           <a key="grant" onClick={async () => {
-            const {data: selectedFunctionIds} = await customerWeb.functionIdsOfCustomerUsingGET({customerId: row.id})
-            const {data: functionData} = await functionWeb.treeFunctionsUsingGET()
+            const {data: selectedResourceIds} = await customerWeb.resourceIdsOfCustomerUsingGET({customerId: row.id})
+            const {data: resourceData} = await resourceWeb.treeResourcesUsingGET()
             openGrantDrawer({
-              customer: row, functionData, selectedFunctionIds
+              customer: row, resourceData, selectedResourceIds
             })
           }}>授权</a>,
         ]
@@ -180,12 +179,12 @@ export default () => {
             />
             <EditFormModal modal={editModal} handleModal={handleEditModal} actionRef={actionRef}
                            industryTreeData={industryTreeData}/>
-            <FunctionDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
-                                drawerProps={{destroyOnClose: true}} functionData={grantDrawer.functionData}
-                                initialValues={{functionIds: grantDrawer.selectedFunctionIds}}
+            <ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
+                                drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.resourceData}
+                                initialValues={{resourceIds: grantDrawer.selectedResourceIds}}
                                 onVisibleChange={handleGrantDrawerVisible}
                                 onFinish={async (v) => {
-                                  return customerWeb.grantFunctionToCustomerUsingPOST({
+                                  return customerWeb.grantResourceToCustomerUsingPOST({
                                     ...v,
                                     customerId: grantDrawer.customer.id
                                   })
@@ -212,7 +211,7 @@ function AddFormModal({createModal, handleModal, categoryId, actionRef, industry
         const {dateRange, user} = values;
         customerWeb.addCustomerUsingPOST({
           ...values,
-          user: {...user, password: user.password || "123456"},
+          user: {...user, password: user.password || "123456", role: "ADMIN"},
           categoryId: categoryId,
           effectTime: dateRange[0],
           expireTime: dateRange[1],

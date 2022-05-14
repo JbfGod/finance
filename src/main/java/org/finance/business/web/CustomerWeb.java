@@ -3,21 +3,21 @@ package org.finance.business.web;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.CustomerConvert;
-import org.finance.business.convert.FunctionConvert;
+import org.finance.business.convert.ResourceConvert;
 import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
-import org.finance.business.entity.Function;
+import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.business.service.CustomerCategoryService;
-import org.finance.business.service.CustomerFunctionService;
+import org.finance.business.service.CustomerResourceService;
 import org.finance.business.service.CustomerService;
 import org.finance.business.web.request.AddCustomerRequest;
-import org.finance.business.web.request.GrantFunctionsToCustomerRequest;
+import org.finance.business.web.request.GrantResourcesToCustomerRequest;
 import org.finance.business.web.request.QueryCustomerRequest;
 import org.finance.business.web.request.UpdateCustomerRequest;
 import org.finance.business.web.vo.CustomerListVO;
-import org.finance.business.web.vo.FunctionIdentifiedVO;
-import org.finance.business.web.vo.TreeFunctionVO;
+import org.finance.business.web.vo.ResourceIdentifiedVO;
+import org.finance.business.web.vo.TreeResourceVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.springframework.util.StringUtils;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,25 +47,25 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/customer")
 public class CustomerWeb {
 
-    @Resource
+    @javax.annotation.Resource
     private CustomerService customerService;
-    @Resource
+    @javax.annotation.Resource
     private CustomerCategoryService customerCategoryService;
-    @Resource
-    private CustomerFunctionService customerFunctionService;
+    @javax.annotation.Resource
+    private CustomerResourceService customerResourceService;
 
-    @GetMapping("/{customerId}/functionIds")
-    public R<List<FunctionIdentifiedVO>> functionIdsOfCustomer(@PathVariable("customerId") long customerId) {
-        List<FunctionIdentifiedVO> functionIds = customerFunctionService.listFunctionByCustomerId(customerId)
-                .stream().map(FunctionConvert.INSTANCE::toFunctionIdentifiedVO)
+    @GetMapping("/{customerId}/resourceIds")
+    public R<List<ResourceIdentifiedVO>> resourceIdsOfCustomer(@PathVariable("customerId") long customerId) {
+        List<ResourceIdentifiedVO> resourceIds = customerResourceService.listResourceByCustomerId(customerId)
+                .stream().map(ResourceConvert.INSTANCE::toResourceIdentifiedVO)
                 .collect(Collectors.toList());
-        return R.ok(functionIds);
+        return R.ok(resourceIds);
     }
 
-    @GetMapping("/{customerId}/treeFunction")
-    public R<List<TreeFunctionVO>> treeFunctionOfCustomer(@PathVariable("customerId") long customerId) {
-        List<Function> functions = customerFunctionService.listFunctionByCustomerId(customerId);
-        return R.ok(FunctionConvert.INSTANCE.toTreeFunctionVO(functions));
+    @GetMapping("/{customerId}/treeResource")
+    public R<List<TreeResourceVO>> treeResourceOfCustomer(@PathVariable("customerId") long customerId) {
+        List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId);
+        return R.ok(ResourceConvert.INSTANCE.toTreeResourceVO(resources));
     }
 
     @GetMapping("/page")
@@ -98,9 +97,9 @@ public class CustomerWeb {
         return RPage.build(pages);
     }
 
-    @PostMapping("/grantFunctions")
-    public R grantFunctionToCustomer(@RequestBody @Valid GrantFunctionsToCustomerRequest request) {
-        customerFunctionService.grantFunctionsToUser(request.getCustomerId(), request.getFunctionIds());
+    @PostMapping("/grantResources")
+    public R grantResourceToCustomer(@RequestBody @Valid GrantResourcesToCustomerRequest request) {
+        customerResourceService.grantResourcesToUser(request.getCustomerId(), request.getResourceIds());
         return R.ok();
     }
 

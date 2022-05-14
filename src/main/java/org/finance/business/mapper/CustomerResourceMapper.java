@@ -2,8 +2,8 @@ package org.finance.business.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
-import org.finance.business.entity.CustomerFunction;
-import org.finance.business.entity.Function;
+import org.finance.business.entity.CustomerResource;
+import org.finance.business.entity.Resource;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ import java.util.List;
  * @author jiangbangfa
  * @since 2022-04-09
  */
-public interface CustomerFunctionMapper extends BaseMapper<CustomerFunction> {
+public interface CustomerResourceMapper extends BaseMapper<CustomerResource> {
 
-    List<Function> listFunctionByCustomerId(@Param("customerId") long customerId);
+    List<Resource> listResourceByCustomerId(@Param("customerId") long customerId);
 
 }

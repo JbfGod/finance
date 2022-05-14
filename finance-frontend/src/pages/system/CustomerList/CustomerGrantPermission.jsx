@@ -1,18 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Button, Col, Empty, message, Tree} from "antd";
+import {Button, Col, Empty, Tree} from "antd";
 import {history} from "umi"
-import {useModalWithParam} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import ExProTable from "@/components/Table/ExtProTable";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
 import * as customerWeb from "@/services/swagger/customerWeb";
-import * as functionWeb from "@/services/swagger/functionWeb";
-import * as industryWeb from "@/services/swagger/industryWeb";
-import FunctionDrawerForm, {GrantFunctionForm, TreeInput} from "@/pages/FunctionDrawerForm";
-import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
-import * as subjectWeb from "@/services/swagger/subjectWeb";
-import {ProForm, ProFormItem} from "@ant-design/pro-form";
+import {GrantResourceForm} from "@/pages/ResourceDrawerForm";
+import * as resourceWeb from "@/services/swagger/resourceWeb";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
@@ -21,8 +16,8 @@ export default () => {
   const [expandCustomerCategoryKeys, setExpandCustomerCategoryKeys] = useState([0])
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [selectedCustomerId] = selectedRowKeys
-  const [functionsData, setFunctionsData] = useState([])
-  const [selectedFunctionIdentifies, setSelectedFunctionIdentifies] = useState([])
+  const [resourcesData, setResourcesData] = useState([])
+  const [selectedResourceIdentifies, setSelectedResourceIdentifies] = useState([])
 
   // 加载客户分类
   const fetchTreeCustomerCategory = async () => {
@@ -30,24 +25,24 @@ export default () => {
     setCustomerCategoryTreeData([{id: 0, number: "0", name: "全部分类", children: data}])
   }
   // 加载所有功能权限
-  const fetchTreeFunction = async () => {
-    const {data} = await functionWeb.treeFunctionsUsingGET()
-    setFunctionsData(data)
+  const fetchTreeResource = async () => {
+    const {data} = await resourceWeb.treeResourcesUsingGET()
+    setResourcesData(data)
   }
   // 加载选中客户拥有的功能权限
-  const fetchFunctionIdsOfCustomer = async () => {
+  const fetchResourceIdsOfCustomer = async () => {
     if (selectedCustomerId) {
-      const {data} = await customerWeb.functionIdsOfCustomerUsingGET({customerId: selectedCustomerId})
-      setSelectedFunctionIdentifies(data)
+      const {data} = await customerWeb.resourceIdsOfCustomerUsingGET({customerId: selectedCustomerId})
+      setSelectedResourceIdentifies(data)
     }
   }
   useEffect(() => {
     fetchTreeCustomerCategory()
-    fetchTreeFunction()
+    fetchTreeResource()
   }, [])
 
   useEffect(() => {
-    fetchFunctionIdsOfCustomer()
+    fetchResourceIdsOfCustomer()
   }, [selectedCustomerId])
   const actionRef = useRef()
   const columns = [
@@ -104,10 +99,10 @@ export default () => {
             <Col span={8}>
               <ProCard>
                 {selectedCustomerId && (
-                  <GrantFunctionForm functionIdentifies={selectedFunctionIdentifies}
-                                     functionData={functionsData}
+                  <GrantResourceForm resourceIdentifies={selectedResourceIdentifies}
+                                     resourceData={resourcesData}
                                      onFinish={async (v) => {
-                                       return customerWeb.grantFunctionToCustomerUsingPOST({
+                                       return customerWeb.grantResourceToCustomerUsingPOST({
                                          ...v,
                                          customerId: selectedCustomerId
                                        })

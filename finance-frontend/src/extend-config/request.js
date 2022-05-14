@@ -1,7 +1,6 @@
 import {message, notification} from "antd";
 import {history} from "@/.umi/core/history";
 import {ErrorShowType} from "@/.umi/plugin-request/request";
-import constants from "@/constants";
 import * as common from "@/utils/common";
 
 const codeMessage = {
@@ -61,23 +60,25 @@ const responseInterceptor = async (response, options) => {
     return response
   }
   // const errorCode = data?.errorCode
-  let errorMessage = data?.message
+  let errorMessage = data?.message || "未知的服务异常！"
+  const loadingKey = options?.loadingKey
   switch (data?.showType) {
     case ErrorShowType.SILENT:
       // do nothing
       break;
     case ErrorShowType.WARN_MESSAGE:
-      message.warn({content: errorMessage, key: options.loadingKey})
+      message.warn({content: errorMessage, key: loadingKey})
       break
     case ErrorShowType.ERROR_MESSAGE:
     case ErrorShowType.NOTIFICATION:
-      message.error({content: errorMessage, key: options.loadingKey})
+      console.log(errorMessage, options.loadingKey)
+      message.error({content: errorMessage, key: loadingKey})
       break;
     case ErrorShowType.REDIRECT:
-      message.error({content: errorMessage, key: options.loadingKey})
+      message.error({content: errorMessage, key: loadingKey})
       history.push({
         pathname: DEFAULT_ERROR_PAGE,
-        query: {errorCode: data.errorCode, errorMessage: errorMessage}
+        query: {errorCode: data.errorCode, errorMessage}
       })
       break
     default:

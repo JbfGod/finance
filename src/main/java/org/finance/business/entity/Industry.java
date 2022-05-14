@@ -79,9 +79,9 @@ public class Industry implements Serializable {
     private String remark;
 
     /**
-     * 根级别ID
+     * 根级别Number
      */
-    private Long rootId;
+    private String rootNumber;
 
     @TableField(fill = FieldFill.INSERT)
     private String createBy;

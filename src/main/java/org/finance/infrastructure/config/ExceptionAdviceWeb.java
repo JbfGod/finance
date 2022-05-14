@@ -50,7 +50,7 @@ public class ExceptionAdviceWeb {
 
     @ExceptionHandler(value = {AccessDeniedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public R handleAccessDeniedException(AccessDeniedException e) {
+    public R handleAccessDeniedException(AccessDeniedException e)    {
         return R.warn("权限不足！");
     }
 

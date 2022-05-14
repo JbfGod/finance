@@ -5,7 +5,7 @@ import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "
 import * as hooks from "@/utils/hooks";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
-import FunctionDrawerForm from "@/pages/FunctionDrawerForm";
+import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import {useModalWithParam} from "@/utils/hooks";
 import {Badge} from "antd";
@@ -32,11 +32,11 @@ export default () => {
   const [createModalVisible, handleModalVisible] = useState(false)
   const [updateModalVisible, handleUpdateModalVisible] = useState(false)
   const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
-    functionData: [], selectedFunctionIds: [], user: null
+    functionData: [], selectedResourceIds: [], user: null
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
   const actionRef = useRef()
-  const isSuperCustomer = hooks.useCurrentUser().customerId === 0
+  const isSuperCustomer = hooks.useCurrentUser()?.customerId === 0
 
   const columns = [
     {
@@ -61,10 +61,10 @@ export default () => {
             actionRef.current?.reload()
           }}/>,
           <a key="grant" onClick={async () => {
-            const {data: selectedFunctionIds} = await userWeb.functionIdsOfUserUsingGET({userId: row.id})
-            const {data: functionData} = await customerWeb.treeFunctionOfCustomerUsingGET({customerId: row.customerId})
+            const {data: selectedResourceIds} = await userWeb.resourceIdsOfUserUsingGET({userId: row.id})
+            const {data: functionData} = await customerWeb.treeResourceOfCustomerUsingGET({customerId: row.customerId})
             openGrantDrawer({
-              user: row, functionData, selectedFunctionIds
+              user: row, functionData, selectedResourceIds
             })
           }}>授权</a>,
           <a key="resetPwd" onClick={() => {
@@ -200,12 +200,12 @@ export default () => {
           }
         </ProFormItem>
       </ModalForm>
-      <FunctionDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
+      <ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
                           drawerProps={{destroyOnClose: true}} functionData={grantDrawer.functionData}
-                          initialValues={{functionIds: grantDrawer.selectedFunctionIds}}
+                          initialValues={{resourceIds: grantDrawer.selectedResourceIds}}
                           onVisibleChange={handleGrantDrawerVisible}
                           onFinish={async (v) => {
-                            return userWeb.grantFunctionsToUserUsingPOST({...v, userId: grantDrawer.user.id})
+                            return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.user.id})
                           }}
       />
     </PageContainer>

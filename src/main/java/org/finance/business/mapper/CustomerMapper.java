@@ -17,8 +17,6 @@ public interface CustomerMapper extends BaseMapper<Customer> {
 
     void executeSql(@Param("sql") String sql);
 
-    void initializationData(@Param("tableId") String tblIdentified);
-
     void dropRelatedTblByTableIdentified(@Param("tblIdentified") String tblIdentified);
 
     default Customer findByAccountName(String accountName) {

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2022-04-09
  */
 @RestController
-@RequestMapping("/api/customerFunction")
-public class CustomerFunctionWeb {
+@RequestMapping("/api/customerResource")
+public class CustomerResourceWeb {
 
 }

@@ -53,7 +53,7 @@ CREATE TABLE if not exists `customer_category` (
     `level` int(11) not null default 1 comment '节点深度',
     `left_value` int(11) not null default 1 comment '节点左值',
     `right_value` int(11) not null default 2 comment '节点右值',
-    `root_id` int(11) not null comment '根级别ID',
+    `root_number` varchar(50) not null comment '根级别Number',
     `remark` varchar(500) comment '备注',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
@@ -63,7 +63,7 @@ CREATE TABLE if not exists `customer_category` (
     unique key (`number`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='客户分类表';
 
-CREATE TABLE if not exists `function` (
+CREATE TABLE if not exists `resource` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `number` varchar(50) not null comment '功能编号',
     `name` varchar(255) NOT NULL COMMENT '功能名称',
@@ -84,24 +84,24 @@ CREATE TABLE if not exists `function` (
     unique key (`number`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='功能表';
 
-CREATE TABLE if not exists `user_function` (
+CREATE TABLE if not exists `user_resource` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `user_id` bigint(20) not null comment '用户ID',
-    `function_id` varchar(255) NOT NULL COMMENT '功能ID',
+    `resource_id` varchar(255) NOT NULL COMMENT '功能ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
-    unique key (`user_id`, `function_id`)
+    unique key (`user_id`, `resource_id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='用户的功能列表';
 
-CREATE TABLE if not exists `customer_function` (
+CREATE TABLE if not exists `customer_resource` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `customer_id` bigint(20) not null comment '客户ID',
-    `function_id` bigint(20) NOT NULL COMMENT '功能ID',
+    `resource_id` bigint(20) NOT NULL COMMENT '功能ID',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
-    unique key (`customer_id`, `function_id`)
+    unique key (`customer_id`, `resource_id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='客户的功能列表';
 
 CREATE TABLE if not exists `industry` (
@@ -115,7 +115,7 @@ CREATE TABLE if not exists `industry` (
     `level` int(11) not null default 1 comment '节点深度',
     `left_value` int(11) not null default 1 comment '节点左值',
     `right_value` int(11) not null default 2 comment '节点右值',
-    `root_id` int(11) not null comment '根级别ID',
+    `root_number` varchar(50) not null comment '根级别Number',
     `remark` varchar(500) comment '备注',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
@@ -140,7 +140,7 @@ CREATE TABLE if not exists `subject` (
     `level` int(11) not null default 1 comment '节点深度',
     `left_value` int(11) not null default 1 comment '节点左值',
     `right_value` int(11) not null default 2 comment '节点右值',
-    `root_id` int(11) not null comment '根级别ID',
+    `root_number` varchar(50) not null comment '根级别Number',
     `remark` varchar(500) comment '备注',
     `create_by` varchar(50) not null default 'admin',
     `create_time` datetime not null default current_timestamp,
@@ -231,7 +231,7 @@ CREATE TABLE if not exists `sequence` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='序列表';
 
-replace into `function` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code)values
+replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code)values
 (1, '01', '系统管理', 0, '', true, 1, 'MENU', '/system', '', ''),
 (2, '0101', '用户管理', 0, '01', false, 1, 'MENU', '/system/user', '', 'system:user'),
 -- (3, '0102', '用户权限管理', 0, '01', true, 1, 'MENU', '/system/grantUserPermission', '', 'system:user'),
@@ -242,10 +242,10 @@ replace into `function` (id, number, name, parent_id, parent_number, has_leaf, l
 (21, '0201', '行业管理', 0, '02', false, 1, 'MENU', '/base/industry', '', 'base:industry'),
 (22, '0202', '科目管理', 0, '02', false, 1, 'MENU', '/base/subject', '', 'base:subject');
 
-delete from `user_function` where user_id = 1;
-insert into `user_function` (user_id, function_id)
-select 1, f.id from `function` f;
+delete from `user_resource` where user_id = 1;
+insert into `user_resource` (user_id, resource_id)
+select 1, f.id from `resource` f;
 
-delete from `customer_function` where customer_id = 0;
-insert into `customer_function` (customer_id, function_id)
-select 0, f.id from `function` f;
+delete from `customer_resource` where customer_id = 0;
+insert into `customer_resource` (customer_id, resource_id)
+select 0, f.id from `resource` f;

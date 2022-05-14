@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * @author jiangbangfa
  */
-@Component
 public class CustomerTenantLineHandler implements TenantLineHandler {
 
     @Override
@@ -40,13 +39,14 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
         return "customer_id";
     }
 
-    private final List<String> ignoreTables = Arrays.asList(
-        "user", "sequence", "function"
+    private final List<String> includeTables = Arrays.asList(
+            "expense_bill", "expense_item", "expense_item_attachment", "expense_item_subsidy",
+            "industry", "subject"
     );
 
     @Override
     public boolean ignoreTable(String tableName) {
-        return ignoreTables.contains(tableName);
+        return !includeTables.contains(tableName.replace("`", ""));
     }
 
 }

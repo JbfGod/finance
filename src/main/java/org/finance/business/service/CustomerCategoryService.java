@@ -31,14 +31,13 @@ public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper,
             customerCategory.setParentNumber("0");
             customerCategory.setLeftValue(1);
             customerCategory.setRightValue(2);
-            customerCategory.setRootId(0L);
+            customerCategory.setRootNumber(customerCategory.getNumber());
             baseMapper.insert(customerCategory);
-            baseMapper.updateById(customerCategory.setRootId(customerCategory.getId()));
             return;
         }
         CustomerCategory parentCategory = baseMapper.selectById(parentId);
         Integer pRightValue = parentCategory.getRightValue();
-        Long rootId = parentCategory.getRootId();
+        String rootNumber = parentCategory.getRootNumber();
 
         if (!parentCategory.getHasLeaf()) {
             this.update(Wrappers.<CustomerCategory>lambdaUpdate()
@@ -52,15 +51,15 @@ public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper,
         customerCategory.setLevel(parentCategory.getLevel() + 1);
         customerCategory.setLeftValue(pRightValue);
         customerCategory.setRightValue(pRightValue + 1);
-        customerCategory.setRootId(rootId);
+        customerCategory.setRootNumber(rootNumber);
         this.update(Wrappers.<CustomerCategory>lambdaUpdate()
                 .setSql("left_value = left_value + 2")
-                .eq(CustomerCategory::getRootId, rootId)
+                .eq(CustomerCategory::getRootNumber, rootNumber)
                 .ge(CustomerCategory::getLeftValue, pRightValue)
         );
         this.update(Wrappers.<CustomerCategory>lambdaUpdate()
                 .setSql("right_value = right_value + 2")
-                .eq(CustomerCategory::getRootId, rootId)
+                .eq(CustomerCategory::getRootNumber, rootNumber)
                 .ge(CustomerCategory::getRightValue, pRightValue)
         );
         baseMapper.insert(customerCategory);
@@ -70,7 +69,7 @@ public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper,
         CustomerCategory dbCategory = baseMapper.selectById(id);
         AssertUtil.isTrue(dbCategory != null, "客户类别不存在，删除失败！");
         baseMapper.delete(Wrappers.<CustomerCategory>lambdaQuery()
-                .eq(CustomerCategory::getRootId, dbCategory.getRootId())
+                .eq(CustomerCategory::getRootNumber, dbCategory.getRootNumber())
                 .ge(CustomerCategory::getLeftValue, dbCategory.getLeftValue())
                 .le(CustomerCategory::getRightValue, dbCategory.getRightValue())
         );
@@ -80,7 +79,7 @@ public class CustomerCategoryService extends ServiceImpl<CustomerCategoryMapper,
         CustomerCategory category = baseMapper.selectById(categoryId);
         return baseMapper.selectList(Wrappers.<CustomerCategory>lambdaQuery()
                 .select(CustomerCategory::getId)
-                .eq(CustomerCategory::getRootId, category.getRootId())
+                .eq(CustomerCategory::getRootNumber, category.getRootNumber())
                 .ge(CustomerCategory::getLeftValue, category.getLeftValue())
                 .le(CustomerCategory::getRightValue, category.getRightValue())
         ).stream().map(CustomerCategory::getId).collect(Collectors.toList());

@@ -3,7 +3,7 @@ import PageContainer from "@/components/PageContainer";
 import {Col} from "antd";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam} from "@/utils/hooks";
+import {useModalWithParam, useTableExpandable} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
@@ -11,6 +11,7 @@ import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 
 export default () => {
   const [createModal, handleModal, openModal] = useModalWithParam()
+  const [expandable, onLoad] = useTableExpandable()
   const actionRef = useRef()
   const columns = [
     {
@@ -54,7 +55,7 @@ export default () => {
       <ProCard ghost gutter={[8, 0]}>
         <Col span={24}>
           <ExProTable pagination={false} actionRef={actionRef} columns={columns}
-                      expandable={{expandRowByClick:true}}
+                      expandable={expandable} onLoad={onLoad}
                       search={false} onNew={() => openModal({parentId : 0})}
                       editable={editable}
                       request={customerCategoryWeb.treeCustomerCategoryUsingGET}

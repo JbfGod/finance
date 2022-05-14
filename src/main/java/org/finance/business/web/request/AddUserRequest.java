@@ -20,7 +20,7 @@ public class AddUserRequest {
 
     @NotBlank(message = "登录账号不能为空！")
     @Size(min = 5, max = 25, message = "登录账号只允许有5-25个字符！")
-    @Pattern(regexp = "[0-9a-zA-Z]{5,25}", message = "登录账号只允许包含数字和字母")
+    @Pattern(regexp = "[\\da-zA-Z]{5,25}", message = "登录账号只允许包含数字和字母")
     private String account;
 
     @NotBlank(message = "密码不能为空！")

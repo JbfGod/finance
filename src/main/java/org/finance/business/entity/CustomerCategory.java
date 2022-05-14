@@ -73,9 +73,9 @@ public class CustomerCategory implements Serializable {
     private Integer rightValue;
 
     /**
-     * 根级别ID
+     * 根级别Number
      */
-    private Long rootId;
+    private String rootNumber;
 
     /**
      * 备注

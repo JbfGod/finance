@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2022-04-04
  */
 @RestController
-@RequestMapping("/api/userFunction")
-public class UserFunctionWeb {
+@RequestMapping("/api/userResource")
+public class UserResourceWeb {
 
 }

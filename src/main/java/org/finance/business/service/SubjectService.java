@@ -28,15 +28,14 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
             subject.setLevel(1);
             subject.setLeftValue(1);
             subject.setRightValue(2);
-            subject.setRootId(0L);
+            subject.setRootNumber(subject.getNumber());
             baseMapper.insert(subject);
-            baseMapper.updateById(subject.setRootId(subject.getId()));
             return;
         }
         Subject parentSubject = baseMapper.selectById(parentId);
         Long industryId = parentSubject.getIndustryId();
         Integer pRightValue = parentSubject.getRightValue();
-        Long rootId = parentSubject.getRootId();
+        String rootNumber = parentSubject.getRootNumber();
 
         if (!parentSubject.getHasLeaf()) {
             this.update(Wrappers.<Subject>lambdaUpdate()
@@ -51,18 +50,18 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
         subject.setLevel(parentSubject.getLevel() + 1);
         subject.setLeftValue(pRightValue);
         subject.setRightValue(pRightValue + 1);
-        subject.setRootId(rootId);
+        subject.setRootNumber(rootNumber);
         this.update(Wrappers.<Subject>lambdaUpdate()
                 .setSql("left_value = left_value + 2")
                 .eq(Subject::getCustomerId, parentSubject.getCustomerId())
-                .eq(Subject::getRootId, rootId)
+                .eq(Subject::getRootNumber, rootNumber)
                 .eq(Subject::getIndustryId, industryId)
                 .ge(Subject::getLeftValue, pRightValue)
         );
         this.update(Wrappers.<Subject>lambdaUpdate()
                 .setSql("right_value = right_value + 2")
                 .eq(Subject::getCustomerId, parentSubject.getCustomerId())
-                .eq(Subject::getRootId, rootId)
+                .eq(Subject::getRootNumber, rootNumber)
                 .eq(Subject::getIndustryId, industryId)
                 .ge(Subject::getRightValue, pRightValue)
         );
@@ -73,7 +72,7 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
         Subject dbSubject = baseMapper.selectById(id);
         AssertUtil.isTrue(dbSubject != null, "行业不存在，删除失败！");
         baseMapper.delete(Wrappers.<Subject>lambdaQuery()
-                .eq(Subject::getRootId, dbSubject.getRootId())
+                .eq(Subject::getRootNumber, dbSubject.getRootNumber())
                 .ge(Subject::getLeftValue, dbSubject.getLeftValue())
                 .le(Subject::getRightValue, dbSubject.getRightValue())
         );

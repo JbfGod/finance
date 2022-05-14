@@ -2,8 +2,8 @@ package org.finance.business.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
-import org.finance.business.entity.Function;
-import org.finance.business.entity.UserFunction;
+import org.finance.business.entity.Resource;
+import org.finance.business.entity.UserResource;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ import java.util.List;
  * @author jiangbangfa
  * @since 2022-04-04
  */
-public interface UserFunctionMapper extends BaseMapper<UserFunction> {
+public interface UserResourceMapper extends BaseMapper<UserResource> {
 
-    List<Function> listFunctionByUserId(@Param("userId") Long userId);
+    List<Resource> listResourceByUserId(@Param("userId") Long userId);
 
 }

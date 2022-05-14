@@ -14,17 +14,17 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 客户的功能列表
+ * 用户的功能列表
  * </p>
  *
  * @author jiangbangfa
- * @since 2022-04-09
+ * @since 2022-04-04
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("customer_function")
-public class CustomerFunction implements Serializable {
+@TableName("user_resource")
+public class UserResource implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,14 +35,14 @@ public class CustomerFunction implements Serializable {
     private Long id;
 
     /**
-     * 客户ID
+     * 用户ID
      */
-    private Long customerId;
+    private Long userId;
 
     /**
      * 功能ID
      */
-    private Long functionId;
+    private Long resourceId;
 
     @TableField(fill = FieldFill.INSERT)
     private String createBy;

@@ -96,7 +96,7 @@ public class Subject implements Serializable {
     /**
      * 根级别ID
      */
-    private Long rootId;
+    private String rootNumber;
 
     /**
      * 备注

@@ -1,7 +1,7 @@
 package org.finance.business.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.finance.business.entity.Function;
+import org.finance.business.entity.Resource;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import org.finance.business.entity.Function;
  * @author jiangbangfa
  * @since 2022-04-02
  */
-public interface FunctionMapper extends BaseMapper<Function> {
+public interface ResourceMapper extends BaseMapper<Resource> {
 
 }

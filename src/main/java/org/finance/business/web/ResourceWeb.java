@@ -1,8 +1,8 @@
 package org.finance.business.web;
 
-import org.finance.business.convert.FunctionConvert;
-import org.finance.business.service.FunctionService;
-import org.finance.business.web.vo.TreeFunctionVO;
+import org.finance.business.convert.ResourceConvert;
+import org.finance.business.service.ResourceService;
+import org.finance.business.web.vo.TreeResourceVO;
 import org.finance.infrastructure.common.R;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,15 +20,15 @@ import java.util.List;
  * @since 2022-04-02
  */
 @RestController
-@RequestMapping("/api/function")
-public class FunctionWeb {
+@RequestMapping("/api/resource")
+public class ResourceWeb {
 
     @Resource
-    private FunctionService functionService;
+    private ResourceService resourceService;
 
     @GetMapping("/tree")
-    public R<List<TreeFunctionVO>> treeFunctions() {
-        return R.ok(FunctionConvert.INSTANCE.toTreeFunctionVO(functionService.list()));
+    public R<List<TreeResourceVO>> treeResources() {
+        return R.ok(ResourceConvert.INSTANCE.toTreeResourceVO(resourceService.list()));
     }
 
 }

@@ -31,6 +31,7 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
     private volatile String userNotFoundEncodedPassword;
 
     public CustomerUsernamePasswordAuthenticationProvider(CustomerUserService customerUserService) {
+        super.hideUserNotFoundExceptions = false;
         this.customerUserService = customerUserService;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }

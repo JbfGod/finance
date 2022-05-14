@@ -2,15 +2,15 @@ package org.finance.business.web;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import org.finance.business.convert.FunctionConvert;
+import org.finance.business.convert.ResourceConvert;
 import org.finance.business.convert.UserConvert;
-import org.finance.business.entity.Function;
+import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
-import org.finance.business.service.CustomerFunctionService;
-import org.finance.business.service.UserFunctionService;
+import org.finance.business.service.CustomerResourceService;
+import org.finance.business.service.UserResourceService;
 import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddUserRequest;
-import org.finance.business.web.request.GrantFunctionsToUserRequest;
+import org.finance.business.web.request.GrantResourcesToUserRequest;
 import org.finance.business.web.request.QueryUserRequest;
 import org.finance.business.web.request.UpdateSelfPasswordRequest;
 import org.finance.business.web.request.UpdateUserPasswordRequest;
@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,12 +48,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/user")
 public class UserWeb {
 
-    @Resource
+    @javax.annotation.Resource
     private UserService userService;
-    @Resource
-    private UserFunctionService userFunctionService;
-    @Resource
-    private CustomerFunctionService customerFunctionService;
+    @javax.annotation.Resource
+    private UserResourceService userResourceService;
+    @javax.annotation.Resource
+    private CustomerResourceService customerResourceService;
 
     @GetMapping("/self")
     public R<UserSelfVO> selfInfo() {
@@ -63,24 +62,24 @@ public class UserWeb {
 
     @GetMapping("/self/menus")
     public R<List<UserOwnedMenuVO>> selfMenus() {
-        return R.ok(FunctionConvert.INSTANCE.toTreeMenus(this.getSelfFunctions()));
+        return R.ok(ResourceConvert.INSTANCE.toTreeMenus(this.getSelfResources()));
     }
 
     @GetMapping("/self/permissions")
     public R<List<String>> selfPermission() {
-        List<String> permissions = this.getSelfFunctions().stream().map(Function::getPermitCode)
+        List<String> permissions = this.getSelfResources().stream().map(Resource::getPermitCode)
                 .filter(StringUtils::hasText)
                 .collect(Collectors.toList());
         return R.ok(permissions);
     }
 
-    @GetMapping("/{userId}/functions")
-    public R<List<Long>> functionIdsOfUser(@PathVariable("userId") long userId) {
-        List<Long> functionIds = userFunctionService.getFunctionsByUserId(userId)
+    @GetMapping("/{userId}/resources")
+    public R<List<Long>> resourceIdsOfUser(@PathVariable("userId") long userId) {
+        List<Long> resourceIds = userResourceService.getResourcesByUserId(userId)
                 .stream().filter(func -> !func.getHasLeaf())
-                .map(Function::getId)
+                .map(Resource::getId)
                 .collect(Collectors.toList());
-        return R.ok(functionIds);
+        return R.ok(resourceIds);
     }
 
     @GetMapping("/page")
@@ -97,9 +96,9 @@ public class UserWeb {
         return RPage.build(pages);
     }
 
-    @PostMapping("/grantFunctions")
-    public R grantFunctionsToUser(@RequestBody @Valid GrantFunctionsToUserRequest request) {
-        userFunctionService.grantFunctionsToUser(request.getUserId(), request.getFunctionIds());
+    @PostMapping("/grantResources")
+    public R grantResourcesToUser(@RequestBody @Valid GrantResourcesToUserRequest request) {
+        userResourceService.grantResourcesToUser(request.getUserId(), request.getResourceIds());
         return R.ok();
     }
 
@@ -144,16 +143,16 @@ public class UserWeb {
         return R.ok();
     }
 
-    private List<Function> getSelfFunctions() {
-        List<Function> functions;
+    private List<Resource> getSelfResources() {
+        List<Resource> resources;
         User currentUser = SecurityUtil.getCurrentUser();
         // 若果是管理员用户直接获取所在客户单位的功能菜单
         if (currentUser.getRole() == User.Role.ADMIN && currentUser.getCustomerId() > 0) {
-            functions = customerFunctionService.listFunctionByCustomerId(currentUser.getCustomerId());
+            resources = customerResourceService.listResourceByCustomerId(currentUser.getCustomerId());
         } else {
-            functions = userFunctionService.getFunctionsByUserId(currentUser.getId());
+            resources = userResourceService.getResourcesByUserId(currentUser.getId());
         }
-        return functions;
+        return resources;
     }
 
 }

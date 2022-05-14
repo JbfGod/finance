@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.finance.business.mapper.UserResourceMapper">
+
+    <select id="listResourceByUserId" resultType="org.finance.business.entity.Resource">
+        select f.* from `resource` f
+        inner join user_resource uf
+        on (uf.user_id = #{userId} and uf.resource_id = f.id)
+    </select>
+
+</mapper>

@@ -31,14 +31,13 @@ public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
             industry.setParentNumber("0");
             industry.setLeftValue(1);
             industry.setRightValue(2);
-            industry.setRootId(0L);
+            industry.setRootNumber(industry.getNumber());
             baseMapper.insert(industry);
-            baseMapper.updateById(industry.setRootId(industry.getId()));
             return;
         }
         Industry parentIndustry = baseMapper.selectById(parentId);
         Integer pRightValue = parentIndustry.getRightValue();
-        Long rootId = parentIndustry.getRootId();
+        String rootNumber = parentIndustry.getRootNumber();
 
         if (!parentIndustry.getHasLeaf()) {
             this.update(Wrappers.<Industry>lambdaUpdate()
@@ -53,17 +52,17 @@ public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
         industry.setLevel(parentIndustry.getLevel() + 1);
         industry.setLeftValue(pRightValue);
         industry.setRightValue(pRightValue + 1);
-        industry.setRootId(rootId);
+        industry.setRootNumber(rootNumber);
         this.update(Wrappers.<Industry>lambdaUpdate()
                 .setSql("left_value = left_value + 2")
                 .eq(Industry::getCustomerId, parentIndustry.getCustomerId())
-                .eq(Industry::getRootId, rootId)
+                .eq(Industry::getRootNumber, rootNumber)
                 .ge(Industry::getLeftValue, pRightValue)
         );
         this.update(Wrappers.<Industry>lambdaUpdate()
                 .setSql("right_value = right_value + 2")
                 .eq(Industry::getCustomerId, parentIndustry.getCustomerId())
-                .eq(Industry::getRootId, rootId)
+                .eq(Industry::getRootNumber, rootNumber)
                 .ge(Industry::getRightValue, pRightValue)
         );
         baseMapper.insert(industry);
@@ -73,7 +72,7 @@ public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
         Industry dbIndustry = baseMapper.selectById(id);
         AssertUtil.isTrue(dbIndustry != null, "行业不存在，删除失败！");
         baseMapper.delete(Wrappers.<Industry>lambdaQuery()
-                .eq(Industry::getRootId, dbIndustry.getRootId())
+                .eq(Industry::getRootNumber, dbIndustry.getRootNumber())
                 .ge(Industry::getLeftValue, dbIndustry.getLeftValue())
                 .le(Industry::getRightValue, dbIndustry.getRightValue())
         );
@@ -83,7 +82,7 @@ public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
         Industry industry = baseMapper.selectById(industryId);
         return baseMapper.selectList(Wrappers.<Industry>lambdaQuery()
             .select(Industry::getId)
-            .eq(Industry::getRootId, industry.getRootId())
+            .eq(Industry::getRootNumber, industry.getRootNumber())
             .ge(Industry::getLeftValue, industry.getLeftValue())
             .le(Industry::getRightValue, industry.getRightValue())
         ).stream().map(Industry::getId).collect(Collectors.toList());

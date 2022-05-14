@@ -6,7 +6,7 @@ import lombok.Data;
  * @author jiangbangfa
  */
 @Data
-public class FunctionIdentifiedVO {
+public class ResourceIdentifiedVO {
 
     private Long id;
     private String number;
