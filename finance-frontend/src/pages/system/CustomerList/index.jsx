@@ -21,10 +21,11 @@ import {
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
-import constants from "@/constants";
+import constants, {CUSTOMER_TYPE, SUBJECT_TYPE} from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
+import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
@@ -85,7 +86,7 @@ export default () => {
       title: "客户类型", dataIndex: "type", valueType: "select",
       width: 85,
       fieldProps: {
-        options: constants.CUSTOMER_TYPES
+        options: Object.values(CUSTOMER_TYPE)
       }
     },
     {
@@ -241,29 +242,24 @@ function AddFormModal({createModal, handleModal, categoryId, actionRef, industry
           <ProFormText name="account" label="客户编号" colon={8} rules={[
             {required: true, message: "客户编号不能为空！"},
             {min: 5, max: 25, message: "客户编号只允许有5-25个字符！"},
-            {pattern: /[0-9a-zA-Z]{5,25}/, message: "客户编号只允许包含数字和字母！"}
+            {pattern: /[\da-zA-Z]{5,25}/, message: "客户编号只允许包含数字和字母！"}
           ]}/>
           <ProFormText name="name" label="客户名称" rules={[{required: true, message: "客户名称不能为空！"}]}/>
         </ProForm.Group>
         <ProForm.Group>
-          <ProFormSelect name="type" label="客户类型" options={constants.CUSTOMER_TYPES}
+          <ProFormSelect name="type" label="客户类型" options={Object.values(CUSTOMER_TYPE)}
                          allowClear={false}
                          rules={[{required: true, message: "客户类型不能为空！"}]}/>
           <ProFormSwitch name="enabled" label="客户状态" checkedChildren="启用" unCheckedChildren="停用" />
           <ProFormRadio.Group name="useForeignExchange" label="是否使用外汇"
                               options={[{label: "是", value: true}, {label: "否", value: false}]}/>
         </ProForm.Group>
-        <ProFormTreeSelect name="industryId" label="行业分类" rules={[{required: true, message: "行业分类不能为空！"}]}
-                           fieldProps={{
-                             dropdownRender:(node, p) => {
-                             console.log(node, p)
-                             return node
-                           },
-                             showCheckedStrategy:TreeSelect.SHOW_PARENT,
-                             treeLine: {showLeafIcon: false},
-                             options: industryTreeData,
-                             fieldNames: {label: "name", value: "id"}
-                           }}/>
+        <ProFormItem name="industryId" label="行业分类" >
+          <ExtTreeSelect options={industryTreeData} placeholder="只能选择叶子节点"
+                         treeLine={{showLeafIcon: false}} style={{ width: '100%' }}
+                         onlySelectedLeaf={true} rules={[{required: true, message: "行业分类不能为空！"}]}
+          />
+        </ProFormItem>
         <ProForm.Group>
           <ProFormText name="contactName" label="联系人" rules={[{required: true, message: "联系人不能为空！"}]}/>
           <ProFormText name="telephone" label="联系电话" rules={[{required: true, message: "联系电话不能为空！"}]}/>
@@ -352,18 +348,19 @@ function EditFormModal({modal, handleModal, actionRef, industryTreeData}) {
         <ProFormText name="name" label="客户名称" rules={[{required: true, message: "客户名称不能为空！"}]}/>
       </ProForm.Group>
       <ProForm.Group>
-        <ProFormSelect name="type" label="客户类型" options={constants.CUSTOMER_TYPES} allowClear={false}
+        <ProFormSelect name="type" label="客户类型" options={Object.values(CUSTOMER_TYPE)} allowClear={false}
                        rules={[{required: true, message: "客户类型不能为空！"}]}/>
         <ProFormRadio.Group name="useForeignExchange" label="是否使用外汇"
                             options={[{label: "是", value: true}, {label: "否", value: false}]}/>
         <ProFormSwitch name="enabled" label="客户状态" checkedChildren="启用" unCheckedChildren="停用"/>
       </ProForm.Group>
-      <ProFormTreeSelect name="industryId" label="行业分类" rules={[{required: true, message: "行业分类不能为空！"}]}
-                         fieldProps={{
-                           treeLine: {showLeafIcon: false},
-                           options: industryTreeData,
-                           fieldNames: {label: "name", value: "id"}
-                         }}/>
+      <ProFormItem name="industryId" label="行业分类" >
+        <ExtTreeSelect options={industryTreeData} placeholder="只能选择费用类科目"
+                       treeLine={{showLeafIcon: false}} style={{ width: '100%' }}
+                       onlySelectedLeaf={true} rules={[{required: true, message: "行业分类不能为空！"}]}
+        />
+      </ProFormItem>
+
       <ProForm.Group>
         <ProFormText name="contactName" label="联系人" rules={[{required: true, message: "联系人不能为空！"}]}/>
         <ProFormText name="telephone" label="联系电话" rules={[{required: true, message: "联系电话不能为空！"}]}/>

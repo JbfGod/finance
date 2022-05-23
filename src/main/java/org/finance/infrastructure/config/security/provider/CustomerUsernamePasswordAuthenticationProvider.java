@@ -5,6 +5,7 @@ import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.config.security.util.JwtTokenUtil;
+import org.finance.infrastructure.constants.Constants;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -72,7 +73,7 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         String token = JwtTokenUtil.generateTokenByUser(dbUser.getId());
         // 查询权限
         List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(dbUser.getId());
-        authorities.add(new SimpleGrantedAuthority(String.format("ROLE_%s", dbUser.getRole())));
+        authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));
         // 构造Authentication
         JwtAuthenticationToken result = new JwtAuthenticationToken(JwtTokenUtil.getDecodedJWT(token), authorities);
         result.setDetails(authentication.getDetails());

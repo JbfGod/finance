@@ -25,7 +25,7 @@ public class R<T> implements Serializable {
     public final static int SHOW_TYPE_WARN = 1;
     public final static int SHOW_TYPE_ERROR = 2;
     public final static int SHOW_TYPE_NOTIFICATION = 4;
-    public final static int SHOW_TYPE_PAGE = 9;
+    public final static int REDIRECT = 9;
 
     private boolean success;
     private T data;
@@ -34,6 +34,8 @@ public class R<T> implements Serializable {
     private int showType;
     private String traceId;
     private String host;
+
+    private String redirectUrl;
 
     public R() {
     }
@@ -90,6 +92,12 @@ public class R<T> implements Serializable {
 
     public static <T> R<T> warn(MessageEnum messageEnum, String message) {
         return new R<T>(false).setShowType(SHOW_TYPE_WARN)
+                .setErrorCode(messageEnum.getCode()).setMessage(message);
+    }
+
+    public static <T> R<T> errorAndRedirect(MessageEnum messageEnum, String message, String redirectUrl) {
+        return new R<T>(false).setShowType(REDIRECT)
+                .setRedirectUrl(redirectUrl)
                 .setErrorCode(messageEnum.getCode()).setMessage(message);
     }
 

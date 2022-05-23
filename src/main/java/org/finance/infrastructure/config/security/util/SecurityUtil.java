@@ -1,10 +1,15 @@
 package org.finance.infrastructure.config.security.util;
 
 import org.finance.business.entity.User;
+import org.finance.infrastructure.constants.Constants;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Collection;
 
 /**
  * @author jiangbangfa
@@ -25,6 +30,14 @@ public class SecurityUtil {
         return getCurrentUser().getCustomerId();
     }
 
+    public static Long getUserId() {
+        return getCurrentUser().getId();
+    }
+
+    public static String getUserName() {
+        return getCurrentUser().getName();
+    }
+
     public static Long getCurrentUserId () {
         return getCurrentUser().getId();
     }
@@ -35,5 +48,25 @@ public class SecurityUtil {
 
     public boolean matchPassword(String pwd1, String pwd2) {
         return PWD_ENCODER.matches(pwd1, pwd2);
+    }
+
+    public static boolean hasRole(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals(
+                        String.format("%s%s", Constants.ROLE_PREFIX, role)
+                ));
+    }
+
+    public static boolean hasAuthority(String authority) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals(authority));
     }
 }

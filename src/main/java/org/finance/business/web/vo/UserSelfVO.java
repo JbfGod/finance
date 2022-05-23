@@ -23,11 +23,11 @@ public class UserSelfVO {
 
     private User.Role role;
 
-    private String createBy;
+    private Long createBy;
 
     private LocalDateTime createTime;
 
-    private String modifyBy;
+    private Long modifyBy;
 
     private LocalDateTime modifyTime;
 }

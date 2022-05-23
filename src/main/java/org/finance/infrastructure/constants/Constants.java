@@ -10,4 +10,6 @@ public class Constants {
     public final static String HEAD_CUSTOMER_ID = "CustomerId";
 
     public final static long DEFAULT_CUSTOMER_ID = 0L;
+
+    public final static String ROLE_PREFIX = "ROLE_";
 }

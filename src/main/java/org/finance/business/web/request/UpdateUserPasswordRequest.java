@@ -12,10 +12,10 @@ import javax.validation.constraints.Size;
 @Data
 public class UpdateUserPasswordRequest {
 
-    @NotNull(message = "用户ID不能为空")
+    @NotNull(message = "请填写用户ID")
     private Long id;
 
-    @NotBlank(message = "密码不能为空！")
+    @NotBlank(message = "请填写密码！")
     @Size(min = 6, max = 20, message = "用户名只允许有6-20个字符！")
     private String password;
 

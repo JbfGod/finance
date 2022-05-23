@@ -86,9 +86,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void unsuccessfulAuthentication(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().print(JSON.toJSONString(R.error(MessageEnum.NO_AUTHENTICATION, "无效的访问令牌, 请重新登录。")));
+        response.getWriter().print(JSON.toJSONString(
+                R.errorAndRedirect(MessageEnum.NO_AUTHENTICATION, "无效的访问令牌, 请重新登录。", "")
+        ));
         response.getWriter().flush();
     }
 

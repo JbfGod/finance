@@ -104,13 +104,19 @@ public class Subject implements Serializable {
     private String remark;
 
     @TableField(fill = FieldFill.INSERT)
-    private String createBy;
+    private Long createBy;
+
+    @TableField(fill = FieldFill.INSERT)
+    private String creatorName;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String modifyBy;
+    private Long modifyBy;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String modifyName;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
@@ -124,11 +130,11 @@ public class Subject implements Serializable {
          */
         SUBJECT,
         /**
-         * 花费
+         * 费用
          */
         COST,
         /**
-         * 科目+花费
+         * 科目+费用
          */
         SUBJECT_AND_COST,
         ;

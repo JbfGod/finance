@@ -64,7 +64,7 @@ const Login = () => {
           <ProFormText
             name="account"
             fieldProps={{
-              autoComplete:false,
+              autoComplete:"off",
               size: 'large',
               prefix: <UserOutlined className={styles.prefixIcon} />,
             }}
@@ -79,7 +79,7 @@ const Login = () => {
           <ProFormText.Password
             name="password"
             fieldProps={{
-              autoComplete:false,
+              autoComplete:"off",
               size: 'large',
               prefix: <LockOutlined className={styles.prefixIcon} />,
             }}

@@ -2,15 +2,17 @@
  * @see https://umijs.org/zh-CN/plugins/plugin-access
  * */
 export const CAN = "can"
-export const USER_PAGE = "system:user"
-export const CUSTOMER_CATEGORY_PAGE = "system:customerCategory"
-export const CUSTOMER_PAGE = "system:customer"
-export const CUSTOMER_AUTHORIZE_PAGE = "system:customer:grantPermissionPage"
-export const INDUSTRY_PAGE = "base:industry"
-export const SUBJECT_PAGE = "base:subject"
+export const USER_PAGE = "sys:userPage"
+export const CUSTOMER_CATEGORY_PAGE = "sys:customer:categoryPage"
+export const CUSTOMER_PAGE = "sys:customerPage"
+export const CUSTOMER_AUTHORIZE_PAGE = "sys:customer:grantResourcePage"
+export const INDUSTRY_PAGE = "base:industryPage"
+export const SUBJECT_PAGE = "base:subjectPage"
+export const EXPENSE_BILL_PAGE = "expense:billPage"
 
 const permissions = [
-  USER_PAGE,  CUSTOMER_CATEGORY_PAGE,  CUSTOMER_PAGE,  CUSTOMER_AUTHORIZE_PAGE,  INDUSTRY_PAGE,  SUBJECT_PAGE
+  USER_PAGE,  CUSTOMER_CATEGORY_PAGE,  CUSTOMER_PAGE,  CUSTOMER_AUTHORIZE_PAGE,  INDUSTRY_PAGE,  SUBJECT_PAGE,
+  EXPENSE_BILL_PAGE
 ]
 
 export default function access(initialState) {

@@ -86,19 +86,25 @@ public class Resource implements Serializable {
     private Integer sortNum;
 
     @TableField(fill = FieldFill.INSERT)
-    private String createBy;
+    private Long createBy;
+
+    @TableField(fill = FieldFill.INSERT)
+    private String creatorName;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String modifyBy;
+    private Long modifyBy;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String modifyName;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
 
     public enum Type {
-        MENU, BUTTON
+        MENU, BUTTON, DATA_SCOPE
     }
 
 }

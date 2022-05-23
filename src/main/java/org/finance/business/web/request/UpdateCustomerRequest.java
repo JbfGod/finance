@@ -14,17 +14,17 @@ import java.time.LocalDateTime;
 @Data
 public class UpdateCustomerRequest {
 
-    @NotNull(message = "ID不能为空")
+    @NotNull(message = "请填写ID")
     private Long id;
 
-    @NotBlank(message = "客户名称不能为空！")
+    @NotBlank(message = "请填写客户名称！")
     @Size(min = 2, max = 20, message = "客户名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "客户行业不能为空")
+    @NotNull(message = "请填写客户行业")
     private Long industryId;
 
-    @NotNull(message = "客户类型不能为空")
+    @NotNull(message = "请填写客户类型")
     private Customer.Type type;
 
     private Boolean enabled;

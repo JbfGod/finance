@@ -16,22 +16,22 @@ import java.time.LocalDateTime;
 @Data
 public class AddCustomerRequest {
 
-    @NotBlank(message = "客户编号不能为空！")
+    @NotBlank(message = "请填写客户编号！")
     @Size(min = 5, max = 25, message = "客户编号只允许有5-25个字符！")
     @Pattern(regexp = "[\\da-zA-Z]{5,25}", message = "客户编号只允许包含数字和字母")
     private String account;
 
-    @NotBlank(message = "客户名称不能为空！")
+    @NotBlank(message = "请填写客户名称！")
     @Size(min = 2, max = 20, message = "客户名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "客户行业不能为空")
+    @NotNull(message = "请填写客户行业")
     private Long industryId;
 
-    @NotNull(message = "客户类别不能为空")
+    @NotNull(message = "请填写客户类别")
     private Long categoryId;
 
-    @NotNull(message = "客户类型不能为空")
+    @NotNull(message = "请填写客户类型")
     private Customer.Type type;
 
     private Boolean enabled;
@@ -42,16 +42,16 @@ public class AddCustomerRequest {
     @NotNull(message = "请选择过期时间！")
     private LocalDateTime expireTime;
 
-    @NotNull(message = "联系人不能为空！")
+    @NotNull(message = "请填写联系人！")
     private String contactName;
 
-    @NotNull(message = "联系电话不能为空！")
+    @NotNull(message = "请填写联系电话！")
     private String telephone;
 
-    @NotNull(message = "银行账号不能为空！")
+    @NotNull(message = "请填写银行账号！")
     private String bankAccount;
 
-    @NotNull(message = "开户人不能为空！")
+    @NotNull(message = "请填写开户人！")
     private String bankAccountName;
 
     @NotNull(message = "请选择是否使用外汇！")

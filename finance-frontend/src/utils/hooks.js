@@ -62,8 +62,8 @@ export function useArrayToTree(dataArray,
                                childrenField = "children") {
   const dataByKey = {}
   // 创建副本
-  dataArray = [...dataArray]
-  dataArray.forEach(tmp => {
+  const dataArrayCopy = [...dataArray]
+  dataArrayCopy.forEach(tmp => {
     // 创建副本
     const node = {...tmp}
     dataByKey[node[keyField]] = node

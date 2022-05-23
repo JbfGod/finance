@@ -17,7 +17,7 @@ import java.util.Map;
 public class MybatisGeneratorMain {
 
     public static void main(String[] args) {
-        String projectPath = "/home/jbf/workspace/my/海南岛/finance/finance-backend/src/main";
+        String projectPath = "/home/jbf/workspace/my/海南岛/finance/src/main";
         FreemarkerTemplateEngine freemarkerTemplateEngine = new FreemarkerTemplateEngine();
         Map<OutputFile, String> map = new HashMap<>(100);
         map.put(OutputFile.xml, String.format("%s/resources/mapper", projectPath));
@@ -38,11 +38,15 @@ public class MybatisGeneratorMain {
                             .addTableFills(Arrays.asList(
                             new Column("create_by", FieldFill.INSERT),
                             new Column("create_time", FieldFill.INSERT),
+                            new Column("creator_name", FieldFill.INSERT),
                             new Column("modify_by", FieldFill.INSERT_UPDATE),
-                            new Column("modify_time", FieldFill.INSERT_UPDATE)
+                            new Column("modify_name", FieldFill.INSERT_UPDATE),
+                            new Column("modify_time", FieldFill.INSERT_UPDATE),
+                            new Column("customer_id", FieldFill.INSERT)
                     )).logicDeleteColumnName("deleted");
                     builder.addExclude(
-                        "flyway_schema_history"
+                        "flyway_schema_history",
+                            "act%"
                     );
                 })
                 .templateConfig(builder -> {

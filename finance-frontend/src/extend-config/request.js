@@ -48,7 +48,7 @@ const responseInterceptor = async (response, options) => {
     return response
   }
   const data = await response.clone().json();
-  if (data.success && !IGNORE_URL.includes(options.url)) {
+  if (data?.success && !IGNORE_URL.includes(options.url)) {
     switch (options?.method.toLowerCase()) {
       case "post":
       case "delete":
@@ -59,7 +59,7 @@ const responseInterceptor = async (response, options) => {
     }
     return response
   }
-  // const errorCode = data?.errorCode
+  const errorCode = data?.errorCode
   let errorMessage = data?.message || "未知的服务异常！"
   const loadingKey = options?.loadingKey
   switch (data?.showType) {
@@ -76,8 +76,11 @@ const responseInterceptor = async (response, options) => {
       break;
     case ErrorShowType.REDIRECT:
       message.error({content: errorMessage, key: loadingKey})
-      history.push({
-        pathname: DEFAULT_ERROR_PAGE,
+      let pathname = DEFAULT_ERROR_PAGE;
+      if (data.errorCode === "401") {
+        pathname = "/user/login"
+      }
+      history.push({pathname,
         query: {errorCode: data.errorCode, errorMessage}
       })
       break

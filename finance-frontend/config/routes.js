@@ -1,10 +1,11 @@
-const CAN = "can"
-const USER_PAGE = "system:user"
-const CUSTOMER_CATEGORY_PAGE = "system:customerCategory"
-const CUSTOMER_PAGE = "system:customer"
-const CUSTOMER_AUTHORIZE_PAGE = "system:customer:grantPermissionPage"
-const INDUSTRY_PAGE = "base:industry"
-const SUBJECT_PAGE = "base:subject"
+export const CAN = "can"
+export const USER_PAGE = "sys:userPage"
+export const CUSTOMER_CATEGORY_PAGE = "sys:customer:categoryPage"
+export const CUSTOMER_PAGE = "sys:customerPage"
+export const CUSTOMER_AUTHORIZE_PAGE = "sys:customer:grantResourcePage"
+export const INDUSTRY_PAGE = "base:industryPage"
+export const SUBJECT_PAGE = "base:subjectPage"
+export const EXPENSE_BILL_PAGE = "expense:billPage"
 
 export default [
   {
@@ -85,6 +86,32 @@ export default [
         component: './404',
       },
     ]
+  },
+  {
+    path: '/expense',
+    name: '费用报销单管理',
+    icon: 'simple',
+    routes : [
+      {
+        path: "/expense/bill",
+        name: '费用报销单管理',
+        access: EXPENSE_BILL_PAGE,
+        component: './expense/BillList',
+      },
+      {
+        path: '/expense/newBill',
+        name: '新增费用报销单',
+        access: EXPENSE_BILL_PAGE,
+        component: './expense/BillList/BillForm',
+      },
+      {
+        path: '/expense/editBill',
+        name: '编辑费用报销单',
+        access: EXPENSE_BILL_PAGE,
+        component: './expense/BillList/BillForm',
+      }
+    ],
+
   },
   {
     path: '/welcome',

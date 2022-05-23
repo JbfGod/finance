@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class GrantResourcesToUserRequest {
 
-    @NotNull(message = "用户ID不能为空")
+    @NotNull(message = "请填写用户ID")
     private Long userId;
 
     @Size(min = 1, message = "至少选择一个功能权限")

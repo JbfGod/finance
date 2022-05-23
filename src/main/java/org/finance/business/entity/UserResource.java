@@ -45,7 +45,10 @@ public class UserResource implements Serializable {
     private Long resourceId;
 
     @TableField(fill = FieldFill.INSERT)
-    private String createBy;
+    private Long createBy;
+
+    @TableField(fill = FieldFill.INSERT)
+    private String creatorName;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

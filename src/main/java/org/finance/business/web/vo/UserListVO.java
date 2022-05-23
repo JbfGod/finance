@@ -20,11 +20,11 @@ public class UserListVO {
 
     private String account;
 
-    private String createBy;
+    private Long createBy;
 
     private LocalDateTime createTime;
 
-    private String modifyBy;
+    private Long modifyBy;
 
     private LocalDateTime modifyTime;
 

@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
+import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.util.CacheKeyUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -51,7 +52,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("JWT verify fail", e);
         }
         List<GrantedAuthority> authorities = this.userService.loadAuthoritiesByUserId(dbUser.getId());
-        authorities.add(new SimpleGrantedAuthority(String.format("ROLE_%s", dbUser.getRole())));
+        authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));
         return new UsernamePasswordAuthenticationToken(dbUser, token.getCredentials(), authorities);
      }
 

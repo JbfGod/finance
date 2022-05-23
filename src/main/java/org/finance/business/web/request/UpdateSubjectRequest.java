@@ -13,14 +13,14 @@ import javax.validation.constraints.Size;
 @Data
 public class UpdateSubjectRequest {
 
-    @NotNull(message = "科目ID不能为空")
+    @NotNull(message = "请填写科目ID")
     private Long id;
 
-    @NotBlank(message = "科目名称不能为空！")
+    @NotBlank(message = "请填写科目名称！")
     @Size(min = 2, max = 20, message = "科目名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "科目类型不能为空！")
+    @NotNull(message = "请填写科目类型！")
     private Subject.Type type;
 
     private Subject.Direction direction;

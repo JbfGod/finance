@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, Col, Empty, Tree, message} from "antd";
+import {Button, Col, Empty, message, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import * as hooks from "@/utils/hooks";
@@ -9,7 +9,7 @@ import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-desig
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as industryWeb from "@/services/swagger/industryWeb";
-import constants from "@/constants";
+import constants, {SUBJECT_ASSIST_SETTLEMENT, SUBJECT_DIRECTION, SUBJECT_TYPE} from "@/constants";
 import PageContainer from "@/components/PageContainer";
 
 export default () => {
@@ -52,21 +52,21 @@ export default () => {
       title: "科目类型", dataIndex: "type", valueType: "select"
       , fieldProps: {
         allowClear: false,
-        options: constants.SUBJECT_TYPES
+        options: Object.values(SUBJECT_TYPE)
       }
     },
     {
       title: "科目方向", dataIndex: "direction", valueType: "select"
       , fieldProps: {
         allowClear: false,
-        options: constants.SUBJECT_DIRECTIONS
+        options: Object.values(SUBJECT_DIRECTION)
       }
     },
     {
       title: "辅助结算", dataIndex: "assistSettlement", valueType: "select"
       , fieldProps: {
         allowClear: false,
-        options: constants.SUBJECT_ASSIST_SETTLEMENT
+        options: Object.values(SUBJECT_ASSIST_SETTLEMENT)
       }
     },
     {
@@ -144,10 +144,10 @@ export default () => {
                              {required: true, message: "科目名称不能为空！"},
                            ]}
               />
-              <ProFormSelect name="type" allowClear={false} label="类型" options={constants.SUBJECT_TYPES}/>
-              <ProFormSelect name="direction" allowClear={false} label="科目方向" options={constants.SUBJECT_DIRECTIONS}/>
+              <ProFormSelect name="type" allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
+              <ProFormSelect name="direction" allowClear={false} label="科目方向" options={Object.values(SUBJECT_DIRECTION)}/>
               <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
-                             options={constants.SUBJECT_ASSIST_SETTLEMENT}/>
+                             options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
               <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>
             </ModalForm>
           </Col>

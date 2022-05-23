@@ -15,17 +15,20 @@ public class MetaObjectFillFieldHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.strictInsertFill(metaObject, "createBy", () -> "admin", String.class);
+        this.strictInsertFill(metaObject, "createBy", SecurityUtil::getUserId, Long.class);
+        this.strictInsertFill(metaObject, "creatorName", SecurityUtil::getUserName, String.class);
         this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-        this.strictInsertFill(metaObject, "modifyBy", () -> "admin", String.class);
+        this.strictInsertFill(metaObject, "modifyBy", SecurityUtil::getUserId, Long.class);
+        this.strictInsertFill(metaObject, "modifyName", SecurityUtil::getUserName, String.class);
         this.strictInsertFill(metaObject, "modifyTime", LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, "customerId", SecurityUtil::getCustomerId,Long.class);
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        this.strictInsertFill(metaObject, "modifyBy", () -> "admin", String.class);
+        this.strictInsertFill(metaObject, "modifyBy", SecurityUtil::getUserId, Long.class);
         this.strictInsertFill(metaObject, "modifyTime", LocalDateTime.class, LocalDateTime.now());
+        this.strictInsertFill(metaObject, "modifyName", SecurityUtil::getUserName, String.class);
     }
 
 }

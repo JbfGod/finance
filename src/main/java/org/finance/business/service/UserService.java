@@ -23,7 +23,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -106,5 +109,30 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
         );
         AssertUtil.isFalse(exists, "用户账号已存在！");
         baseMapper.insert(user);
+    }
+
+    public Function<Long, String> getUserNameFunction() {
+        Map<Long, String> nameById = new HashMap<>(10);
+        return (Long userId) -> {
+            if (nameById.containsKey(userId)) {
+                return nameById.get(userId);
+            }
+            User user = baseMapper.selectOne(Wrappers.<User>lambdaQuery()
+                    .select(User::getName)
+                    .eq(User::getId, userId)
+            );
+            if (user == null) {
+                return "用户已被删除";
+            }
+            return user.getName();
+        };
+    }
+
+    public String getUserNameById(long id) {
+        User user = baseMapper.selectOne(Wrappers.<User>lambdaQuery()
+                .select(User::getName)
+                .eq(User::getId, id)
+        );
+        return user.getName();
     }
 }
