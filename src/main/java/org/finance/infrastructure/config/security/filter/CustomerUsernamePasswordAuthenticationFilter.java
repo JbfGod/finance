@@ -36,16 +36,16 @@ public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthen
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         //从json中获取username和password
-        String customerAccount = null, account = null, password = null;
-        customerAccount = request.getParameter("customerAccount");
+        String customerNumber = null, account = null, password = null;
+        customerNumber = request.getParameter("customerNumber");
         account = request.getParameter("account");
         password = request.getParameter("password");
-        customerAccount = customerAccount == null ? "" : customerAccount;
+        customerNumber = customerNumber == null ? "" : customerNumber;
         account = account == null ? "" : account;
         password = password == null ? "" : password;
 
         CustomerUsernamePasswordAuthenticationToken token = new CustomerUsernamePasswordAuthenticationToken(
-                customerAccount, account, password
+                customerNumber, account, password
         );
         token.setDetails(this.authenticationDetailsSource.buildDetails(request));
         return this.getAuthenticationManager().authenticate(token);

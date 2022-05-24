@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class QueryUserRequest extends AbstractPageRequest {
 
     private String name;
-    private String customerAccount;
+    private String customerNumber;
     private String account;
     @NotNull(message = "必须选择用户类型")
     private User.Role role;

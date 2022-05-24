@@ -48,21 +48,21 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public User loadUserByCustomerAndAccount(String customerAccount, String account) throws UsernameNotFoundException {
-        CacheAttr cacheAttr = CacheKeyUtil.getUser(customerAccount, account);
+    public User loadUserByCustomerAndAccount(String customerNumber, String account) throws UsernameNotFoundException {
+        CacheAttr cacheAttr = CacheKeyUtil.getUser(customerNumber, account);
         Object cacheUser = redisTemplate.opsForValue().get(cacheAttr.getKey());
         if (cacheUser != null) {
             return (User) cacheUser;
         }
         User user = baseMapper.selectOne(Wrappers.<User>lambdaQuery()
-                .eq(User::getCustomerAccount, customerAccount)
+                .eq(User::getCustomerNumber, customerNumber)
                 .eq(User::getAccount, account)
         );
         if (user == null) {
             throw new UsernameNotFoundException("用户名或密码不正确！");
         }
         if (user.getCustomerId() != 0) {
-            Customer customer = customerMapper.findByAccountName(customerAccount);
+            Customer customer = customerMapper.findByNumber(customerNumber);
             if (customer == null) {
                 throw new UsernameNotFoundException("用户名或密码不正确！");
             }
@@ -83,7 +83,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Cacheable(value = "User", unless = "#result == null")
     public User loadUserById(Long userId) {
         User user = baseMapper.selectById(userId);
-        Customer customer = customerMapper.findByAccountName(user.getCustomerAccount());
+        Customer customer = customerMapper.findByNumber(user.getCustomerNumber());
         user.setCustomer(customer);
         return user;
     }

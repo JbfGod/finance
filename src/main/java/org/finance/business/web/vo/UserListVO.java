@@ -16,7 +16,7 @@ public class UserListVO {
 
     private String name;
 
-    private String customerAccount;
+    private String customerNumber;
 
     private String account;
 

@@ -1,8 +1,8 @@
 package org.finance.business.web;
 
-import cn.hutool.core.lang.func.VoidFunc0;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.apache.commons.lang3.StringUtils;
 import org.finance.business.convert.ExpenseBillConvert;
 import org.finance.business.entity.ExpenseBill;
 import org.finance.business.entity.ExpenseItem;
@@ -16,11 +16,12 @@ import org.finance.business.service.ExpenseItemSubsidyService;
 import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddExpenseBillRequest;
 import org.finance.business.web.request.QueryExpenseBillCueRequest;
+import org.finance.business.web.request.QueryExpenseBillRequest;
 import org.finance.business.web.request.QueryExpenseItemCueRequest;
 import org.finance.business.web.request.QueryUserRequest;
 import org.finance.business.web.request.UpdateExpenseBillRequest;
+import org.finance.business.web.vo.ExpenseBillAndItemVO;
 import org.finance.business.web.vo.ExpenseBillDetailVO;
-import org.finance.business.web.vo.ExpenseBillPreviewVO;
 import org.finance.business.web.vo.ExpenseBillVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
@@ -64,10 +65,11 @@ public class ExpenseBillWeb {
     private final String AUTH_BILL_SEARCH_ALL = "expense:bill:searchAll";
 
     @GetMapping("/page")
-    public RPage<ExpenseBillVO> pageExpenseBill(QueryUserRequest request) {
+    public RPage<ExpenseBillVO> pageExpenseBill(QueryExpenseBillRequest request) {
         boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_SEARCH_ALL);
         User currentUser = SecurityUtil.getCurrentUser();
         IPage<ExpenseBillVO> page = baseService.page(request.extractPage(), Wrappers.<ExpenseBill>lambdaQuery()
+                .likeRight(StringUtils.isNotBlank(request.getNumber()), ExpenseBill::getNumber, request.getNumber())
                 .eq(!canSearchAll, ExpenseBill::getCreateBy, currentUser.getId())
         ).convert(ExpenseBillConvert.INSTANCE::toExpenseBillVO);
         return RPage.build(page);
@@ -92,8 +94,8 @@ public class ExpenseBillWeb {
         return R.ok(ExpenseBillConvert.INSTANCE.toExpenseBillDetailVO(bill));
     }
 
-    @GetMapping("/preview/{id}")
-    public R<ExpenseBillPreviewVO> previewExpenseBillById(@PathVariable("id") long id) {
+    @GetMapping("/{id}/printContent")
+    public R<ExpenseBillAndItemVO> printContentOfExpenseBill(@PathVariable("id") long id) {
         ExpenseBill bill = baseService.getById(id);
         List<ExpenseItem> items = itemService.list(Wrappers.<ExpenseItem>lambdaQuery().eq(ExpenseItem::getBillId, id));
         bill.setItems(items);
@@ -134,9 +136,7 @@ public class ExpenseBillWeb {
 
     @GetMapping("/getBillNumber")
     public R<String> getBillNumber() {
-        Long customerId = SecurityUtil.getCustomerId();
-        String id = SnowflakeUtil.nextIdStr();
-        return R.ok(String.format("%s-%s", customerId, id));
+        return R.ok(SnowflakeUtil.nextIdStr());
     }
 
     @PostMapping("/add")

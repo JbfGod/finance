@@ -1,21 +1,17 @@
 package org.finance.business.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author jiangbangfa
  */
 @Data
-public class ExpenseBillPreviewVO {
+public class ExpenseBillAndItemVO {
 
     private Long id;
     private String number;

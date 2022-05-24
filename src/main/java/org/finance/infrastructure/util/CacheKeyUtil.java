@@ -7,8 +7,8 @@ import java.time.Duration;
  */
 public final class CacheKeyUtil {
 
-    public static CacheAttr getUser(String customerAccount, String username) {
-        return new CacheAttr(String.format("customerAccount:%s:username:%s", customerAccount, username)
+    public static CacheAttr getUser(String customerNumber, String username) {
+        return new CacheAttr(String.format("customerNumber:%s:username:%s", customerNumber, username)
                 , Duration.ofHours(2));
     }
 

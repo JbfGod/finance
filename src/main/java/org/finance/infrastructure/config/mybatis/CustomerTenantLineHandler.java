@@ -8,8 +8,8 @@ import org.finance.business.entity.User;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.util.SpringContextUtil;
-import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,18 +20,16 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
 
     @Override
     public Expression getTenantId() {
-        User currentUser = null;
-        try {
-            currentUser = SecurityUtil.getCurrentUser();
-            String headCustomerId = SpringContextUtil.getHttpServletRequest().getHeader(Constants.HEAD_CUSTOMER_ID);
-            if (StringUtils.isNotBlank(headCustomerId) && currentUser.getCustomerId() == 0) {
-                return new LongValue(headCustomerId);
-            }
-            return new LongValue(currentUser.getCustomerId());
-        } catch (Exception e) {
-            e.printStackTrace();
+        User currentUser = SecurityUtil.getCurrentUserOfNullable();
+        if (currentUser == null) {
             return null;
         }
+        HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
+        String headCustomerId = request.getHeader("CustomerId");
+        if (StringUtils.isNotBlank(headCustomerId) && currentUser.getCustomerId() == 0) {
+            return new LongValue(headCustomerId);
+        }
+        return new LongValue(currentUser.getCustomerId());
     }
 
     @Override
@@ -41,11 +39,14 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
 
     private final List<String> includeTables = Arrays.asList(
             "expense_bill", "expense_item", "expense_item_attachment", "expense_item_subsidy",
-            "industry", "subject"
+            "industry", "subject", "user"
     );
 
     @Override
     public boolean ignoreTable(String tableName) {
+        if (SecurityUtil.getCurrentUserOfNullable() == null) {
+            return true;
+        }
         return !includeTables.contains(tableName.replace("`", ""));
     }
 

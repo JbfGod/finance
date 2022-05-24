@@ -15,9 +15,12 @@ import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
 import {IMG_ACCEPT, SUBJECT_TYPE} from "@/constants";
 import {jsonToFormData} from "@/utils/common";
+import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
 
 export default ({mode = "add", billId, visible, onVisibleChange}) => {
   const isAddMode = mode === "add"
+  const isViewMode = mode === "view"
+  const isEditMode = mode === "edit"
   const [formRef] = Form.useForm()
   const attachmentsRef = useRef()
   const [selectedRowIndex, setSelectedRowIndex] = useState(0)
@@ -73,7 +76,11 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
   }, [])
   return (
     <DrawerForm width="100%" form={formRef}
+                title={`${isAddMode ? "添加" : isEditMode ? "编辑" : "预览"}费用报销单`}
                 onFinish={async (f,) => {
+                  if (isViewMode) {
+                    return true
+                  }
                   const formData = jsonToFormData(f, {
                     "subject$": (key, value) => {
                       return {
@@ -97,13 +104,13 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
                 onVisibleChange={onVisibleChange}
                 drawerProps={{
                   destroyOnClose: true,
-                  extra: (
+                  /*extra: (
                     <Space>
                       <Button type="primary" onClick={formRef.submit}>
                         <PlusOutlined/>预览打印
                       </Button>
                     </Space>
-                  ),
+                  ),*/
                   className: styles.billDrawer,
                   placement: "left"
                 }}
@@ -115,24 +122,24 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
                   <Space align="center">
                     <span style={{width: 60}}>报销单号:</span>
                     <ProFormText noStyle name="number" placeholder="报销单号"
-                                 disabled={mode === "edit"}
+                                 disabled={isViewMode || isEditMode}
                                  fieldProps={{
-                                   addonAfter: isAddMode?(
+                                   addonAfter: isAddMode ? (
                                      <span style={{cursor: "pointer"}} onClick={reloadNumber}><SyncOutlined/></span>
-                                   ):null
+                                   ) : null
                                  }}/>
                   </Space>
                 )}
           >
             <ProFormGroup size={8}>
-              <ProFormText name="expensePerson" label="报销人" placeholder="报销人" width={125}/>
-              <ProFormText name="position" label="职位" placeholder="职位" width={125}/>
-              <ProFormDatePicker name="expenseTime" label="报销日期" placeholder="开始时间" width={120}/>
+              <ProFormText name="expensePerson" label="报销人" placeholder="报销人" width={125} disabled={isViewMode}/>
+              <ProFormText name="position" label="职位" placeholder="职位" width={125} disabled={isViewMode}/>
+              <ProFormDatePicker name="expenseTime" label="报销日期" placeholder="开始时间" width={120} disabled={isViewMode}/>
               <ProFormItem name="totalSubsidyAmount" label="合计">
-                <InputNumber placeholder="合计" min={0}/>
+                <InputNumber placeholder="合计" min={0} disabled={isViewMode}/>
               </ProFormItem>
               <ProFormItem name="reason" label="报销事由" style={{width: 500}}>
-                <AutoCompleteInput placeholder="报销事由" request={(keyword) => {
+                <AutoCompleteInput placeholder="报销事由" disabled={isViewMode} request={(keyword) => {
                   return searchExpenseBillCueUsingGET({column: 'REASON', keyword})
                 }}/>
               </ProFormItem>
@@ -140,8 +147,10 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
             <ProFormList name="items" min={1}
                          creatorButtonProps={{
                            type: 'primary',
+                           disabled: isViewMode,
                            creatorButtonText: '添加报销记录',
                          }}
+                         deleteIconProps={!isViewMode}
                          copyIconProps={false}
                          itemRender={({listDom, action}, {record, index}) => {
                            return (
@@ -161,39 +170,42 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
                     <ProFormGroup size={8}>
                       <ProFormItem name="subject" label="费用名称" style={{width: 200}}>
                         <ExtTreeSelect options={subjects} placeholder="只能选择费用类科目"
-                                       onlySelectedLeaf={true}
+                                       onlySelectedLeaf={true} disabled={isViewMode}
                                        disableFilter={node => node.type === SUBJECT_TYPE.SUBJECT.value}
                                        labelInValue={true} style={{width: '100%'}}/>
                       </ProFormItem>
                       <ProFormItem name="summary" label="摘要" style={{width: 300}}>
-                        <AutoCompleteInput placeholder="摘要" request={(keyword) => {
+                        <AutoCompleteInput placeholder="摘要" disabled={isViewMode} request={(keyword) => {
                           return searchExpenseItemCueUsingGET({column: 'SUMMARY', keyword})
                         }}/>
                       </ProFormItem>
                       <ProFormItem name="remark" label="备注" style={{width: 300}}>
-                        <AutoCompleteInput placeholder="备注" request={(keyword) => {
+                        <AutoCompleteInput placeholder="备注" disabled={isViewMode} request={(keyword) => {
                           return searchExpenseItemCueUsingGET({column: 'REMARK', keyword})
                         }}/>
                       </ProFormItem>
                     </ProFormGroup>
                     <ProFormGroup size={8}>
-                      <ProFormDatePicker name="beginTime" label="开始时间" placeholder="开始时间" width={120}/>
-                      <ProFormDatePicker name="endTime" label="结束时间" placeholder="结束时间" width={120}/>
-                      <ProFormText name="travelPlace" label="出差起讫地点" placeholder="出差起讫地点" width={200}/>
+                      <ProFormDatePicker name="beginTime" label="开始时间" placeholder="开始时间" width={120}
+                                         disabled={isViewMode}/>
+                      <ProFormDatePicker name="endTime" label="结束时间" placeholder="结束时间" width={120}
+                                         disabled={isViewMode}/>
+                      <ProFormText name="travelPlace" label="出差起讫地点" placeholder="出差起讫地点" width={200}
+                                   disabled={isViewMode}/>
                       <ProFormItem name="numOfBill" label="票据张数">
-                        <InputNumber placeholder="票据张数" min={0}/>
+                        <InputNumber placeholder="票据张数" min={0} disabled={isViewMode}/>
                       </ProFormItem>
                       <ProFormItem name="billAmount" label="票据金额">
-                        <InputNumber placeholder="票据金额" min={0}/>
+                        <InputNumber placeholder="票据金额" min={0} disabled={isViewMode}/>
                       </ProFormItem>
                       <ProFormItem name="actualAmount" label="实报金额">
-                        <InputNumber placeholder="实报金额" min={0}/>
+                        <InputNumber placeholder="实报金额" min={0} disabled={isViewMode}/>
                       </ProFormItem>
                       <ProFormItem name="subsidyAmount" label="补助费用金额">
-                        <InputNumber placeholder="补助金额" min={0}/>
+                        <InputNumber placeholder="补助金额" min={0} disabled={isViewMode}/>
                       </ProFormItem>
                       <ProFormItem name="subtotalAmount" label="小计金额">
-                        <InputNumber placeholder="小计金额" min={0}/>
+                        <InputNumber placeholder="小计金额" min={0} disabled={isViewMode}/>
                       </ProFormItem>
                     </ProFormGroup>
                   </>
@@ -223,26 +235,29 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
                     <Col md={24} sm={12}>
                       <Card title="出差补助明细，对应每行报销情况">
                         <ProFormList name="subsidies" noStyle
+                                     copyIconProps={!isViewMode}
+                                     deleteIconProps={!isViewMode}
                                      creatorButtonProps={{
                                        type: 'primary',
+                                       disabled: isViewMode,
                                        creatorButtonText: '添加补助明细',
                                      }}
                         >
                           <ProFormGroup size={8}>
                             <ProFormItem name="subject" label="补助费用名称" style={{width: 200}}>
                               <ExtTreeSelect options={subjects} placeholder="只能选择费用类科目"
-                                             onlySelectedLeaf={true}
+                                             onlySelectedLeaf={true} disabled={isViewMode}
                                              disableFilter={node => node.type === SUBJECT_TYPE.SUBJECT.value}
                                              labelInValue={true} style={{width: '100%'}}/>
                             </ProFormItem>
                             <ProFormItem name="days" label="补助明细天数">
-                              <InputNumber placeholder="补助明细天数" min={0}/>
+                              <InputNumber placeholder="补助明细天数" min={0} disabled={isViewMode}/>
                             </ProFormItem>
                             <ProFormItem name="amountForDay" label="元/天">
-                              <InputNumber placeholder="元/天" min={0}/>
+                              <InputNumber placeholder="元/天" min={0} disabled={isViewMode}/>
                             </ProFormItem>
                             <ProFormItem name="amount" label="补助金额">
-                              <InputNumber placeholder="补助金额" min={0}/>
+                              <InputNumber placeholder="补助金额" min={0} disabled={isViewMode}/>
                             </ProFormItem>
                           </ProFormGroup>
                         </ProFormList>
@@ -264,10 +279,11 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
                             const {url, file} = currItem.attachments?.[index]
                             return (
                               <ProFormGroup size={8} align="center">
-                                <ProFormText name="name" label="票据名称" placeholder="票据名称" width={175}/>
-                                <ProFormText name="remark" label="备注" placeholder="备注"/>
+                                <ProFormText name="name" label="票据名称" placeholder="票据名称" width={175}
+                                             disabled={isViewMode}/>
+                                <ProFormText name="remark" label="备注" placeholder="备注" disabled={isViewMode}/>
                                 <a href={`/minio${url}`}>下载</a>
-                                <a onClick={() => action.remove(index)}>删除</a>
+                                {!isViewMode && <a onClick={() => action.remove(index)}>删除</a>}
                               </ProFormGroup>
                             )
                           }}
@@ -282,7 +298,7 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
                                   return false
                                 }}
                         >
-                          <Button block type="primary">
+                          <Button block type="primary" disabled={isViewMode}>
                             <UploadOutlined/>添加票据
                           </Button>
                         </Upload>
@@ -299,47 +315,3 @@ export default ({mode = "add", billId, visible, onVisibleChange}) => {
     </DrawerForm>
   )
 }
-
-const AutoCompleteInput = ({request, onChange, ...props}) => {
-  const [value, setValue] = useState('')
-  const [options, setOptions] = useState([])
-  const onSearch = useMemo(() => debounce((searchText) => {
-    if (!searchText || searchText.length < 2) {
-      setOptions([])
-      return
-    }
-    request(searchText).then(res => setOptions(res.data.map(v => ({value: v}))))
-  }, 500), []);
-  const onEnhanceChange = (data) => {
-    setValue(data);
-    onChange && onChange(data)
-  };
-  return (
-    <AutoComplete style={{width: "100%"}} value={value} options={options}
-                  onBlur={() => setOptions([])}
-                  onSearch={onSearch} onChange={onEnhanceChange} {...props}>
-      <Input/>
-    </AutoComplete>
-  )
-}
-
-function ExpenseSubsidies() {
-}
-
-function ExpenseAttachment() {
-
-}
-
-const TitleTh = styled.th`
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  margin: 0;
-`
-const LabelTh = styled.th`
-  font-size: 14px;
-`
-const BaseInput = styled.input`
-  border: 0;
-  width: 100%;
-`

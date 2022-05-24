@@ -19,8 +19,8 @@ public interface CustomerMapper extends BaseMapper<Customer> {
 
     void dropRelatedTblByTableIdentified(@Param("tblIdentified") String tblIdentified);
 
-    default Customer findByAccountName(String accountName) {
-        return selectOne(Wrappers.<Customer>lambdaQuery().eq(Customer::getAccount, accountName));
+    default Customer findByNumber(String number) {
+        return selectOne(Wrappers.<Customer>lambdaQuery().eq(Customer::getNumber, number));
     }
 
 }

@@ -26,8 +26,20 @@ public class SecurityUtil {
         throw new AuthenticationServiceException("找不到当前上下文用户失败");
     }
 
+    public static User getCurrentUserOfNullable() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            return (User) authentication.getPrincipal();
+        }
+        return null;
+    }
+
     public static Long getCustomerId() {
         return getCurrentUser().getCustomerId();
+    }
+
+    public static String getCustomerNumber() {
+        return getCurrentUser().getCustomerNumber();
     }
 
     public static Long getUserId() {

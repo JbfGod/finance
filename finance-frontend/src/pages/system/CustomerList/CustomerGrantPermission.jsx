@@ -13,7 +13,6 @@ export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
   const selectedCategoryId = selectedCategory.id
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
-  const [expandCustomerCategoryKeys, setExpandCustomerCategoryKeys] = useState([0])
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [selectedCustomerId] = selectedRowKeys
   const [resourcesData, setResourcesData] = useState([])
@@ -51,7 +50,7 @@ export default () => {
       width: 125
     },
     {
-      title: "客户编号", dataIndex: "account",
+      title: "客户编号", dataIndex: "number",
       width: 125
     },
   ]

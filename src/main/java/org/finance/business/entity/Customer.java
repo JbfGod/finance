@@ -38,7 +38,7 @@ public class Customer implements Serializable {
     /**
      * 客户编号
      */
-    private String account;
+    private String number;
 
     /**
      * 客户名称

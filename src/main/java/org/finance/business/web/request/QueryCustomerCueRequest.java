@@ -6,7 +6,9 @@ import lombok.Data;
  * @author jiangbangfa
  */
 @Data
-public class QueryExpenseBillRequest extends AbstractPageRequest {
+public class QueryCustomerCueRequest {
 
-    private String number;
+    private String keyword;
+    private Integer num;
+
 }

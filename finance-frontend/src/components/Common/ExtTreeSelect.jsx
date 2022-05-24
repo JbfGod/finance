@@ -19,10 +19,10 @@ export default function ExtTreeSelect(
     ...props
   }
 ) {
-  const [ctrlValue, setCtrlValue] = useState(value || labelInValue ? {} : undefined)
+  const [ctrlValue, setCtrlValue] = useState(value || (labelInValue ? {} : undefined))
   const safeValue = value || ctrlValue
   const triggerChange = (v, label, extra) => {
-    const newValue = {label: multiple ? label : label[0], value: v}
+    const newValue = labelInValue ? {label: multiple ? label : label[0], value: v} : v
     setCtrlValue(newValue)
     onChange && onChange(newValue)
   }

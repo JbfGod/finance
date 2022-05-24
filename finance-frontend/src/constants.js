@@ -1,14 +1,14 @@
 const constants = {
-  /**
-   * SessionStorage Item Key
-   */
-  ACCESS_TOKEN: "AccessToken",
+
   /**
    * LocalStorage Item Key
    */
   LAST_LOGIN_CUSTOMER_ACCOUNT: "LS_Key_LAST_LOGIN_CUSTOMER_ACCOUNT",
-
 }
+/**
+ * SessionStorage Item Key
+ */
+export const ACCESS_TOKEN = "AccessToken"
 /**
  * BucketName
  */

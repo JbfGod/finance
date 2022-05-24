@@ -16,7 +16,6 @@ import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.IndustryMapper;
 import org.finance.business.mapper.SequenceMapper;
 import org.finance.business.mapper.SubjectMapper;
-import org.finance.business.mapper.UserResourceMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.business.task.CustomerTask;
 import org.finance.infrastructure.constants.Constants;
@@ -77,7 +76,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         customer.setStatus(Customer.Status.SUCCESS);
         baseMapper.insert(customer);
 
-        user.setCustomerAccount(customer.getAccount())
+        user.setCustomerNumber(customer.getNumber())
                 .setCustomerId(customer.getId());
         userMapper.insert(user);
 

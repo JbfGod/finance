@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Button, Col, Empty, message, Modal, Tree, TreeSelect} from "antd";
+import {Button, Col, Empty, message, Modal, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import {useModalWithParam} from "@/utils/hooks";
@@ -15,13 +15,12 @@ import {
   ProFormSwitch,
   ProFormText,
   ProFormTextArea,
-  ProFormTreeSelect,
   StepsForm
 } from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
-import constants, {CUSTOMER_TYPE, SUBJECT_TYPE} from "@/constants";
+import {CUSTOMER_TYPE} from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
@@ -32,7 +31,6 @@ export default () => {
   const selectedCategoryId = selectedCategory.id
   const [industryTreeData, setIndustryTreeData] = useState([])
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
-  const [expandCustomerCategoryKeys, setExpandCustomerCategoryKeys] = useState([0])
   const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
     resourceData: [], selectedResourceIds: [], customer: null
   })
@@ -239,7 +237,7 @@ function AddFormModal({createModal, handleModal, categoryId, actionRef, industry
     >
       <StepsForm.StepForm name="customer" title="客户基本信息">
         <ProForm.Group>
-          <ProFormText name="account" label="客户编号" colon={8} rules={[
+          <ProFormText name="number" label="客户编号" colon={8} rules={[
             {required: true, message: "客户编号不能为空！"},
             {min: 5, max: 25, message: "客户编号只允许有5-25个字符！"},
             {pattern: /[\da-zA-Z]{5,25}/, message: "客户编号只允许包含数字和字母！"}

@@ -43,6 +43,9 @@ public class ExpenseBill implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private Long customerId;
 
+    @TableField(fill = FieldFill.INSERT)
+    private String customerNumber;
+
     /**
      * 报销单号
      */

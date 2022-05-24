@@ -23,7 +23,7 @@ public interface UserConvert {
 
     @Mapping(target = "password", expression
             = "java(org.finance.infrastructure.config.security.util.SecurityUtil.encodePassword(req.getPassword()))")
-    User toUser(AddUserRequest req, Long customerId, String customerAccount);
+    User toUser(AddUserRequest req, Long customerId, String customerNumber);
 
     @Mapping(target = "role", expression = "java(org.finance.business.entity.User.Role.ADMIN)")
     @Mapping(target = "password", expression

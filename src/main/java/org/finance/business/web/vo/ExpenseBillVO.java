@@ -25,6 +25,8 @@ public class ExpenseBillVO {
     @NotNull(message = "ID不能为空")
     private Long id;
     private String number;
+    private Long customerId;
+    private String customerNumber;
     private String expensePerson;
     private String position;
     private String reason;

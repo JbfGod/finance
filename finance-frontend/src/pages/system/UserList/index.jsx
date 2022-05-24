@@ -3,7 +3,7 @@ import PageContainer from "@/components/PageContainer";
 import * as userWeb from "@/services/swagger/userWeb";
 import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam} from "@/utils/hooks";
+import {useModalWithParam, useSuperCustomer} from "@/utils/hooks";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
@@ -36,13 +36,8 @@ export default () => {
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
   const actionRef = useRef()
-  const isSuperCustomer = hooks.useCurrentUser()?.customerId === 0
 
   const columns = [
-    {
-      title: "客户编号", dataIndex: "customerAccount", editable: false,
-      hideInTable: !isSuperCustomer, search: isSuperCustomer
-    },
     {
       title: "用户姓名", dataIndex: "name", valueType: "text"
       , formItemProps: {rules: nameRules}
@@ -134,7 +129,7 @@ export default () => {
                      rules={[
                        {required: true, message: "用户账号不能为空！"},
                        {min: 5, max: 25, message: "登录账号只允许有5-25个字符！"},
-                       {pattern: /[0-9a-zA-Z]{5,25}/, message: "登录账号只允许包含数字和字母！"}
+                       {pattern: /[\da-zA-Z]{5,25}/, message: "登录账号只允许包含数字和字母！"}
                      ]}
         />
         <ProFormRadio.Group name="pwdType" label="登录密码" initialValue="默认" tooltip="默认密码：123456"

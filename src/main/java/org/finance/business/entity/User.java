@@ -44,7 +44,7 @@ public class User implements Serializable, UserDetails {
     /**
      * 客户账户
      */
-    private String customerAccount;
+    private String customerNumber;
 
     /**
      * 用户姓名

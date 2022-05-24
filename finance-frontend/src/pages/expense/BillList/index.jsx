@@ -3,42 +3,49 @@ import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
 import {pageExpenseBillUsingGET} from "@/services/swagger/expenseBillWeb"
 import BillForm from "@/pages/expense/BillList/BillForm"
-import {Button} from "antd"
+import {Button, Space} from "antd"
 import {PlusOutlined} from "@ant-design/icons"
-import {useModalWithParam} from "@/utils/hooks"
-import BillPreviewTableModal from "@/pages/expense/BillList/BillPreviewTableModal";
+import {useCurrCustomerId, useModalWithParam, usePrint} from "@/utils/hooks"
+import BillPrint from "@/pages/expense/BillList/BillPrint";
+import {Access} from "@/.umi/plugin-access/access";
 
 export default () => {
   const actionRef = useRef()
+  const currCustomerId = useCurrCustomerId()
   const [addModal, handleAddModal, openAddModal] = useModalWithParam()
   const [editModal, handleEditModal, openEditModal] = useModalWithParam()
-  const [previewModal, handlePreviewModal, openPreviewModal] = useModalWithParam()
-
+  const [viewModal, handleViewModal, openViewModal] = useModalWithParam()
+  const [print, onPrint] = usePrint()
   const columns = [
     {
       title: "报销单号", dataIndex: "number"
     },
     {
-      title: "报销人", dataIndex: "expensePerson"
+      title: "报销人", dataIndex: "expensePerson", search: false
     },
     {
-      title: "职别", dataIndex: "position"
+      title: "职别", dataIndex: "position", search: false
     },
     {
-      title: "报销时间", dataIndex: "expenseTime"
+      title: "报销时间", dataIndex: "expenseTime", search: false
     },
     {
-      title: "填报时间", dataIndex: "createTime"
+      title: "填报时间", dataIndex: "createTime", search: false
     },
     {
       title: '操作', dataIndex: 'id',
       width: 255, valueType: 'option',
-      render: (dom, row, index, action) => {
-        return [
-          <a key="preview" onClick={() => openPreviewModal({billId: row.id})}>预览</a>,
-          <a key="edit" onClick={() => openEditModal({billId: row.id})}>编辑</a>,
-          <a key="resetPwd">审批</a>
-        ]
+      render: (dom, row) => {
+        return (
+          <Space>
+            <a key="detail" onClick={() => openViewModal({billId: row.id})}>详情</a>{' '}
+            <a key="print" onClick={() => onPrint({billId: row.id})}>打印</a>{' '}
+            <Access accessible={currCustomerId === row.customerId}>
+              <a key="edit" onClick={() => openEditModal({billId: row.id})}>编辑</a>{' '}
+              <a key="resetPwd">审批</a>
+            </Access>
+          </Space>
+        )
       }
     },
   ]
@@ -54,13 +61,15 @@ export default () => {
                   )}
                   editable={false}
       />
-      <BillPreviewTableModal visible={previewModal.visible} billId={previewModal.billId}
-                             onCancel={() => handlePreviewModal(false)}/>
+      <BillPrint print={print}/>
       {addModal.visible &&
         <BillForm visible={true} onVisibleChange={handleAddModal}/>
       }
       {editModal.visible &&
         <BillForm visible={true} mode="edit" onVisibleChange={handleEditModal} billId={editModal.billId}/>
+      }
+      {viewModal.visible &&
+        <BillForm visible={true} mode="view" onVisibleChange={handleViewModal} billId={viewModal.billId}/>
       }
     </PageContainer>
   )

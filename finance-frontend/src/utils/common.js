@@ -1,15 +1,30 @@
-import constants from "@/constants";
+import constants, {ACCESS_TOKEN, CUSTOMER_HEAD} from "@/constants";
+import {message, Modal} from "antd";
+import React from "react";
 
 export function setAccessToken(token) {
-  sessionStorage.setItem(constants.ACCESS_TOKEN, token)
+  sessionStorage.setItem(ACCESS_TOKEN, token)
 }
 
 export function clearAccessToken() {
-  sessionStorage.removeItem(constants.ACCESS_TOKEN)
+  sessionStorage.removeItem(ACCESS_TOKEN)
 }
 
 export function getAccessToken() {
-  return sessionStorage.getItem(constants.ACCESS_TOKEN)
+  return sessionStorage.getItem(ACCESS_TOKEN)
+}
+const CURR_CUSTOMER_KEY = "CURR_CUSTOMER"
+export function getCurrCustomer() {
+  const customer = sessionStorage.getItem(CURR_CUSTOMER_KEY)
+  return customer && JSON.parse(customer) || undefined
+}
+
+export function setCurrCustomer(customer) {
+  return sessionStorage.setItem(CURR_CUSTOMER_KEY, JSON.stringify(customer))
+}
+
+export function removeCurrCustomer() {
+  return sessionStorage.removeItem(CURR_CUSTOMER_KEY)
 }
 
 export function eachTree(treeData = [], callback, childrenField = "children") {

@@ -1,9 +1,12 @@
-import {Button} from "antd";
+import {AutoComplete, Button, Input} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import ProTable from "@ant-design/pro-table";
-import React from "react";
+import ProProvider from "@ant-design/pro-provider";
+import React, {useContext} from "react";
+import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
 
 export default function ExProTable({columns, ...props}) {
+  const values = useContext(ProProvider);
   const enhanceColumns = columns.map(c => ({textWrap: 'word-break', ellipsis: {showTitle: true}, ...c}))
   const newProps = {
     rowKey: "id",
@@ -19,6 +22,20 @@ export default function ExProTable({columns, ...props}) {
     ...props
   }
   return (
-    <ProTable {...newProps} />
+    <ProProvider.Provider
+      value={{
+        ...values,
+        valueTypeMap: {
+          autoComplete: {
+            render: (v) => <span>{v}</span>,
+            renderFormItem: (text, fieldProps = {}) => (
+              <AutoCompleteInput placeholder="请输入链接" {...fieldProps} />
+            ),
+          },
+        },
+      }}
+    >
+      <ProTable {...newProps} />
+    </ProProvider.Provider>
   )
 }

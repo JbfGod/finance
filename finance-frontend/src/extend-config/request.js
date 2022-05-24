@@ -24,7 +24,11 @@ const DEFAULT_ERROR_PAGE = '/exception'
 const IGNORE_URL = ["/api/login"]
 const authHeaderInterceptor = (url, options) => {
   const token = common.getAccessToken()
-  const authHeader = token ? {Authorization: token} : {};
+  const {value: customerId} = common.getCurrCustomer() || {}
+  const headers = {
+    ...(token ? {Authorization: token} : {}),
+    ...(customerId ? {CustomerId: customerId} : {})
+  }
   let loadingKey;
   switch (options?.method.toLowerCase()) {
     case "post":
@@ -36,7 +40,7 @@ const authHeaderInterceptor = (url, options) => {
       }
   }
   return {
-    options: {...options, interceptors: true, headers: authHeader, loadingKey},
+    options: {...options, interceptors: true, headers: headers, loadingKey},
   };
 };
 const responseInterceptor = async (response, options) => {
@@ -80,7 +84,8 @@ const responseInterceptor = async (response, options) => {
       if (data.errorCode === "401") {
         pathname = "/user/login"
       }
-      history.push({pathname,
+      history.push({
+        pathname,
         query: {errorCode: data.errorCode, errorMessage}
       })
       break

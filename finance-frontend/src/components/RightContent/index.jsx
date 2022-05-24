@@ -2,9 +2,9 @@ import {Space} from 'antd';
 import React, {useState} from 'react';
 import {history, useModel} from 'umi';
 import Avatar from './AvatarDropdown';
-import HeaderSearch from '../HeaderSearch';
 import styles from './index.less';
 import * as common from "@/utils/common";
+import SwitchCustomer from "@/components/RightContent/SwitchCustomer";
 
 const GlobalHeaderRight = () => {
   const {initialState} = useModel('@@initialState');
@@ -29,13 +29,14 @@ const GlobalHeaderRight = () => {
     }))
   return (
     <Space className={className}>
-      <HeaderSearch
+      {initialState?.currentUser?.customerId === 0 && <SwitchCustomer />}
+      {/*<HeaderSearch
         className={`${styles.action} ${styles.search}`}
         placeholder="站内搜索"
         options={searchOptions} onSearch={value => {
         setSearchKey(value)
       }}
-      />
+      />*/}
       <Avatar/>
     </Space>
   );

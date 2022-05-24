@@ -7,11 +7,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  */
 public class CustomerUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-    private String customerAccount;
+    private String customerNumber;
 
-    public CustomerUsernamePasswordAuthenticationToken(String customerAccount, String account, String password) {
+    public CustomerUsernamePasswordAuthenticationToken(String customerNumber, String account, String password) {
         super(account, password);
-        this.customerAccount = customerAccount;
+        this.customerNumber = customerNumber;
     }
 
     public CustomerUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
@@ -20,7 +20,7 @@ public class CustomerUsernamePasswordAuthenticationToken extends UsernamePasswor
 
     @Override
     public String getName() {
-        return this.customerAccount;
+        return this.customerNumber;
     }
 
     public String getAccount() {
@@ -28,7 +28,7 @@ public class CustomerUsernamePasswordAuthenticationToken extends UsernamePasswor
         return principal == null ? "" : principal.toString();
     }
 
-    public String getCustomerAccount() {
-        return customerAccount;
+    public String getCustomerNumber() {
+        return customerNumber;
     }
 }

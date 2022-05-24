@@ -1,6 +1,6 @@
 import {LockOutlined, UserOutlined,} from '@ant-design/icons';
 import {message} from 'antd';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {LoginForm, ProFormText} from '@ant-design/pro-form';
 import {history, useModel} from 'umi';
 import {login} from '@/services/login';
@@ -8,6 +8,7 @@ import styles from './index.less';
 import MyIcon from "@/components/Icon";
 import constants from "@/constants";
 import * as common from "@/utils/common";
+import {removeCurrCustomer} from "@/utils/common";
 
 const Login = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
@@ -19,11 +20,13 @@ const Login = () => {
       await setInitialState((s) => ({ ...s, currentUser: userInfo }));
     }
   };
-
+  useEffect(() => {
+    removeCurrCustomer()
+  }, [])
   const handleSubmit = async (values) => {
     const resp = await login({ ...values })
     common.setAccessToken(resp.data)
-    localStorage.setItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT, values.customerAccount)
+    localStorage.setItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT, values.customerNumber)
     message.success("登录成功！");
     await fetchUserInfo();
     /** 此方法会跳转到 redirect 参数所在的位置 */
@@ -40,7 +43,7 @@ const Login = () => {
           /*logo={<MyIcon type="icon-shouzhangben"/>}*/
           title={<h2 className={styles.loginTitle}>慧记账平台</h2>}
           initialValues={{
-            customerAccount: localStorage.getItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT),
+            customerNumber: localStorage.getItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT),
             autoLogin: true,
           }}
           onFinish={async (values) => {
@@ -48,7 +51,7 @@ const Login = () => {
           }}
         >
           <ProFormText
-            name="customerAccount"
+            name="customerNumber"
             fieldProps={{
               size: 'large',
               prefix: <MyIcon type="icon-danwei1" />,

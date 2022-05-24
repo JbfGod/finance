@@ -3,6 +3,7 @@ package org.finance.business.convert;
 import org.finance.business.entity.Customer;
 import org.finance.business.web.request.AddCustomerRequest;
 import org.finance.business.web.request.UpdateCustomerRequest;
+import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,4 +23,6 @@ public interface CustomerConvert {
     Customer toCustomer(AddCustomerRequest request);
 
     Customer toCustomer(UpdateCustomerRequest request);
+
+    CustomerCueVO toCustomerCueVO(Customer customer);
 }

@@ -16,7 +16,7 @@ const permissions = [
 ]
 
 export default function access(initialState) {
-  const { selfPermissions } = initialState ?? {};
+  const { selfPermissions, currentUser } = initialState ?? {};
   const accessMap = permissions.reduce((curr, next) => {
     curr[next] = selfPermissions?selfPermissions.includes(next):false
     return curr

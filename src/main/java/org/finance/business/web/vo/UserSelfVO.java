@@ -17,7 +17,7 @@ public class UserSelfVO {
 
     private String name;
 
-    private String customerAccount;
+    private String customerNumber;
 
     private String account;
 

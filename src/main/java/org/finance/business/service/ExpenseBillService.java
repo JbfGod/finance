@@ -2,6 +2,7 @@ package org.finance.business.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.func.VoidFunc;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.finance.business.mapper.ExpenseItemMapper;
 import org.finance.business.mapper.ExpenseItemSubsidyMapper;
 import org.finance.infrastructure.constants.BucketName;
 import org.finance.infrastructure.exception.HxException;
+import org.finance.infrastructure.util.AssertUtil;
 import org.finance.infrastructure.util.SnowflakeUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,6 +93,10 @@ public class ExpenseBillService extends ServiceImpl<ExpenseBillMapper, ExpenseBi
             String billNumber = SnowflakeUtil.nextIdStr();
             bill.setNumber(billNumber);
         }
+        boolean numberExists = baseMapper.exists(Wrappers.<ExpenseBill>lambdaQuery()
+                .eq(ExpenseBill::getNumber, bill.getNumber())
+        );
+        AssertUtil.isFalse(numberExists, String.format("订单号：%s，已存在！", bill.getNumber()));
 
         // 报销日期不填，默认当前时间
         if (bill.getExpenseTime() == null) {

@@ -6,7 +6,7 @@ CREATE TABLE if not exists `user` (
     `account` varchar(50) NOT NULL COMMENT '登录账号',
     `password` varchar(255) DEFAULT NULL COMMENT '登陆密码',
     `role` enum('ADMIN', 'APPROVER', 'NORMAL', 'OFFICER') not null default 'NORMAL' comment '用户角色',
-    `customer_account` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户账户',
+    `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
     `customer_id` bigint(20) not null default 0 comment '所属客户',
     `create_by` bigint(20) not null default 1,
 `creator_name` varchar(50) not null default '管理员',
@@ -21,7 +21,7 @@ values(1, '超级管理员', 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7O
 
 CREATE TABLE if not exists `customer` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `account` varchar(50) not null comment '客户账户',
+    `number` varchar(50) not null comment '客户编号',
     `user_account` varchar(50) not null comment '客户账户',
     `name` varchar(255) NOT NULL COMMENT '客户名称',
     `industry_id` bigint(20) not null comment '所属行业',
@@ -167,6 +167,7 @@ CREATE TABLE if not exists `subject` (
 CREATE TABLE if not exists `expense_bill` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `customer_id` bigint(20) not null comment '客户ID',
+    `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
     `number` varchar(50) not null comment '报销单号',
     `expense_person` varchar(255) not null comment '报销人',
     `expense_time` datetime not null comment '报销日期',

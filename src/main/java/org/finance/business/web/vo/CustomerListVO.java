@@ -14,7 +14,7 @@ public class CustomerListVO {
 
     private Long id;
 
-    private String account;
+    private String number;
 
     private String name;
 

@@ -13,8 +13,10 @@ import org.finance.business.service.CustomerResourceService;
 import org.finance.business.service.CustomerService;
 import org.finance.business.web.request.AddCustomerRequest;
 import org.finance.business.web.request.GrantResourcesToCustomerRequest;
+import org.finance.business.web.request.QueryCustomerCueRequest;
 import org.finance.business.web.request.QueryCustomerRequest;
 import org.finance.business.web.request.UpdateCustomerRequest;
+import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceVO;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -77,7 +80,7 @@ public class CustomerWeb {
 
         IPage<CustomerListVO> pages = customerService.page(request.extractPage(), Wrappers.<Customer>lambdaQuery()
                 .likeRight(StringUtils.hasText(request.getUserAccount()), Customer::getUserAccount, request.getUserAccount())
-                .likeRight(StringUtils.hasText(request.getAccount()), Customer::getAccount, request.getAccount())
+                .likeRight(StringUtils.hasText(request.getAccount()), Customer::getNumber, request.getAccount())
                 .likeRight(StringUtils.hasText(request.getName()), Customer::getName, request.getName())
                 .eq(request.getIndustryId() != null, Customer::getIndustryId, request.getIndustryId())
                 .in(request.getCategoryId() != null, Customer::getCategoryId, categoryIds)
@@ -95,6 +98,16 @@ public class CustomerWeb {
             return customerListVO;
         });
         return RPage.build(pages);
+    }
+
+    @GetMapping("/searchCustomerCue")
+    public R<List<CustomerCueVO>> searchCustomerCue(QueryCustomerCueRequest request) {
+        List<CustomerCueVO> cues = customerService.list(Wrappers.<Customer>lambdaQuery()
+                .select(Customer::getId, Customer::getNumber)
+                .likeRight(Customer::getNumber, request.getKeyword())
+                .last(String.format("limit %d", Optional.ofNullable(request.getNum()).orElse(5)))
+        ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO).collect(Collectors.toList());
+        return R.ok(cues);
     }
 
     @PostMapping("/grantResources")

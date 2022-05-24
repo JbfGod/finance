@@ -88,7 +88,7 @@ public class UserWeb {
         IPage<UserListVO> pages = userService.page(request.extractPage(), Wrappers.<User>lambdaQuery()
                 .eq(User::getRole, request.getRole())
                 .eq(currentUser.getCustomerId() > 0, User::getCustomerId, currentUser.getCustomerId())
-                .likeRight(StringUtils.hasText(request.getCustomerAccount()), User::getCustomerAccount, request.getCustomerAccount())
+                .likeRight(StringUtils.hasText(request.getCustomerNumber()), User::getCustomerNumber, request.getCustomerNumber())
                 .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
                 .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())
                 .orderByDesc(User::getCreateBy)
@@ -105,7 +105,7 @@ public class UserWeb {
     @PostMapping("/add")
     public R addUser(@RequestBody @Valid AddUserRequest request) {
         User currentUser = SecurityUtil.getCurrentUser();
-        User user = UserConvert.INSTANCE.toUser(request, currentUser.getCustomerId(), currentUser.getCustomerAccount());
+        User user = UserConvert.INSTANCE.toUser(request, currentUser.getCustomerId(), currentUser.getCustomerNumber());
         userService.addUser(user);
         return R.ok();
     }
