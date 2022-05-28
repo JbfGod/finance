@@ -30,7 +30,7 @@ export default defineConfig({
     },
     {
       requestLibPath: "import { request } from 'umi'",
-      schemaPath: 'http://127.0.1.1:8081/api/downloadOpenapi',
+      schemaPath: 'http://docker.localhost:8081/api/downloadOpenapi',
       projectName: 'swagger',
     },
   ],
