@@ -2,8 +2,8 @@
 
 DIR="$( cd "$( dirname $0 )" && pwd )"
 cd $DIR
+SPRING_PROFILES_ACTIVE=local
 
-set -e -u
 ./gradlew clean build -x test
 
 docker-compose stop
