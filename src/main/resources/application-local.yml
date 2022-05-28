@@ -27,6 +27,11 @@ spring:
       shutdown-timeout: 100ms
     password: ''
     port: 6379
+minio:
+  url: http://127.0.0.1:9000
+  accessKey: jiangbangfa
+  secretKey: jiangbangfa
+
 #Mybatis输出sql日志
 logging:
   level:
