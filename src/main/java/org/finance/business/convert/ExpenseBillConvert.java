@@ -4,7 +4,7 @@ import org.finance.business.entity.ExpenseBill;
 import org.finance.business.web.request.AddExpenseBillRequest;
 import org.finance.business.web.request.UpdateExpenseBillRequest;
 import org.finance.business.web.vo.ExpenseBillDetailVO;
-import org.finance.business.web.vo.ExpenseBillAndItemVO;
+import org.finance.business.web.vo.ExpenseBillPrintContentVO;
 import org.finance.business.web.vo.ExpenseBillVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -22,7 +22,7 @@ public interface ExpenseBillConvert {
 
     ExpenseBillDetailVO toExpenseBillDetailVO(ExpenseBill expenseBill);
 
-    ExpenseBillAndItemVO toExpenseBillPreviewVO(ExpenseBill expenseBill);
+    ExpenseBillPrintContentVO toExpenseBillPreviewVO(ExpenseBill expenseBill);
     ExpenseBill toExpenseBill(AddExpenseBillRequest request);
 
     ExpenseBill toExpenseBill(UpdateExpenseBillRequest request);

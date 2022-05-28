@@ -11,7 +11,7 @@ import java.util.List;
  * @author jiangbangfa
  */
 @Data
-public class ExpenseBillAndItemVO {
+public class ExpenseBillPrintContentVO {
 
     private Long id;
     private String number;

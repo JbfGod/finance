@@ -28,8 +28,8 @@ export const SUBJECT_TYPE = {
   COST: {label: "费用", value: "COST"},
   SUBJECT_AND_COST: {label: "科目+费用", value: "SUBJECT_AND_COST"},
 }
-export const SUBJECT_DIRECTION = {
-  NOTHING: {label: "无", value: "NOTHING"},
+export const LENDING_DIRECTION = {
+  DEFAULT: {label: "借+贷", value: "DEFAULT"},
   BORROW: {label: "借", value: "BORROW"},
   LOAN: {label: "贷", value: "LOAN"},
 }
@@ -48,6 +48,20 @@ export const CUSTOMER_TYPE = {
   RENT: {label: "租用", value: "RENT"},
   PROXY: {label: "代理", value: "PROXY"},
   RENT_AND_PROXY: {label: "租用+代理", value: "RENT_AND_PROXY"}
+}
+
+/**
+ * 货币类型
+ */
+export const CURRENCY_TYPE = {
+  /**
+   * 本币
+   */
+  LOCAL: "LOCAL",
+  /**
+   * 外币
+   */
+  FOREIGN: "FOREIGN"
 }
 
 export default constants

@@ -3,7 +3,7 @@ import PageContainer from "@/components/PageContainer";
 import * as userWeb from "@/services/swagger/userWeb";
 import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam, useSuperCustomer} from "@/utils/hooks";
+import {useModalWithParam} from "@/utils/hooks";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";

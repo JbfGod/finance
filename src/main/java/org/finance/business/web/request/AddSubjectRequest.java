@@ -2,6 +2,7 @@ package org.finance.business.web.request;
 
 import lombok.Data;
 import org.finance.business.entity.Subject;
+import org.finance.infrastructure.constants.LendingDirection;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -29,7 +30,7 @@ public class AddSubjectRequest {
     @NotNull(message = "请选择科目类型")
     private Subject.Type type;
 
-    private Subject.Direction direction;
+    private LendingDirection lendingDirection;
 
     private Subject.AssistSettlement assistSettlement;
 

@@ -1,11 +1,14 @@
-export const CAN = "can"
-export const USER_PAGE = "sys:userPage"
-export const CUSTOMER_CATEGORY_PAGE = "sys:customer:categoryPage"
-export const CUSTOMER_PAGE = "sys:customerPage"
-export const CUSTOMER_AUTHORIZE_PAGE = "sys:customer:grantResourcePage"
-export const INDUSTRY_PAGE = "base:industryPage"
-export const SUBJECT_PAGE = "base:subjectPage"
-export const EXPENSE_BILL_PAGE = "expense:billPage"
+const CAN = "can"
+const USER_PAGE = "sys:userPage"
+const CUSTOMER_CATEGORY_PAGE = "sys:customer:categoryPage"
+const CUSTOMER_PAGE = "sys:customerPage"
+const CUSTOMER_AUTHORIZE_PAGE = "sys:customer:grantResourcePage"
+const INDUSTRY_PAGE = "base:industryPage"
+const SUBJECT_PAGE = "base:subjectPage"
+const EXPENSE_BILL_PAGE = "expense:billPage"
+const VOUCHER_LIST_PAGE = "voucher:listPage"
+const VOUCHER_BOOK_PAGE = "voucher:bookPage"
+const CURRENCY_PAGE = "currencyPage"
 
 export default [
   {
@@ -111,7 +114,31 @@ export default [
         component: './expense/BillList/BillForm',
       }
     ],
-
+  },
+  {
+    path: '/voucher',
+    name: '凭证管理',
+    icon: 'simple',
+    routes: [
+      {
+        path: "/voucher/list",
+        name: '凭证管理',
+        access: VOUCHER_LIST_PAGE,
+        component: './voucher',
+      },
+      {
+        path: "/voucher/book",
+        name: '科目账簿',
+        access: VOUCHER_BOOK_PAGE,
+        component: './voucher',
+      },
+      {
+        path: "/voucher/currency",
+        name: '外币汇率管理',
+        access: CURRENCY_PAGE,
+        component: './voucher/CurrencyList',
+      }
+    ]
   },
   {
     path: '/welcome',

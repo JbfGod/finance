@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.finance.business.mapper.VoucherMapper">
+
+    <update id="resetSerialNumber">
+        replace into voucher (id, serial_number)
+        select v.id, row_number() over (order by v.create_time)
+        from voucher v where v.`year_month_num` = #{yearMonthNum}
+    </update>
+    <select id="getMaxSerialNumber" resultType="java.lang.Integer">
+        select max(v.serial_number)
+        from voucher v where v.`year_month_num` = #{yearMonthNum}
+    </select>
+</mapper>

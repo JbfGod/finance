@@ -61,28 +61,15 @@ const AvatarDropdown = ({ menu }) => {
   if (!currentUser || !currentUser.name) {
     return loading;
   }
+  const menuItems = [
+    {key: "center", label:"个人中心", icon:(<UserOutlined />)},
+    {key: "settings", label:"个人设置", icon:(<SettingOutlined />)},
+    {type: 'divider'},
+    {key: "logout", label:"退出登录", icon:(<LogoutOutlined />)},
+  ]
 
   const menuHeaderDropdown = (
-    <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {menu && (
-        <Menu.Item key="center">
-          <UserOutlined />
-          个人中心
-        </Menu.Item>
-      )}
-      {menu && (
-        <Menu.Item key="settings">
-          <SettingOutlined />
-          个人设置
-        </Menu.Item>
-      )}
-      {menu && <Menu.Divider />}
-
-      <Menu.Item key="logout">
-        <LogoutOutlined />
-        退出登录
-      </Menu.Item>
-    </Menu>
+    <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick} items={menuItems}/>
   );
   return (
     <HeaderDropdown overlay={menuHeaderDropdown}>

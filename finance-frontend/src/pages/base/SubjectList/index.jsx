@@ -9,7 +9,7 @@ import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-desig
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as industryWeb from "@/services/swagger/industryWeb";
-import constants, {SUBJECT_ASSIST_SETTLEMENT, SUBJECT_DIRECTION, SUBJECT_TYPE} from "@/constants";
+import {SUBJECT_ASSIST_SETTLEMENT, LENDING_DIRECTION, SUBJECT_TYPE} from "@/constants";
 import PageContainer from "@/components/PageContainer";
 
 export default () => {
@@ -59,7 +59,7 @@ export default () => {
       title: "科目方向", dataIndex: "direction", valueType: "select"
       , fieldProps: {
         allowClear: false,
-        options: Object.values(SUBJECT_DIRECTION)
+        options: Object.values(LENDING_DIRECTION)
       }
     },
     {
@@ -145,7 +145,7 @@ export default () => {
                            ]}
               />
               <ProFormSelect name="type" allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
-              <ProFormSelect name="direction" allowClear={false} label="科目方向" options={Object.values(SUBJECT_DIRECTION)}/>
+              <ProFormSelect name="lendingDirection" allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
               <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
                              options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
               <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>

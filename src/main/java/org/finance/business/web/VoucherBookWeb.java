@@ -5,14 +5,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 费用报销条目详情(出差补助明细) 前端控制器
+ * 凭证账簿 前端控制器
  * </p>
  *
  * @author jiangbangfa
- * @since 2022-05-14
+ * @since 2022-05-25
  */
 @RestController
-@RequestMapping("/api/expense/item/subsidy")
-public class ExpenseItemSubsidyWeb {
+@RequestMapping("/api/voucherBook")
+public class VoucherBookWeb {
 
 }

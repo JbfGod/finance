@@ -5,6 +5,11 @@ import defaultSettings from '../config/defaultSettings';
 import * as userWeb from "@/services/swagger/userWeb";
 import * as common from "@/utils/common";
 
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
+
+
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 

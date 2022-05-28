@@ -2,6 +2,7 @@ package org.finance.business.web.vo;
 
 import lombok.Data;
 import org.finance.business.entity.Subject;
+import org.finance.infrastructure.constants.LendingDirection;
 
 /**
  * @author jiangbangfa
@@ -21,7 +22,7 @@ public class SubjectVO {
 
     private Subject.Type type;
 
-    private Subject.Direction direction;
+    private LendingDirection lendingDirection;
 
     private Subject.AssistSettlement assistSettlement;
 

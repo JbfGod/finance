@@ -143,7 +143,7 @@ CREATE TABLE if not exists `subject` (
     `industry_id` bigint(20) not null comment '所属行业',
     `number` varchar(50) not null comment '科目编号',
     `name` varchar(255) NOT NULL COMMENT '科目名称',
-    `direction` enum('BORROW', 'LOAN', 'NOTHING') not null default 'NOTHING' comment '科目方向,BORROW：借、LOAN：贷、NOTHING：无',
+    `lending_direction` enum('BORROW', 'LOAN', 'DEFAULT') not null default 'DEFAULT' comment '科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷',
     `type` enum('SUBJECT', 'COST', 'SUBJECT_AND_COST') not null default 'SUBJECT' comment '科目类型,SUBJECT:科目、COST:费用、SUBJECT_AND_COST:科目和结算',
     `assist_settlement` enum('NOTHING', 'SUPPLIER', 'CUSTOMER', 'EMPLOYEE', 'BANK') not null default 'NOTHING' comment '辅助结算，自己翻译',
     `parent_id` bigint(20) not null default 0 comment '父级ID',
@@ -174,7 +174,7 @@ CREATE TABLE if not exists `expense_bill` (
     `position` varchar(50) not null comment '职位',
     `total_subsidy_amount` decimal(10, 5) not null comment '合计补助金额',
     `reason` varchar(500) not null comment '报销事由',
-    `audit_status` enum('AUDITING', 'AUDITED') default 'AUDITING' not null comment '审核状态',
+    `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
     `create_by` bigint(20) not null default 1,
 `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -195,7 +195,7 @@ CREATE TABLE if not exists `expense_item` (
     `begin_time` datetime not null comment '开始日期',
     `end_time` datetime not null comment '结束日期',
     `travel_place` varchar(255) not null comment '出差起讫地点',
-    `summary` varchar(255) not null default '' comment '摘要',
+    `summary` varchar(500) not null default '' comment '摘要',
     `num_of_bill` int not null null comment '票据张数',
     `bill_amount` decimal(10, 5) not null comment '票据金额',
     `actual_amount` decimal(10, 5) not null comment '实际金额',
@@ -247,6 +247,97 @@ CREATE TABLE if not exists `expense_item_attachment` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='费用报销条目附件';
 
+
+CREATE TABLE if not exists `currency` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
+    `number` varchar(50) not null comment '货币编号',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `name` varchar(255) not null comment '货币名称',
+    `rate` decimal(10, 5) not null comment '汇率',
+    `remark` varchar(500) default '' comment '备注',
+    `create_by` bigint(20) not null default 1,
+    `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`),
+    unique key (customer_id, `year_month_num`, `number`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='货币汇率列表';
+
+CREATE TABLE if not exists `voucher` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `currency_id` bigint(20) not null default 0 comment '原币ID',
+    `currency_name` varchar(255) not null comment '原币名称',
+    `rate` decimal(10, 5) not null comment '原币汇率',
+    `unit` varchar(255) not null comment '单位',
+    `serial_number` int(11) not null comment '凭证序号,每月凭证从1开始',
+    `voucher_time` datetime not null comment '凭证日期',
+    `attachment_num` int(11) not null default 0 comment '附件张数',
+    `total_currency_amount` decimal(10, 5) not null comment '原币合计金额',
+    `total_local_currency_amount` decimal(10, 5) not null comment '本币合计金额',
+    `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='凭证';
+
+CREATE TABLE if not exists `voucher_item` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `voucher_id` bigint(20) not null comment '所属凭证ID',
+    `summary` varchar(500) not null default '' comment '摘要',
+    `subject_id` bigint(20) not null comment '科目ID',
+    `subject_name` varchar(255) not null comment '科目名称',
+    `lending_direction` enum('BORROW', 'LOAN') not null comment '科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷',
+    `currency_id` bigint(20) not null default 0 comment '原币ID',
+    `currency_name` varchar(255) not null comment '原币名称',
+    `rate` decimal(10, 5) not null comment '原币汇率',
+    `amount` decimal(10, 5) not null comment '借方金额',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='凭证项';
+
+CREATE TABLE if not exists `voucher_book` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `subject_id` bigint(11) not null comment '科目ID',
+    `subject_number` varchar(50) NOT NULL COMMENT '科目编号',
+    `subject_name` varchar(255) NOT NULL COMMENT '科目名称',
+    `voucher_time` datetime not null comment '凭证日期',
+    `summary` varchar(500) not null default '' comment '摘要',
+    `debits_amount` decimal(10, 5) not null comment '借方金额',
+    `credits_amount` decimal(10, 5) not null comment '贷方金额',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='凭证账簿';
+
 CREATE TABLE if not exists `sequence` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `use_category` varchar(50) not null default '' comment '使用类别',
@@ -265,7 +356,12 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (21, '0201', '行业管理', 0, '02', false, 2, 'MENU', '/base/industry', '', 'base:industryPage'),
 (22, '0202', '科目管理', 0, '02', false, 2, 'MENU', '/base/subject', '', 'base:subjectPage'),
 (30, '03', '费用报销管理', 0, '', true, 1, 'MENU', '/expense/bill', '', 'expense:billPage'),
-(31, '0301', '查询所有', 0, '03', false, 2, 'DATA_SCOPE', '', '', 'expense:bill:searchAll');
+(31, '0301', '查询所有', 0, '03', false, 2, 'DATA_SCOPE', '', '', 'expense:bill:searchAll'),
+(40, '04', '记账管理', 0, '', true, 1, 'MENU', '/voucher', '', ''),
+(41, '0401', '凭证', 40, '04', false, 2, 'MENU', '/voucher/list', '', 'voucher:listPage'),
+(42, '0402', '科目账簿', 40, '04', false, 2, 'MENU', '/voucher/book', '', 'voucher:bookPage'),
+(43, '0403', '外币汇率管理', 40, '04', false, 2, 'MENU', '/voucher/currency', '', 'currencyPage')
+;
 
 delete from `user_resource` where user_id = 1;
 insert into `user_resource` (user_id, resource_id)

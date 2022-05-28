@@ -13,14 +13,12 @@ import org.finance.business.service.ExpenseBillService;
 import org.finance.business.service.ExpenseItemAttachmentService;
 import org.finance.business.service.ExpenseItemService;
 import org.finance.business.service.ExpenseItemSubsidyService;
-import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddExpenseBillRequest;
 import org.finance.business.web.request.QueryExpenseBillCueRequest;
 import org.finance.business.web.request.QueryExpenseBillRequest;
 import org.finance.business.web.request.QueryExpenseItemCueRequest;
-import org.finance.business.web.request.QueryUserRequest;
 import org.finance.business.web.request.UpdateExpenseBillRequest;
-import org.finance.business.web.vo.ExpenseBillAndItemVO;
+import org.finance.business.web.vo.ExpenseBillPrintContentVO;
 import org.finance.business.web.vo.ExpenseBillDetailVO;
 import org.finance.business.web.vo.ExpenseBillVO;
 import org.finance.infrastructure.common.R;
@@ -52,8 +50,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/expense/bill")
 public class ExpenseBillWeb {
 
-    @Resource
-    private UserService userService;
     @Resource
     private ExpenseBillService baseService;
     @Resource
@@ -95,7 +91,7 @@ public class ExpenseBillWeb {
     }
 
     @GetMapping("/{id}/printContent")
-    public R<ExpenseBillAndItemVO> printContentOfExpenseBill(@PathVariable("id") long id) {
+    public R<ExpenseBillPrintContentVO> printContentOfExpenseBill(@PathVariable("id") long id) {
         ExpenseBill bill = baseService.getById(id);
         List<ExpenseItem> items = itemService.list(Wrappers.<ExpenseItem>lambdaQuery().eq(ExpenseItem::getBillId, id));
         bill.setItems(items);

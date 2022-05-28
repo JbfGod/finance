@@ -26,18 +26,16 @@ export function useModalWithParam(visible = false, params = {}) {
   return [modal, handleModalVisible, openModal]
 }
 
-export function useCurrentUser() {
+export function useSecurity() {
   const {initialState} = useModel('@@initialState')
-  return initialState?.currentUser
-}
-
-export function useCurrCustomerId() {
-  const {initialState} = useModel('@@initialState')
-  return initialState?.currentUser?.customerId
-}
-
-export function useSuperCustomer() {
-  return useCurrentUser()?.customerId === 0
+  const {currentUser = {}} = initialState || {}
+  const {customerId} = currentUser
+  const isSuperCustomer = customerId === 0
+  const onlyRead = customerId !== (sessionStorage.getItem("CURR_CUSTOMER") || 0)
+  return {
+    isSuperCustomer,
+    onlyRead
+  }
 }
 
 export function useTableForm(editableOptions) {

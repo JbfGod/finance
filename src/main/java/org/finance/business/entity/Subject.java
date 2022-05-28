@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -54,9 +55,9 @@ public class Subject implements Serializable {
     private Type type;
 
     /**
-     * 科目方向
+     * 借贷方向
      */
-    private Direction direction;
+    private LendingDirection lendingDirection;
 
     /**
      * 辅助结算
@@ -164,22 +165,6 @@ public class Subject implements Serializable {
          * 银行
          */
         BANK,
-        ;
-    }
-
-    public enum Direction {
-        /**
-         * 借
-         */
-        BORROW,
-        /**
-         * 贷
-         */
-        LOAN,
-        /**
-         * 无
-         */
-        NOTHING,
         ;
     }
 

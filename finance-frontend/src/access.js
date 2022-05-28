@@ -9,10 +9,13 @@ export const CUSTOMER_AUTHORIZE_PAGE = "sys:customer:grantResourcePage"
 export const INDUSTRY_PAGE = "base:industryPage"
 export const SUBJECT_PAGE = "base:subjectPage"
 export const EXPENSE_BILL_PAGE = "expense:billPage"
+export const VOUCHER_LIST_PAGE = "voucher:listPage"
+export const VOUCHER_BOOK_PAGE = "voucher:bookPage"
+export const CURRENCY_PAGE = "currencyPage"
 
 const permissions = [
   USER_PAGE,  CUSTOMER_CATEGORY_PAGE,  CUSTOMER_PAGE,  CUSTOMER_AUTHORIZE_PAGE,  INDUSTRY_PAGE,  SUBJECT_PAGE,
-  EXPENSE_BILL_PAGE
+  EXPENSE_BILL_PAGE, VOUCHER_LIST_PAGE, VOUCHER_BOOK_PAGE, CURRENCY_PAGE
 ]
 
 export default function access(initialState) {

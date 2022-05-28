@@ -5,14 +5,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 费用报销条目附件 前端控制器
+ * 凭证项 前端控制器
  * </p>
  *
  * @author jiangbangfa
- * @since 2022-05-14
+ * @since 2022-05-25
  */
 @RestController
-@RequestMapping("/api/expense/item/attachment")
-public class ExpenseItemAttachmentWeb {
+@RequestMapping("/api/voucherItem")
+public class VoucherItemWeb {
 
 }

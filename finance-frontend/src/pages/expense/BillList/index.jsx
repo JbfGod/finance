@@ -3,15 +3,14 @@ import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
 import {pageExpenseBillUsingGET} from "@/services/swagger/expenseBillWeb"
 import BillForm from "@/pages/expense/BillList/BillForm"
-import {Button, Space} from "antd"
+import {Button} from "antd"
 import {PlusOutlined} from "@ant-design/icons"
-import {useCurrCustomerId, useModalWithParam, usePrint} from "@/utils/hooks"
+import {useModalWithParam, usePrint, useSecurity} from "@/utils/hooks"
 import BillPrint from "@/pages/expense/BillList/BillPrint";
-import {Access} from "@/.umi/plugin-access/access";
 
 export default () => {
   const actionRef = useRef()
-  const currCustomerId = useCurrCustomerId()
+  const security = useSecurity()
   const [addModal, handleAddModal, openAddModal] = useModalWithParam()
   const [editModal, handleEditModal, openEditModal] = useModalWithParam()
   const [viewModal, handleViewModal, openViewModal] = useModalWithParam()
@@ -35,18 +34,14 @@ export default () => {
     {
       title: '操作', dataIndex: 'id',
       width: 255, valueType: 'option',
-      render: (dom, row) => {
-        return (
-          <Space>
-            <a key="detail" onClick={() => openViewModal({billId: row.id})}>详情</a>{' '}
-            <a key="print" onClick={() => onPrint({billId: row.id})}>打印</a>{' '}
-            <Access accessible={currCustomerId === row.customerId}>
-              <a key="edit" onClick={() => openEditModal({billId: row.id})}>编辑</a>{' '}
-              <a key="resetPwd">审批</a>
-            </Access>
-          </Space>
-        )
-      }
+      render: (dom, row) => [
+        <a key="detail" onClick={() => openViewModal({billId: row.id})}>详情</a>,
+        <a key="print" onClick={() => onPrint({billId: row.id})}>打印</a>,
+        ...(security.onlyRead ? [] : [
+          <a key="edit" onClick={() => openEditModal({billId: row.id})}>编辑</a>,
+          <a key="resetPwd">审批</a>
+        ])
+      ]
     },
   ]
   return (
