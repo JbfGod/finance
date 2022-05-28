@@ -7,6 +7,7 @@ import org.finance.business.entity.Currency;
 import org.finance.business.entity.User;
 import org.finance.business.entity.Voucher;
 import org.finance.business.entity.VoucherItem;
+import org.finance.business.service.CustomerService;
 import org.finance.business.service.VoucherItemService;
 import org.finance.business.service.VoucherService;
 import org.finance.business.web.request.AddVoucherRequest;
@@ -45,6 +46,8 @@ import java.util.stream.Collectors;
 public class VoucherWeb {
 
     @Resource
+    private CustomerService customerService;
+    @Resource
     private VoucherService baseService;
     @Resource
     private VoucherItemService itemService;
@@ -73,7 +76,9 @@ public class VoucherWeb {
     @GetMapping("/{id}/printContent")
     public R<VoucherPrintContentVO> printContentOfVoucher(@PathVariable("id") long id) {
         Voucher voucher = baseService.getAndItemsById(id);
-        return R.ok(VoucherConvert.INSTANCE.toVoucherPrintContentVO(voucher));
+        VoucherPrintContentVO voucherPrintContentVO = VoucherConvert.INSTANCE.toVoucherPrintContentVO(voucher);
+        voucherPrintContentVO.setCustomerName(customerService.getCustomerNameById(voucher.getCustomerId()));
+        return R.ok(voucherPrintContentVO);
     }
 
     @GetMapping("/searchItemCue")

@@ -74,6 +74,7 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
             .setRate(voucher.getRate());
         if (item.getId() != null) {
             itemMapper.updateById(item);
+            return;
         }
         itemMapper.insert(item);
     }

@@ -6,12 +6,13 @@ import net.sf.jsqlparser.expression.LongValue;
 import org.apache.commons.lang3.StringUtils;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
-import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.util.SpringContextUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_ID;
 
 /**
  * @author jiangbangfa
@@ -26,7 +27,7 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
         }
         HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
         String headCustomerId = request.getHeader("CustomerId");
-        if (StringUtils.isNotBlank(headCustomerId) && currentUser.getCustomerId() == 0) {
+        if (StringUtils.isNotBlank(headCustomerId) && currentUser.getCustomerId() == DEFAULT_CUSTOMER_ID) {
             return new LongValue(headCustomerId);
         }
         return new LongValue(currentUser.getCustomerId());

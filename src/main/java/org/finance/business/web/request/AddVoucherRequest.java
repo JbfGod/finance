@@ -33,11 +33,11 @@ public class AddVoucherRequest {
     @NotNull(message = "请输入凭证时间！")
     private LocalDate voucherDate;
     private Integer attachmentNum;
+    @Valid
     @Size(min = 1, message = "至少添加一条凭证记录！")
     private List<Item> items;
 
     @Data
-    @Valid
     public static class Item {
 
         @NotBlank(message = "请输入摘要！")
@@ -48,7 +48,7 @@ public class AddVoucherRequest {
         private String subjectName;
         @NotNull(message = "请选择借贷方向！")
         private LendingDirection lendingDirection;
-        @NotNull(message = "请输入借方金额！")
+        @NotNull(message = "请输入原币金额！")
         private BigDecimal amount;
 
     }

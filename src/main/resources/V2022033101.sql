@@ -9,10 +9,10 @@ CREATE TABLE if not exists `user` (
     `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
     `customer_id` bigint(20) not null default 0 comment '所属客户',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='用户表';
@@ -39,10 +39,10 @@ CREATE TABLE if not exists `customer` (
     `remark` varchar(500) comment '备注',
     `table_identified` varchar(50) not null comment '客户的表标识',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='客户表';
@@ -60,10 +60,10 @@ CREATE TABLE if not exists `customer_category` (
     `root_number` varchar(50) not null comment '根级别Number',
     `remark` varchar(500) comment '备注',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`number`)
@@ -83,10 +83,10 @@ CREATE TABLE if not exists `resource` (
     `permit_code` varchar(255) not null default '' comment '权限代码',
     `sort_num` int(11) not null default 10 comment '排序编号升序',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`number`)
@@ -97,7 +97,7 @@ CREATE TABLE if not exists `user_resource` (
     `user_id` bigint(20) not null comment '用户ID',
     `resource_id` varchar(255) NOT NULL COMMENT '功能ID',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`user_id`, `resource_id`)
@@ -108,7 +108,7 @@ CREATE TABLE if not exists `customer_resource` (
     `customer_id` bigint(20) not null comment '客户ID',
     `resource_id` bigint(20) NOT NULL COMMENT '功能ID',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`customer_id`, `resource_id`)
@@ -128,10 +128,10 @@ CREATE TABLE if not exists `industry` (
     `root_number` varchar(50) not null comment '根级别Number',
     `remark` varchar(500) comment '备注',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`customer_id`, `number`)
@@ -155,10 +155,10 @@ CREATE TABLE if not exists `subject` (
     `root_number` varchar(50) not null comment '根级别Number',
     `remark` varchar(500) comment '备注',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`customer_id`, `industry_id`, `number`)
@@ -176,10 +176,10 @@ CREATE TABLE if not exists `expense_bill` (
     `reason` varchar(500) not null comment '报销事由',
     `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`),
     unique key (`customer_id`, `number`)
@@ -203,10 +203,10 @@ CREATE TABLE if not exists `expense_item` (
     `subtotal_amount` decimal(10, 5) not null comment '小计费用金额',
     `remark` varchar(500) not null default '' comment '备注',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='费用报销条目';
@@ -222,10 +222,10 @@ CREATE TABLE if not exists `expense_item_subsidy` (
     `amount_for_day` decimal (10, 5) not null comment '元/天',
     `amount` decimal(10, 5) not null comment '补助金额',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='费用报销条目详情(出差补助明细)';
@@ -239,10 +239,10 @@ CREATE TABLE if not exists `expense_item_attachment` (
     `url` varchar(500) not null comment '附件url',
     `remark` varchar(500) default '' comment '备注',
     `create_by` bigint(20) not null default 1,
-`creator_name` varchar(50) not null default '管理员',
+    `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
-`modify_name` varchar(50) not null default '管理员',
+    `modify_name` varchar(50) not null default '管理员',
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='费用报销条目附件';

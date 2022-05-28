@@ -36,14 +36,14 @@ public class UpdateVoucherRequest {
     @NotNull(message = "请输入凭证时间！")
     private LocalDate voucherDate;
     private Integer attachmentNum;
+    @Valid
     @Size(min = 1, message = "至少添加一条凭证记录！")
     private List<Item> items;
 
     private List<Long> deletedItemIds;
 
     @Data
-    @Valid
-    public class Item {
+    public static class Item {
 
         private Long id;
         @NotBlank(message = "请输入摘要！")

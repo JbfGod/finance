@@ -8,6 +8,7 @@ import BillPrint from "@/pages/expense/BillList/BillPrint";
 import {pageVoucherUsingGET} from "@/services/swagger/voucherWeb";
 import VoucherForm from "@/pages/voucher/VoucherForm";
 import {CURRENCY_TYPE} from "@/constants";
+import VoucherPrint from "@/pages/voucher/VoucherPrint";
 
 const renderBadge = (active = false) => {
   return (
@@ -49,7 +50,7 @@ export default () => {
   }
   const columns = [
     {
-      title: "凭证单号", dataIndex: "serialNumber"
+      title: "凭证单号", dataIndex: "serialNumber", search: false
     },
     {
       title: "凭证日期", dataIndex: "voucherTime", search: false
@@ -70,7 +71,7 @@ export default () => {
         <a key="detail" onClick={() => openFormModal({mode: "view", voucherId: row.id, currentType: row.currentType})}>
           详情
         </a>,
-        <a key="print" onClick={() => onPrint({voucherId: row.id})}>打印</a>,
+        <a key="print" onClick={() => onPrint({voucherId: row.id, currencyType: row.currencyType})}>打印</a>,
         ...(security.onlyRead ? [] : [
           <a key="edit" onClick={() => openFormModal({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
             编辑
@@ -93,8 +94,8 @@ export default () => {
                   )}
                   editable={false}
       />
-      <BillPrint print={print}/>
-      <VoucherForm modal={formModal} onVisibleChange={handleFormModal}/>
+      <VoucherPrint print={print}/>
+      <VoucherForm modal={formModal} onSuccess={actionRef.current?.reload} onVisibleChange={handleFormModal}/>
     </PageContainer>
   )
 }

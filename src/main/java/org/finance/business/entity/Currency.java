@@ -98,4 +98,8 @@ public class Currency implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
 
+    public enum Type {
+        LOCAL,
+        FOREIGN
+    }
 }

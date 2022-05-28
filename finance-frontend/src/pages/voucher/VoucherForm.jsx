@@ -8,7 +8,7 @@ import {
   ProFormSelect,
   ProFormText
 } from "@ant-design/pro-form";
-import {Col, Form, InputNumber, Row} from "antd";
+import {Form, InputNumber, Row} from "antd";
 import styles from "./index.less"
 import {searchExpenseItemCueUsingGET} from "@/services/swagger/expenseBillWeb";
 import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
@@ -19,7 +19,7 @@ import {addVoucherUsingPOST, updateVoucherUsingPUT, voucherDetailUsingGET} from 
 import {flatArrayToMap, flatTreeToMap} from "@/utils/common";
 import {currencyOfCurrentMonthUsingGET} from "@/services/swagger/currencyWeb";
 
-export default ({modal, ...props}) => {
+export default ({modal, onSuccess, ...props}) => {
   const {mode = "add", currencyType = CURRENCY_TYPE.LOCAL, voucherId, visible} = modal
   if (!visible) {
     return null
@@ -56,10 +56,9 @@ export default ({modal, ...props}) => {
   const getDeleteItemIds = (formValues) => {
     const {items} = voucherDetail
     const {items: currItems} = formValues
-    const deletedItemIds = items.map(item => item.id).filter(itemId =>
+    return items.map(item => item.id).filter(itemId =>
       currItems.findIndex(tmp => tmp.id === itemId) === -1
     )
-    return deletedItemIds
   }
   useEffect(() => {
     loadSubjects()    // 加载科目数据
@@ -73,7 +72,7 @@ export default ({modal, ...props}) => {
   }, [])
   const title = isForeignCurrency? "外币凭证" : "本币凭证"
   const currencyId = Form.useWatch('currencyId', formRef);
-  const currencyLabel = `币种(汇率：${currencyById[currencyId]?.rate||0})`
+  const currencyLabel = `币种(汇率：${currencyById[currencyId]?.rate||1})`
   return (
     <DrawerForm width={1000} form={formRef}
                 title={`${isAddMode ? "添加" : isEditMode ? "编辑" : "预览"}${title}`}
@@ -95,11 +94,10 @@ export default ({modal, ...props}) => {
                     }))
                   }
                   if (isAddMode) {
-                    return addVoucherUsingPOST(formData)
+                    return addVoucherUsingPOST(formData).then(_ => onSuccess && onSuccess())
                   }
-                  formData.append("id", voucherId)
-                  formData = {...formData, deletedItemIds: getDeleteItemIds(formData)}
-                  return updateVoucherUsingPUT(formData)
+                  formData = {...formData, deletedItemIds: getDeleteItemIds(formData), id: voucherId}
+                  return updateVoucherUsingPUT(formData).then(_ => onSuccess && onSuccess())
                 }}
                 visible={visible}
                 drawerProps={{
@@ -188,9 +186,14 @@ export default ({modal, ...props}) => {
                   <InputNumber placeholder="原币金额" min={0} disabled={isViewMode} width={200}/>
                 </ProFormItem>
                 {isForeignCurrency? (
-                  <Form.Item noStyle shouldUpdate={(prev, next) => (
-                    prev.items[index].amount !== next.items[index].amount
-                  )}>
+                  <Form.Item noStyle shouldUpdate={(prev, next) => {
+                    const currAmount = next.items[index]?.amount
+                    const shouldUpdate = prev.items[index]?.amount !== currAmount || prev.currencyId !== next.currencyId
+                    const {rate} = currencyById[next.currencyId] || {}
+                    if (shouldUpdate) {
+                      formRef.setFields([{name : ["items", index, "billAmount"], value: currAmount * (rate || 1)}])
+                    }
+                  }}>
                     {(f) => {
                       return (
                         <ProFormItem name="billAmount" label="本币">

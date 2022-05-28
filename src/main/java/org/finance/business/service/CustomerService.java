@@ -28,7 +28,11 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_ID;
+import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_NAME;
 
 /**
  * <p>
@@ -119,12 +123,43 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         return baseMapper.exists(Wrappers.<Customer>lambdaQuery().eq(Customer::getCategoryId, categoryId));
     }
 
+    public Function<Long, String> getCustomerNameFunction() {
+        Map<Long, String> nameById = new HashMap<>(10);
+        return (Long customerId) -> {
+            if (nameById.containsKey(customerId)) {
+                return nameById.get(customerId);
+            }
+            Customer customer = baseMapper.selectOne(Wrappers.<Customer>lambdaQuery()
+                    .select(Customer::getName)
+                    .eq(Customer::getId, customerId)
+            );
+            if (customer == null) {
+                return "客户已被删除";
+            }
+            return customer.getName();
+        };
+    }
+
+    public String getCustomerNameById(long customerId) {
+        if (customerId == DEFAULT_CUSTOMER_ID) {
+            return DEFAULT_CUSTOMER_NAME;
+        }
+        Customer customer = baseMapper.selectOne(Wrappers.<Customer>lambdaQuery()
+                .select(Customer::getName)
+                .eq(Customer::getId, customerId)
+        );
+        if (customer == null) {
+            return "客户已被删除";
+        }
+        return customer.getName();
+    }
+
     private void initializationData(long customerId) {
         Map<Long, Industry> industryById = industryMapper.selectList(
-                Wrappers.<Industry>lambdaQuery().eq(Industry::getCustomerId, Constants.DEFAULT_CUSTOMER_ID)
+                Wrappers.<Industry>lambdaQuery().eq(Industry::getCustomerId, DEFAULT_CUSTOMER_ID)
         ).stream().collect(Collectors.toMap(Industry::getId, i -> i));
         Map<Long, Subject> subjectById = subjectMapper.selectList(
-                Wrappers.<Subject>lambdaQuery().eq(Subject::getCustomerId, Constants.DEFAULT_CUSTOMER_ID)
+                Wrappers.<Subject>lambdaQuery().eq(Subject::getCustomerId, DEFAULT_CUSTOMER_ID)
         ).stream().collect(Collectors.toMap(Subject::getId, s -> s));
 
         // Copy industry data to new customer
@@ -157,7 +192,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         }
         subjectByNumber.put(sub.getNumber(), sub);
         Long parentId = sub.getParentId();
-        if (parentId == Constants.DEFAULT_CUSTOMER_ID) {
+        if (parentId == DEFAULT_CUSTOMER_ID) {
             subjectMapper.insert(sub.setId(null).setCustomerId(customerId).setIndustryId(industry.getId()));
             return;
         }
@@ -175,7 +210,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         }
         industryByNumber.put(industry.getNumber(), industry);
         Long parentId = industry.getParentId();
-        if (parentId == Constants.DEFAULT_CUSTOMER_ID) {
+        if (parentId == DEFAULT_CUSTOMER_ID) {
             industryMapper.insert(industry.setId(null).setCustomerId(customerId));
             return;
         }

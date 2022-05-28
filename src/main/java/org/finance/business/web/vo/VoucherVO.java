@@ -1,7 +1,9 @@
 package org.finance.business.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.finance.business.entity.Currency;
 import org.finance.business.web.request.AbstractPageRequest;
 
 import java.time.LocalDateTime;
@@ -23,5 +25,10 @@ public class VoucherVO extends AbstractPageRequest {
     private Integer attachmentNum;
     private String auditStatus;
     private String creatorName;
+    @JsonIgnore
+    private Long currencyId;
+    public Currency.Type getCurrencyType() {
+        return Currency.LOCAL_CURRENCY.getId().equals(currencyId) ? Currency.Type.LOCAL : Currency.Type.FOREIGN;
+    }
 
 }

@@ -2,6 +2,7 @@ package org.finance.business.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.finance.infrastructure.constants.LendingDirection;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class VoucherPrintContentVO {
     private final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
 
     private Long id;
+    private String customerName;
     private Long currencyId;
     private String currencyName;
     private String unit;
@@ -25,6 +27,7 @@ public class VoucherPrintContentVO {
     private Integer attachmentNum;
     private BigDecimal totalCurrencyAmount;
     private BigDecimal totalLocalCurrencyAmount;
+    private Integer serialNumber;
     private List<Item> items;
 
     @Data
@@ -34,6 +37,7 @@ public class VoucherPrintContentVO {
         private String summary;
         private Long subjectId;
         private String subjectName;
+        private LendingDirection lendingDirection;
         private BigDecimal rate;
         private BigDecimal amount;
 
