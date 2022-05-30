@@ -14,10 +14,10 @@ spring:
         allow:
       web-stat-filter:
         enabled: true
-  activiti:
-    check-process-definitions: false
-    database-schema: act
-    jpa-enabled: false
+#  activiti:
+#    check-process-definitions: false
+#    database-schema: act
+#    jpa-enabled: false
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/*.xml

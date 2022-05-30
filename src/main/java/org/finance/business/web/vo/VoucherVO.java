@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.finance.business.entity.Currency;
+import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.web.request.AbstractPageRequest;
 
 import java.time.LocalDateTime;
@@ -23,7 +24,7 @@ public class VoucherVO extends AbstractPageRequest {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime voucherTime;
     private Integer attachmentNum;
-    private String auditStatus;
+    private AuditStatus auditStatus;
     private String creatorName;
     @JsonIgnore
     private Long currencyId;

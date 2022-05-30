@@ -1,6 +1,8 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.Voucher;
+import org.finance.business.entity.VoucherBook;
+import org.finance.business.entity.VoucherItem;
 import org.finance.business.web.request.AddVoucherRequest;
 import org.finance.business.web.request.UpdateVoucherRequest;
 import org.finance.business.web.vo.VoucherDetailVO;
@@ -21,10 +23,13 @@ public interface VoucherConvert {
 
     Voucher toVoucher(UpdateVoucherRequest request);
 
+    VoucherBook toVoucherBook(VoucherItem voucher);
+
     VoucherVO toVoucherVO(Voucher voucher);
 
     VoucherDetailVO toVoucherDetailVO(Voucher voucher);
 
     VoucherPrintContentVO toVoucherPrintContentVO(Voucher voucher);
+
 
 }

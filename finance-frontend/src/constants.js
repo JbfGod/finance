@@ -63,5 +63,17 @@ export const CURRENCY_TYPE = {
    */
   FOREIGN: "FOREIGN"
 }
-
+/**
+ * 审核状态
+ */
+export const AuditStatus = {
+  /**
+   * 待审核
+   */
+  TO_BE_AUDITED : "TO_BE_AUDITED",
+  /**
+   * 已审核
+   */
+  AUDITING: "AUDITING"
+}
 export default constants

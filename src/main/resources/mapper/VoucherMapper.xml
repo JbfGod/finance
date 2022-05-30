@@ -11,4 +11,10 @@
         select max(v.serial_number)
         from voucher v where v.`year_month_num` = #{yearMonthNum}
     </select>
+    <select id="selectVoucherBookVO" resultType="org.finance.business.web.vo.VoucherBookVO">
+        select vi.id, vi.year_month_num, v.serial_number,
+               vi.subject_number, vi.subject_name, vi.summary, vi.lending_direction, vi.rate, vi.amount,
+        from voucher v, voucher_item vi
+        where v.id = vi.voucher_id
+    </select>
 </mapper>

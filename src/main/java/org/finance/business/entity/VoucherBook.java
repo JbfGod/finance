@@ -1,16 +1,16 @@
 package org.finance.business.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.finance.infrastructure.constants.LendingDirection;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -37,14 +37,7 @@ public class VoucherBook implements Serializable {
     /**
      * 客户ID
      */
-    @TableField(fill = FieldFill.INSERT)
     private Long customerId;
-
-    /**
-     * 客户编号
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private String customerNumber;
 
     /**
      * 年份:yyyy
@@ -55,6 +48,8 @@ public class VoucherBook implements Serializable {
      * 月份:yyyyMM
      */
     private Integer yearMonthNum;
+
+    private Long voucherId;
 
     /**
      * 科目ID
@@ -82,32 +77,29 @@ public class VoucherBook implements Serializable {
     private String summary;
 
     /**
-     * 借方金额
+     * 借贷方向
      */
-    private BigDecimal debitsAmount;
+    private LendingDirection lendingDirection;
 
     /**
-     * 贷方金额
+     * 原币ID
      */
-    private BigDecimal creditsAmount;
+    private Long currencyId;
 
-    @TableField(fill = FieldFill.INSERT)
-    private Long createBy;
+    /**
+     * 原币名称
+     */
+    private String currencyName;
 
-    @TableField(fill = FieldFill.INSERT)
-    private String creatorName;
+    /**
+     * 原币汇率
+     */
+    private BigDecimal rate;
 
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Long modifyBy;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String modifyName;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime modifyTime;
+    /**
+     * 金额
+     */
+    private BigDecimal amount;
 
 
 }

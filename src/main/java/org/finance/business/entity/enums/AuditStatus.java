@@ -5,16 +5,12 @@ package org.finance.business.entity.enums;
  */
 public enum AuditStatus {
     /**
-     * 审核中
+     * 待审核
      */
-    AUDITING,
+    TO_BE_AUDITED,
     /**
      * 已审核
      */
     AUDITED,
-    /**
-     * 已拒绝
-     */
-    REJECTED
     ;
 }

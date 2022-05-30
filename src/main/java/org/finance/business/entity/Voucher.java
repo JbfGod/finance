@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.finance.business.entity.enums.AuditStatus;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -104,7 +105,36 @@ public class Voucher implements Serializable {
     /**
      * 审核状态
      */
-    private String auditStatus;
+    private AuditStatus auditStatus;
+
+    /**
+     * 记账状态
+     */
+    private Boolean bookkeeping;
+
+    /**
+     * 记账人
+     */
+    @TableField(fill = FieldFill.UPDATE)
+    private String bookkeeper;
+
+    /**
+     * 记账人
+     */
+    @TableField(fill = FieldFill.UPDATE)
+    private Long bookkeepingBy;
+
+    /**
+     * 审核人
+     */
+    @TableField(fill = FieldFill.UPDATE)
+    private Long auditBy;
+
+    /**
+     * 审核人
+     */
+    @TableField(fill = FieldFill.UPDATE)
+    private String auditor;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;

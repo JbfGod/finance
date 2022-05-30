@@ -1,10 +1,8 @@
-import React, {useMemo, useRef, useState} from "react";
-import {useModel} from "umi";
+import React, {useRef, useState} from "react";
+import {useAccess, useModel} from "umi";
 import {Form} from "antd";
 import * as common from "@/utils/common";
 import {useReactToPrint} from "react-to-print";
-import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
-import {debounce} from "lodash";
 
 export function useBoolean(initialValue = false) {
   const [value, setValue] = useState(initialValue)
@@ -26,15 +24,21 @@ export function useModalWithParam(visible = false, params = {}) {
   return [modal, handleModalVisible, openModal]
 }
 
-export function useSecurity() {
+export function useSecurity(permissionPrefix = "") {
   const {initialState} = useModel('@@initialState')
+  const access = useAccess()
   const {currentUser = {}} = initialState || {}
-  const {customerId} = currentUser
+  const {customerId, role} = currentUser
+  const isAdmin = role === "ADMIN"
   const isSuperCustomer = customerId === 0
-  const onlyRead = customerId !== (sessionStorage.getItem("CURR_CUSTOMER") || 0)
+
+  const canAuditing = isSuperCustomer || isAdmin || access[`${permissionPrefix}:auditing`]
+  const canOperating = isSuperCustomer || isAdmin || access[`${permissionPrefix}:operating`]
   return {
     isSuperCustomer,
-    onlyRead
+    onlyRead : true,
+    canAuditing,
+    canOperating,
   }
 }
 

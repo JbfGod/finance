@@ -1,7 +1,6 @@
 package org.finance;
 
 import lombok.extern.slf4j.Slf4j;
-import org.activiti.spring.boot.SecurityAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -18,9 +17,7 @@ import java.net.UnknownHostException;
  */
 @Slf4j
 @EnableScheduling
-@SpringBootApplication(exclude={
-        SecurityAutoConfiguration.class
-})
+@SpringBootApplication
 public class FinanceApplication extends SpringBootServletInitializer {
 
     @Override

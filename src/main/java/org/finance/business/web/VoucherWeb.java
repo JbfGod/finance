@@ -11,15 +11,21 @@ import org.finance.business.service.CustomerService;
 import org.finance.business.service.VoucherItemService;
 import org.finance.business.service.VoucherService;
 import org.finance.business.web.request.AddVoucherRequest;
+import org.finance.business.web.request.AuditingVoucherRequest;
+import org.finance.business.web.request.BookkeepingVoucherRequest;
+import org.finance.business.web.request.QueryVoucherBookRequest;
 import org.finance.business.web.request.QueryVoucherItemCueRequest;
 import org.finance.business.web.request.QueryVoucherRequest;
+import org.finance.business.web.request.UnBookkeepingVoucherRequest;
 import org.finance.business.web.request.UpdateVoucherRequest;
+import org.finance.business.web.vo.VoucherBookVO;
 import org.finance.business.web.vo.VoucherDetailVO;
 import org.finance.business.web.vo.VoucherPrintContentVO;
 import org.finance.business.web.vo.VoucherVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +73,11 @@ public class VoucherWeb {
         return RPage.build(page);
     }
 
+    @GetMapping("/page/book")
+    public RPage<VoucherBookVO> pageVoucherBook(QueryVoucherBookRequest request) {
+        return RPage.build(baseService.pageVoucherBookVO(request.extractPage()));
+    }
+
     @GetMapping("/get/{id}")
     public R<VoucherDetailVO> voucherDetail(@PathVariable("id") long id) {
         Voucher voucher = baseService.getAndItemsById(id);
@@ -104,6 +115,60 @@ public class VoucherWeb {
         return R.ok();
     }
 
+    @PutMapping("/auditing/{id}")
+    public R auditingVoucher(@PathVariable("id") long id) {
+        baseService.auditingById(id);
+        return R.ok();
+    }
+
+    @PutMapping("/unAuditing/{id}")
+    public R unAuditingVoucher(@PathVariable("id") long id) {
+        baseService.unAuditingById(id);
+        return R.ok();
+    }
+
+    @PutMapping("/auditing")
+    public R batchAuditingVoucher(@Valid AuditingVoucherRequest request) {
+        baseService.batchAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        return R.ok();
+    }
+
+    @PutMapping("/unAuditing")
+    public R batchUnAuditingVoucher(@Valid AuditingVoucherRequest request) {
+        baseService.batchUnAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        return R.ok();
+    }
+
+    @PutMapping("/bookkeeping/{id}")
+    public R bookkeepingVoucher(@PathVariable("id") long id) {
+        baseService.bookkeepingById(id);
+        return R.ok();
+    }
+
+    @PutMapping("/unBookkeeping/{id}")
+    public R unBookkeepingVoucher(@PathVariable("id") long id) {
+        baseService.unBookkeepingById(id);
+        return R.ok();
+    }
+
+    @PutMapping("/bookkeeping")
+    public R batchBookkeepingVoucher(@Valid BookkeepingVoucherRequest request) {
+        baseService.batchBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        return R.ok();
+    }
+
+    @PutMapping("/unBookkeeping")
+    public R batchUnBookkeepingVoucher(@Valid UnBookkeepingVoucherRequest request) {
+        baseService.batchUnBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        return R.ok();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public R deleteVoucher(@PathVariable("id") long id) {
+        baseService.deleteById(id);
+        return R.ok();
+    }
+
     @PutMapping("/update")
     public R updateVoucher(@Valid @RequestBody UpdateVoucherRequest request) {
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
@@ -112,6 +177,5 @@ public class VoucherWeb {
         });
         return R.ok();
     }
-
 
 }

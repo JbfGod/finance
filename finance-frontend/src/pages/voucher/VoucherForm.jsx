@@ -90,14 +90,21 @@ export default ({modal, onSuccess, ...props}) => {
                     items: f.items.map(item => ({
                       ...item,
                       subjectName: subjectById[item?.subjectId]?.name,
+                      subjectNumber: subjectById[item?.subjectId]?.number,
                       lendingDirection: item.lendingDirection
                     }))
                   }
                   if (isAddMode) {
-                    return addVoucherUsingPOST(formData).then(_ => onSuccess && onSuccess())
+                    return addVoucherUsingPOST(formData).then(_ => {
+                      onSuccess && onSuccess()
+                      return true
+                    })
                   }
                   formData = {...formData, deletedItemIds: getDeleteItemIds(formData), id: voucherId}
-                  return updateVoucherUsingPUT(formData).then(_ => onSuccess && onSuccess())
+                  return updateVoucherUsingPUT(formData).then(_ => {
+                    onSuccess && onSuccess()
+                    return true
+                  })
                 }}
                 visible={visible}
                 drawerProps={{
@@ -158,7 +165,6 @@ export default ({modal, onSuccess, ...props}) => {
                 <ProFormItem name="subjectId" label="科目" style={{width: 180}}>
                   <ExtTreeSelect options={subjects} placeholder="只能选择费用类科目"
                                  onlySelectedLeaf={true} disabled={isViewMode}
-                                 disableFilter={node => node.type === SUBJECT_TYPE.SUBJECT.value}
                                  style={{width: '100%'}}/>
                 </ProFormItem>
                 <Form.Item noStyle shouldUpdate={(prev, next) => {
@@ -173,11 +179,11 @@ export default ({modal, onSuccess, ...props}) => {
                   return shouldUpdate
                 }}>
                   {(form) => {
-                    const subjectId = form.getFieldValue(["items", index, "subjectId"])
+                    /*const subjectId = form.getFieldValue(["items", index, "subjectId"])
                     const {lendingDirection} = subjectById[subjectId] || {}
-                    const disabled = lendingDirection == null || lendingDirection !== LENDING_DIRECTION.DEFAULT.value
+                    const disabled = lendingDirection == null || lendingDirection !== LENDING_DIRECTION.DEFAULT.value*/
                     return (
-                      <ProFormSelect disabled={disabled} name="lendingDirection" allowClear={false} label="借贷方向"
+                      <ProFormSelect name="lendingDirection" allowClear={false} label="借贷方向"
                                      options={Object.values(LENDING_DIRECTION).filter(v => v !== LENDING_DIRECTION.DEFAULT)}/>
                     )
                   }}

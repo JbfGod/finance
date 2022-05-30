@@ -1,14 +1,20 @@
 import React, {useRef, useState} from "react"
 import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
-import {Badge, Button} from "antd"
+import {Badge, Button, Popconfirm} from "antd"
 import {PlusOutlined} from "@ant-design/icons"
 import {useModalWithParam, usePrint, useSecurity} from "@/utils/hooks"
-import BillPrint from "@/pages/expense/BillList/BillPrint";
-import {pageVoucherUsingGET} from "@/services/swagger/voucherWeb";
+import {
+  auditingVoucherUsingPUT,
+  deleteVoucherUsingDELETE,
+  pageVoucherUsingGET,
+  unAuditingVoucherUsingPUT
+} from "@/services/swagger/voucherWeb";
 import VoucherForm from "@/pages/voucher/VoucherForm";
-import {CURRENCY_TYPE} from "@/constants";
+import {AuditStatus, CURRENCY_TYPE} from "@/constants";
 import VoucherPrint from "@/pages/voucher/VoucherPrint";
+import moment from "moment";
+import {pageCurrencyUsingGET} from "@/services/swagger/currencyWeb";
 
 const renderBadge = (active = false) => {
   return (
@@ -22,6 +28,10 @@ const renderBadge = (active = false) => {
     />
   )
 }
+
+const yearMonthNumTransform = v => ({
+  yearMonthNum: moment(v).format("YYYYMM")
+})
 
 export default () => {
   const actionRef = useRef()
@@ -50,6 +60,10 @@ export default () => {
   }
   const columns = [
     {
+      title: "年-月", dataIndex: "yearMonthNum", search: {transform: yearMonthNumTransform},
+      valueType: "dateMonth", fieldProps: {defaultValue:moment()}, hideInTable: true
+    },
+    {
       title: "凭证单号", dataIndex: "serialNumber", search: false
     },
     {
@@ -72,12 +86,29 @@ export default () => {
           详情
         </a>,
         <a key="print" onClick={() => onPrint({voucherId: row.id, currencyType: row.currencyType})}>打印</a>,
-        ...(security.onlyRead ? [] : [
-          <a key="edit" onClick={() => openFormModal({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
+        ...security.canOperating && row.auditStatus === AuditStatus.TO_BE_AUDITED ? [
+          <a key="edit"
+             onClick={() => openFormModal({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
             编辑
           </a>,
-          <a key="approve">审批</a>
-        ])
+          <Popconfirm key="delete" title="确认删除该凭证？"
+                      onConfirm={() => deleteVoucherUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
+            <a>删除</a>
+          </Popconfirm>
+        ] : [],
+        security.canAuditing && (
+          row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
+            <Popconfirm key="auditing" title="确认审核该凭证？"
+                        onConfirm={() => auditingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+              <a>审核</a>
+            </Popconfirm>
+          ) : (
+            <Popconfirm key="unAuditing" title="确认弃审该凭证？"
+                        onConfirm={() => unAuditingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+              <a>弃审</a>
+            </Popconfirm>
+          )
+        ),
       ]
     },
   ]
@@ -85,8 +116,13 @@ export default () => {
     <PageContainer>
       <ExProTable actionRef={actionRef} columns={columns}
                   toolbar={toolbar} params={{currencyType}}
-                  request={pageVoucherUsingGET}
-                  toolBarRender={() => (
+                  request={(params) => {
+                    const {yearMonthNum = moment().format("YYYYMM")} = params
+                    return pageVoucherUsingGET({
+                      ...params, yearMonthNum
+                    })
+                  }}
+                  toolBarRender={() => security.canOperating && (
                     <Button type="primary" onClick={() => openFormModal({mode: "add", currencyType})}>
                       <PlusOutlined/>
                       新增凭证单

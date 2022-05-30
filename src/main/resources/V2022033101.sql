@@ -174,7 +174,7 @@ CREATE TABLE if not exists `expense_bill` (
     `position` varchar(50) not null comment '职位',
     `total_subsidy_amount` decimal(10, 5) not null comment '合计补助金额',
     `reason` varchar(500) not null comment '报销事由',
-    `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
+    `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -258,7 +258,7 @@ CREATE TABLE if not exists `currency` (
     `rate` decimal(10, 5) not null comment '汇率',
     `remark` varchar(500) default '' comment '备注',
     `create_by` bigint(20) not null default 1,
-    `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
+    `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
     `modify_by` bigint(20) not null default 1,
@@ -283,7 +283,12 @@ CREATE TABLE if not exists `voucher` (
     `attachment_num` int(11) not null default 0 comment '附件张数',
     `total_currency_amount` decimal(10, 5) not null comment '原币合计金额',
     `total_local_currency_amount` decimal(10, 5) not null comment '本币合计金额',
-    `audit_status` enum('AUDITING', 'REJECTED','PASSED') default 'AUDITING' not null comment '审核状态',
+    `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
+    `bookkeeping` bit not null default false comment '记账状态',
+    `bookkeeper` bigint(20) not null default 0 comment '记账人',
+    `bookkeeping_by` varchar(50) not null default '' comment '记账人',
+    `audit_by` bigint(20) not null default 0 comment '审核人',
+    `auditor` varchar(50) not null default '' comment '审核人',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -301,6 +306,7 @@ CREATE TABLE if not exists `voucher_item` (
     `voucher_id` bigint(20) not null comment '所属凭证ID',
     `summary` varchar(500) not null default '' comment '摘要',
     `subject_id` bigint(20) not null comment '科目ID',
+    `subject_number` varchar(50) not null comment '科目编号',
     `subject_name` varchar(255) not null comment '科目名称',
     `lending_direction` enum('BORROW', 'LOAN') not null comment '科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷',
     `currency_id` bigint(20) not null default 0 comment '原币ID',
@@ -315,28 +321,6 @@ CREATE TABLE if not exists `voucher_item` (
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='凭证项';
-
-CREATE TABLE if not exists `voucher_book` (
-    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `customer_id` bigint(20) not null comment '客户ID',
-    `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
-    `year` int(11) not null comment '年份:yyyy',
-    `year_month_num` int(11) not null comment '月份:yyyyMM',
-    `subject_id` bigint(11) not null comment '科目ID',
-    `subject_number` varchar(50) NOT NULL COMMENT '科目编号',
-    `subject_name` varchar(255) NOT NULL COMMENT '科目名称',
-    `voucher_time` datetime not null comment '凭证日期',
-    `summary` varchar(500) not null default '' comment '摘要',
-    `debits_amount` decimal(10, 5) not null comment '借方金额',
-    `credits_amount` decimal(10, 5) not null comment '贷方金额',
-    `create_by` bigint(20) not null default 1,
-    `creator_name` varchar(50) not null default '管理员',
-    `create_time` datetime not null default current_timestamp,
-    `modify_by` bigint(20) not null default 1,
-    `modify_name` varchar(50) not null default '管理员',
-    `modify_time` datetime not null default current_timestamp,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='凭证账簿';
 
 CREATE TABLE if not exists `sequence` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -360,7 +344,8 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (40, '04', '记账管理', 0, '', true, 1, 'MENU', '/voucher', '', ''),
 (41, '0401', '凭证', 40, '04', false, 2, 'MENU', '/voucher/list', '', 'voucher:listPage'),
 (42, '0402', '科目账簿', 40, '04', false, 2, 'MENU', '/voucher/book', '', 'voucher:bookPage'),
-(43, '0403', '外币汇率管理', 40, '04', false, 2, 'MENU', '/voucher/currency', '', 'currencyPage')
+(43, '0403', '外币汇率管理', 40, '04', false, 2, 'MENU', '/voucher/currency', '', 'currencyPage'),
+(44, '0404', '记账及反记账', 40, '04', false, 2, 'MENU', '/voucher/confirmManage', '', 'confirmManage'),
 ;
 
 delete from `user_resource` where user_id = 1;

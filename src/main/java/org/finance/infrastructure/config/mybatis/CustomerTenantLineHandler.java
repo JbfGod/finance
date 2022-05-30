@@ -40,11 +40,14 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
 
     private final List<String> includeTables = Arrays.asList(
             "expense_bill", "expense_item", "expense_item_attachment", "expense_item_subsidy",
-            "industry", "subject", "user"
+            "industry", "subject", "user", "voucher", "voucher_item", "currency"
     );
 
     @Override
     public boolean ignoreTable(String tableName) {
+        if (SpringContextUtil.getHttpServletRequest() == null) {
+            return true;
+        }
         if (SecurityUtil.getCurrentUserOfNullable() == null) {
             return true;
         }

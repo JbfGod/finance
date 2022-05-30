@@ -67,6 +67,8 @@ public class VoucherItem implements Serializable {
      */
     private Long subjectId;
 
+    private String subjectNumber;
+
     /**
      * 科目名称
      */
