@@ -7,6 +7,7 @@ import org.finance.business.entity.Currency;
 import org.finance.business.entity.User;
 import org.finance.business.entity.Voucher;
 import org.finance.business.entity.VoucherItem;
+import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.service.CustomerService;
 import org.finance.business.service.VoucherItemService;
 import org.finance.business.service.VoucherService;
@@ -25,6 +26,7 @@ import org.finance.business.web.vo.VoucherVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
+import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,11 +59,11 @@ public class VoucherWeb {
     private VoucherService baseService;
     @Resource
     private VoucherItemService itemService;
-    private final String AUTH_VOUCHER_SEARCH_ALL = "voucher:searchAll";
+    private final String AUTH_VOUCHER_VIEW_ALL = "voucher:view:all";
 
     @GetMapping("/page")
     public RPage<VoucherVO> pageVoucher(@Valid QueryVoucherRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_VOUCHER_SEARCH_ALL);
+        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_VOUCHER_VIEW_ALL);
         User currentUser = SecurityUtil.getCurrentUser();
         boolean isLocalCurrency = request.getCurrencyType() == QueryVoucherRequest.CurrencyType.LOCAL;
         IPage<VoucherVO> page = baseService.page(request.extractPage(), Wrappers.<Voucher>lambdaQuery()
@@ -94,7 +96,7 @@ public class VoucherWeb {
 
     @GetMapping("/searchItemCue")
     public R<List<String>> searchVoucherCue(QueryVoucherItemCueRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_VOUCHER_SEARCH_ALL);
+        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_VOUCHER_VIEW_ALL);
         User currentUser = SecurityUtil.getCurrentUser();
         QueryVoucherItemCueRequest.Column column = request.getColumn();
         List<String> cues = itemService.list(Wrappers.<VoucherItem>lambdaQuery()
@@ -165,12 +167,14 @@ public class VoucherWeb {
 
     @DeleteMapping("/delete/{id}")
     public R deleteVoucher(@PathVariable("id") long id) {
+        assertUnAudited(id);
         baseService.deleteById(id);
         return R.ok();
     }
 
     @PutMapping("/update")
     public R updateVoucher(@Valid @RequestBody UpdateVoucherRequest request) {
+        assertUnAudited(request.getId());
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
         baseService.addOrUpdate(voucher, () -> {
             itemService.removeByIds(request.getDeletedItemIds());
@@ -178,4 +182,11 @@ public class VoucherWeb {
         return R.ok();
     }
 
+    private void assertUnAudited(long voucherId) {
+        boolean unAudited = baseService.count(Wrappers.<Voucher>lambdaQuery()
+                .eq(Voucher::getId, voucherId)
+                .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+        ) > 0;
+        AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
+    }
 }

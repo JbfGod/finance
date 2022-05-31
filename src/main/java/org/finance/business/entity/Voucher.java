@@ -116,7 +116,7 @@ public class Voucher implements Serializable {
      * 记账人
      */
     @TableField(fill = FieldFill.UPDATE)
-    private String bookkeeper;
+    private String bookkeeperName;
 
     /**
      * 记账人
@@ -134,7 +134,7 @@ public class Voucher implements Serializable {
      * 审核人
      */
     @TableField(fill = FieldFill.UPDATE)
-    private String auditor;
+    private String auditorName;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;

@@ -1,26 +1,32 @@
 import React, {useEffect, useRef} from 'react'
 import {PageContainer} from "@ant-design/pro-layout";
-import {Button, Form, InputNumber} from "antd";
+import {Button, Form, InputNumber, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import ExProTable from "@/components/Table/ExtProTable";
 import {
-  addCurrencyUsingPOST,
-  currencyByIdUsingGET,
-  pageCurrencyUsingGET,
+  addCurrencyUsingPOST, auditingCurrencyUsingPUT,
+  currencyByIdUsingGET, deleteCurrencyUsingDELETE,
+  pageCurrencyUsingGET, unAuditingCurrencyUsingPUT,
   updateCurrencyUsingPUT
 } from "@/services/swagger/currencyWeb";
 import {useModalWithParam, useSecurity} from "@/utils/hooks";
 import {ModalForm, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import moment from "moment";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
+import {AuditStatus} from "@/constants";
+import {
+  auditingVoucherUsingPUT,
+  deleteVoucherUsingDELETE,
+  unAuditingVoucherUsingPUT
+} from "@/services/swagger/voucherWeb";
 
 const yearMonthNumTransform = v => ({
   yearMonthNum: moment(v).format("YYYYMM")
 })
 
-export default function CurrencyList(props) {
+export default function CurrencyList() {
   const actionRef = useRef()
-  const security = useSecurity()
+  const security = useSecurity("currency")
   const [formModal, handleFormModal, openFormModal] = useModalWithParam()
   const onSuccess = () => {
     actionRef.current?.reload()
@@ -42,16 +48,35 @@ export default function CurrencyList(props) {
     {
       title: "备注", dataIndex: "remark", search: false
     },
-    ...(security.onlyRead ? [] : [{
+    ...(security.canOperating || security.canOperating? [{
       title: '操作', dataIndex: 'id',
-      width: 255, valueType: 'option',
+      width: 200, valueType: 'option',
       render: (dom, row) => [
-        <a key="edit" onClick={() => openFormModal({id: row.id, mode: "edit"})}>
-          编辑
-        </a>,
-        <a key="resetPwd">审批</a>
+        ...security.canOperating && row.auditStatus === AuditStatus.TO_BE_AUDITED ? [
+          <a key="edit"
+             onClick={() => openFormModal({id: row.id, mode: "edit"})}>
+            编辑
+          </a>,
+          <Popconfirm key="delete" title="确认删除该凭证？"
+                      onConfirm={() => deleteCurrencyUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
+            <a>删除</a>
+          </Popconfirm>
+        ] : [],
+        security.canAuditing && (
+          row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
+            <Popconfirm key="auditing" title="确认审核该凭证？"
+                        onConfirm={() => auditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+              <a>审核</a>
+            </Popconfirm>
+          ) : (
+            <Popconfirm key="unAuditing" title="确认弃审该凭证？"
+                        onConfirm={() => unAuditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+              <a>弃审</a>
+            </Popconfirm>
+          )
+        ),
       ]
-    }])
+    }] : [])
   ]
   return (
     <PageContainer>
@@ -62,7 +87,7 @@ export default function CurrencyList(props) {
                       ...params, yearMonthNum
                     })
                   }}
-                  toolBarRender={() => (
+                  toolBarRender={() => security.canOperating && (
                     <Button type="primary" onClick={openFormModal}>
                       <PlusOutlined/>
                       新增外币

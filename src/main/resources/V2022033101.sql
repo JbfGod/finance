@@ -77,7 +77,7 @@ CREATE TABLE if not exists `resource` (
     `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
     `level` int(11) not null default 1 comment '节点深度',
-    `type` enum('MENU', 'BUTTON', 'DATA_SCOPE') not null default 'MENU' comment '功能类型：MENU,BUTTON',
+    `type` enum('MENU', 'PERMIT', 'DATA_SCOPE') not null default 'MENU' comment '功能类型：MENU,BUTTON',
     `url` varchar(255) not null default '' comment '访问链接',
     `icon` varchar(255) not null default '' comment '图标',
     `permit_code` varchar(255) not null default '' comment '权限代码',
@@ -285,10 +285,10 @@ CREATE TABLE if not exists `voucher` (
     `total_local_currency_amount` decimal(10, 5) not null comment '本币合计金额',
     `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
     `bookkeeping` bit not null default false comment '记账状态',
-    `bookkeeper` bigint(20) not null default 0 comment '记账人',
-    `bookkeeping_by` varchar(50) not null default '' comment '记账人',
+    `bookkeeping_by` bigint(20) not null default 0 comment '记账人',
+    `bookkeeper_name` varchar(50) not null default '' comment '记账人',
     `audit_by` bigint(20) not null default 0 comment '审核人',
-    `auditor` varchar(50) not null default '' comment '审核人',
+    `auditor_name` varchar(50) not null default '' comment '审核人',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -330,22 +330,34 @@ CREATE TABLE if not exists `sequence` (
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='序列表';
 
 replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code)values
-(1, '01', '系统管理', 0, '', true, 1, 'MENU', '/system', '', ''),
-(2, '0101', '用户管理', 0, '01', false, 2, 'MENU', '/system/user', '', 'sys:userPage'),
+(1, '1', '系统管理', 0, '', true, 1, 'MENU', '/system', '', ''),
+(2, '2', '用户管理', 1, '1', false, 2, 'MENU', '/system/user', '', 'user:page'),
 -- (3, '0102', '用户权限管理', 0, '01', true, 1, 'MENU', '/system/grantUserPermission', '', 'system:user'),
-(4, '0103', '客户分类管理', 0, '01', false, 2, 'MENU', '/system/customerCategory', '', 'sys:customer:categoryPage'),
-(5, '0104', '客户档案', 0, '01', false, 2, 'MENU', '/system/customer', '', 'sys:customerPage'),
-(6, '0105', '客户授权管理', 0, '01', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', 'sys:customer:grantResourcePage'),
-(20, '02', '基础数据管理', 0, '', true, 1, 'MENU', '/base', '', ''),
-(21, '0201', '行业管理', 0, '02', false, 2, 'MENU', '/base/industry', '', 'base:industryPage'),
-(22, '0202', '科目管理', 0, '02', false, 2, 'MENU', '/base/subject', '', 'base:subjectPage'),
-(30, '03', '费用报销管理', 0, '', true, 1, 'MENU', '/expense/bill', '', 'expense:billPage'),
-(31, '0301', '查询所有', 0, '03', false, 2, 'DATA_SCOPE', '', '', 'expense:bill:searchAll'),
-(40, '04', '记账管理', 0, '', true, 1, 'MENU', '/voucher', '', ''),
-(41, '0401', '凭证', 40, '04', false, 2, 'MENU', '/voucher/list', '', 'voucher:listPage'),
-(42, '0402', '科目账簿', 40, '04', false, 2, 'MENU', '/voucher/book', '', 'voucher:bookPage'),
-(43, '0403', '外币汇率管理', 40, '04', false, 2, 'MENU', '/voucher/currency', '', 'currencyPage'),
-(44, '0404', '记账及反记账', 40, '04', false, 2, 'MENU', '/voucher/confirmManage', '', 'confirmManage'),
+(4, '4', '客户分类管理', 1, '1', false, 2, 'MENU', '/system/customerCategory', '', 'customerCategory:page'),
+(5, '5', '客户档案', 1, '1', false, 2, 'MENU', '/system/customer', '', 'customer:page'),
+(6, '6', '客户授权管理', 1, '1', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', 'customer:authorize'),
+(50, '50', '基础数据管理', 0, '', true, 1, 'MENU', '/base', '', ''),
+(51, '51', '行业管理', 50, '50', false, 2, 'MENU', '/base/industry', '', 'industry:page'),
+(61, '61', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', 'subject:page'),
+
+(100, '100', '费用报销管理', 0, '', true, 1, 'MENU', '/expense/bill', '', 'expenseBill:page'),
+(101, '101', '查询所有', 100, '100', false, 2, 'PERMIT', '', '', 'expenseBill:view:all'),
+
+(120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', '', ''),
+
+(121, '121', '凭证管理', 120, '120', true, 2, 'MENU', '/voucher/list', '', 'voucher:page'),
+(122, '122', '基本操作', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:operating'),
+(123, '123', '查询所有', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:view:all'),
+(124, '124', '审核', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:auditing'),
+(125, '125', '记账', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:bookkeeping'),
+
+(130, '130', '批量审核', 120, '120', false, 2, 'MENU', '/voucher/batchAuditing', '', 'currency:batchBookkeeping'),
+(140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'currency:batchAuditing'),
+(150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', 'voucherBook:page'),
+
+(160, '160', '外币管理', 120, '120', true, 2, 'MENU', '/voucher/currency', '', 'currency:page'),
+(161, '161', '基本操作', 160, '160', false, 2, 'PERMIT', '', '', 'currency:operating'),
+(162, '162', '审核', 160, '160', false, 2, 'PERMIT', '', '', 'currency:auditing')
 ;
 
 delete from `user_resource` where user_id = 1;

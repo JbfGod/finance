@@ -25,6 +25,7 @@ mybatis-plus:
     banner: false
     db-config:
       logic-delete-field: deleted
+      update-strategy: not_null
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     # 返回类型为Map,显示null对应的字段

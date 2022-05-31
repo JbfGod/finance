@@ -183,7 +183,7 @@ export default ({modal, onSuccess, ...props}) => {
                     const {lendingDirection} = subjectById[subjectId] || {}
                     const disabled = lendingDirection == null || lendingDirection !== LENDING_DIRECTION.DEFAULT.value*/
                     return (
-                      <ProFormSelect name="lendingDirection" allowClear={false} label="借贷方向"
+                      <ProFormSelect name="lendingDirection" allowClear={false} label="借贷方向" disabled={isViewMode}
                                      options={Object.values(LENDING_DIRECTION).filter(v => v !== LENDING_DIRECTION.DEFAULT)}/>
                     )
                   }}

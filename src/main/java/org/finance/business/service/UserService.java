@@ -2,12 +2,12 @@ package org.finance.business.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.finance.business.convert.ResourceConvert;
 import org.finance.business.entity.Customer;
-import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
-import org.finance.business.mapper.UserResourceMapper;
 import org.finance.business.mapper.UserMapper;
+import org.finance.business.mapper.UserResourceMapper;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.exception.HxException;
@@ -92,7 +92,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Cacheable("User")
     public List<GrantedAuthority> loadAuthoritiesByUserId(Long userId) {
         return userResourceMapper.listResourceByUserId(userId)
-                .stream().map(Resource::getPermitCode)
+                .stream().map(ResourceConvert.INSTANCE::toAccess)
                 .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

@@ -104,7 +104,7 @@ public class Resource implements Serializable {
     private LocalDateTime modifyTime;
 
     public enum Type {
-        MENU, BUTTON, DATA_SCOPE
+        MENU, PERMIT, DATA_SCOPE
     }
 
 }

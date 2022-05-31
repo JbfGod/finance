@@ -58,11 +58,11 @@ public class ExpenseBillWeb {
     private ExpenseItemSubsidyService subsidyService;
     @Resource
     private ExpenseItemAttachmentService attachmentService;
-    private final String AUTH_BILL_SEARCH_ALL = "expense:bill:searchAll";
+    private final String AUTH_BILL_VIEW_ALL = "expenseBill:view:all";
 
     @GetMapping("/page")
     public RPage<ExpenseBillVO> pageExpenseBill(QueryExpenseBillRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_SEARCH_ALL);
+        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_VIEW_ALL);
         User currentUser = SecurityUtil.getCurrentUser();
         IPage<ExpenseBillVO> page = baseService.page(request.extractPage(), Wrappers.<ExpenseBill>lambdaQuery()
                 .likeRight(StringUtils.isNotBlank(request.getNumber()), ExpenseBill::getNumber, request.getNumber())
@@ -100,7 +100,7 @@ public class ExpenseBillWeb {
 
     @GetMapping("/searchBillCue")
     public R<List<String>> searchExpenseBillCue(QueryExpenseBillCueRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_SEARCH_ALL);
+        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_VIEW_ALL);
         User currentUser = SecurityUtil.getCurrentUser();
         QueryExpenseBillCueRequest.Column column = request.getColumn();
         List<String> cues = baseService.list(Wrappers.<ExpenseBill>lambdaQuery()
@@ -116,7 +116,7 @@ public class ExpenseBillWeb {
 
     @GetMapping("/searchItemCue")
     public R<List<String>> searchExpenseItemCue(QueryExpenseItemCueRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_SEARCH_ALL);
+        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_BILL_VIEW_ALL);
         User currentUser = SecurityUtil.getCurrentUser();
         QueryExpenseItemCueRequest.Column column = request.getColumn();
         List<String> cues = itemService.list(Wrappers.<ExpenseItem>lambdaQuery()

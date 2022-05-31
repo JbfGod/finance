@@ -44,4 +44,14 @@ public interface ResourceConvert {
         return CollectionUtil.transformTree(treeResources, UserOwnedMenuVO::getKey, UserOwnedMenuVO::getParentKey
                 , UserOwnedMenuVO::getChildren, UserOwnedMenuVO::setChildren);
     }
+
+    default String toAccess(Resource res) {
+        Resource.Type type = res.getType();
+        if (type == Resource.Type.MENU) {
+            return String.format("%s:%s", Resource.Type.MENU.name(), res.getUrl());
+        } else if (type == Resource.Type.PERMIT) {
+            return String.format("%s:%s", Resource.Type.PERMIT.name(), res.getUrl());
+        }
+        return "";
+    }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.CurrencyConvert;
 import org.finance.business.entity.Currency;
+import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.service.CurrencyService;
 import org.finance.business.web.request.AddCurrencyRequest;
 import org.finance.business.web.request.QueryCurrencyRequest;
@@ -79,8 +80,21 @@ public class CurrencyWeb {
         return R.ok();
     }
 
+    @PutMapping("/auditing/{id}")
+    public R auditingCurrency(@PathVariable("id") long id) {
+        baseService.auditingById(id);
+        return R.ok();
+    }
+
+    @PutMapping("/unAuditing/{id}")
+    public R unAuditingCurrency(@PathVariable("id") long id) {
+        baseService.unAuditingById(id);
+        return R.ok();
+    }
+
     @PutMapping("/update")
     public R updateCurrency(@Valid @RequestBody UpdateCurrencyRequest request) {
+        assertUnAudited(request.getId());
         Currency currency = CurrencyConvert.INSTANCE.toCurrency(request);
         baseService.updateById(currency);
         return R.ok();
@@ -88,9 +102,17 @@ public class CurrencyWeb {
 
     @DeleteMapping("/delete/{id}")
     public R deleteCurrency(@PathVariable("id") long id) {
+        assertUnAudited(id);
         baseService.removeById(id);
         return R.ok();
     }
 
+    private void assertUnAudited(long currencyId) {
+        boolean unAudited = baseService.count(Wrappers.<Currency>lambdaQuery()
+                .eq(Currency::getId, currencyId)
+                .eq(Currency::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+        ) > 0;
+        AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
+    }
 
 }

@@ -1,20 +1,20 @@
 import React, {useRef, useState} from "react"
 import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
-import {Badge, Button, Popconfirm} from "antd"
-import {PlusOutlined} from "@ant-design/icons"
+import {Badge, Button, Dropdown, Popconfirm, Space} from "antd"
+import {DownOutlined, PlusOutlined} from "@ant-design/icons"
 import {useModalWithParam, usePrint, useSecurity} from "@/utils/hooks"
 import {
-  auditingVoucherUsingPUT,
+  auditingVoucherUsingPUT, bookkeepingVoucherUsingPUT,
   deleteVoucherUsingDELETE,
   pageVoucherUsingGET,
-  unAuditingVoucherUsingPUT
+  unAuditingVoucherUsingPUT, unBookkeepingVoucherUsingPUT
 } from "@/services/swagger/voucherWeb";
 import VoucherForm from "@/pages/voucher/VoucherForm";
 import {AuditStatus, CURRENCY_TYPE} from "@/constants";
 import VoucherPrint from "@/pages/voucher/VoucherPrint";
 import moment from "moment";
-import {pageCurrencyUsingGET} from "@/services/swagger/currencyWeb";
+import AutoDropdown from "@/components/Common/AutoDropdown";
 
 const renderBadge = (active = false) => {
   return (
@@ -35,7 +35,7 @@ const yearMonthNumTransform = v => ({
 
 export default () => {
   const actionRef = useRef()
-  const security = useSecurity()
+  const security = useSecurity("voucher")
   const [formModal, handleFormModal, openFormModal] = useModalWithParam()
   const [print, onPrint] = usePrint()
   const [currencyType, setCurrencyType] = useState(CURRENCY_TYPE.LOCAL);
@@ -80,36 +80,51 @@ export default () => {
     },
     {
       title: '操作', dataIndex: 'id',
-      width: 255, valueType: 'option',
-      render: (dom, row) => [
-        <a key="detail" onClick={() => openFormModal({mode: "view", voucherId: row.id, currentType: row.currentType})}>
-          详情
-        </a>,
-        <a key="print" onClick={() => onPrint({voucherId: row.id, currencyType: row.currencyType})}>打印</a>,
-        ...security.canOperating && row.auditStatus === AuditStatus.TO_BE_AUDITED ? [
-          <a key="edit"
-             onClick={() => openFormModal({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
-            编辑
+      width: 200, valueType: 'option',
+      render: (dom, row) => (
+        <AutoDropdown overlay={[
+          <a key="detail" onClick={() => openFormModal({mode: "view", voucherId: row.id, currentType: row.currentType})}>
+            详情
           </a>,
-          <Popconfirm key="delete" title="确认删除该凭证？"
-                      onConfirm={() => deleteVoucherUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
-            <a>删除</a>
-          </Popconfirm>
-        ] : [],
-        security.canAuditing && (
-          row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
-            <Popconfirm key="auditing" title="确认审核该凭证？"
-                        onConfirm={() => auditingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
-              <a>审核</a>
+          ...security.canOperating && row.auditStatus === AuditStatus.TO_BE_AUDITED ? [
+            <a key="edit"
+               onClick={() => openFormModal({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
+              编辑
+            </a>,
+            <Popconfirm key="delete" title="确认删除该凭证？"
+                        onConfirm={() => deleteVoucherUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
+              <a>删除</a>
             </Popconfirm>
-          ) : (
-            <Popconfirm key="unAuditing" title="确认弃审该凭证？"
-                        onConfirm={() => unAuditingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
-              <a>弃审</a>
-            </Popconfirm>
-          )
-        ),
-      ]
+          ] : [],
+          <a key="print" onClick={() => onPrint({voucherId: row.id, currencyType: row.currencyType})}>打印</a>,
+          row.auditStatus === AuditStatus.AUDITED && (
+            row.bookkeeping ? (
+              <Popconfirm key="bookkeeping" title="确认反记账该凭证？"
+                          onConfirm={() => unBookkeepingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                <a>反记账</a>
+              </Popconfirm>
+            ) : (
+              <Popconfirm key="unBookkeeping" title="确认记账该凭证？"
+                          onConfirm={() => bookkeepingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                <a>记账</a>
+              </Popconfirm>
+            )
+          ),
+          security.canAuditing && (
+            row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
+              <Popconfirm key="auditing" title="确认审核该凭证？"
+                          onConfirm={() => auditingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                <a>审核</a>
+              </Popconfirm>
+            ) : (
+              <Popconfirm key="unAuditing" title="确认弃审该凭证？"
+                          onConfirm={() => unAuditingVoucherUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                <a>弃审</a>
+              </Popconfirm>
+            )
+          ),
+        ]}/>
+      )
     },
   ]
   return (

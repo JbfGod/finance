@@ -67,7 +67,8 @@ public class UserWeb {
 
     @GetMapping("/self/permissions")
     public R<List<String>> selfPermission() {
-        List<String> permissions = this.getSelfResources().stream().map(Resource::getPermitCode)
+        List<String> permissions = this.getSelfResources().stream()
+                .map(ResourceConvert.INSTANCE::toAccess)
                 .filter(StringUtils::hasText)
                 .collect(Collectors.toList());
         return R.ok(permissions);

@@ -24,6 +24,7 @@ public class VoucherVO extends AbstractPageRequest {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime voucherTime;
     private Integer attachmentNum;
+    private Boolean bookkeeping;
     private AuditStatus auditStatus;
     private String creatorName;
     @JsonIgnore

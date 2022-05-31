@@ -74,6 +74,6 @@ export const AuditStatus = {
   /**
    * 已审核
    */
-  AUDITING: "AUDITING"
+  AUDITED: "AUDITED"
 }
 export default constants

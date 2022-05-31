@@ -10,7 +10,6 @@ import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.mapper.VoucherItemMapper;
 import org.finance.business.mapper.VoucherMapper;
 import org.finance.business.web.vo.VoucherBookVO;
-import org.finance.infrastructure.exception.HxException;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +62,7 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
                 .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
                 .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
                 .eq(Voucher::getId, voucherId));
-        AssertUtil.isTrue(success, "该凭证已审核，请尝试刷新记录！");
+        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     public void unAuditingById(long voucherId) {
@@ -71,58 +70,67 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
                 .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
                 .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                 .eq(Voucher::getId, voucherId));
-        AssertUtil.isTrue(success, "该凭证未审核，请尝试刷新记录！");
+        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     public void batchAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
         this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                yearMonth, beginSerialNum, endSerialNum
-        ).set(Voucher::getAuditStatus, AuditStatus.AUDITED));
+                        yearMonth, beginSerialNum, endSerialNum
+                ).eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
+        );
     }
 
     public void batchUnAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
         this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                yearMonth, beginSerialNum, endSerialNum
-        ).set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED));
+                        yearMonth, beginSerialNum, endSerialNum
+                ).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+        );
     }
 
     public void bookkeepingById(long voucherId) {
         boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getBookkeeping, true)
+                .eq(Voucher::getId, voucherId)
                 .eq(Voucher::getBookkeeping, false)
-                .eq(Voucher::getId, voucherId));
-        AssertUtil.isTrue(success, "该凭证已记账，请尝试刷新记录！");
+                .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+        );
+        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     public void unBookkeepingById(long voucherId) {
         boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getBookkeeping, false)
                 .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                .eq(Voucher::getId, voucherId)
                 .eq(Voucher::getBookkeeping, true)
-                .eq(Voucher::getId, voucherId));
-        AssertUtil.isTrue(success, "该凭证未记账，请尝试刷新记录！");
+                .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+        );
+        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void batchBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
         this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                yearMonth, beginSerialNum, endSerialNum
-        ).set(Voucher::getBookkeeping, true));
+                                yearMonth, beginSerialNum, endSerialNum
+                        ).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                        .set(Voucher::getBookkeeping, true)
+        );
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void batchUnBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
         this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                yearMonth, beginSerialNum, endSerialNum
-        ).set(Voucher::getBookkeeping, false).set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED));
+                                yearMonth, beginSerialNum, endSerialNum
+                        ).eq(Voucher::getBookkeeping, true)
+                        .set(Voucher::getBookkeeping, false).set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+        );
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(long voucherId) {
         Voucher voucher = baseMapper.selectById(voucherId);
-        if (voucher.getAuditStatus() == AuditStatus.AUDITED) {
-            throw new HxException("该凭证已审核，不能删除！");
-        }
         baseMapper.deleteById(voucherId);
         itemMapper.delete(Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, voucherId));
 
@@ -145,21 +153,20 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
             return;
         }
         Integer serialNumber = Optional.ofNullable(
-            baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
+                baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
         ).map(num -> num + 1).orElse(1);
         voucher.setSerialNumber(serialNumber);
 
-        // TODO 校验序列号唯一
         baseMapper.insert(voucher);
     }
 
     private void addOrUpdateItem(Voucher voucher, VoucherItem item) {
         item.setVoucherId(voucher.getId())
-            .setYear(voucher.getYear())
-            .setYearMonthNum(voucher.getYearMonthNum())
-            .setCurrencyId(voucher.getCurrencyId())
-            .setCurrencyName(voucher.getCurrencyName())
-            .setRate(voucher.getRate());
+                .setYear(voucher.getYear())
+                .setYearMonthNum(voucher.getYearMonthNum())
+                .setCurrencyId(voucher.getCurrencyId())
+                .setCurrencyName(voucher.getCurrencyName())
+                .setRate(voucher.getRate());
         if (item.getId() != null) {
             itemMapper.updateById(item);
             return;
@@ -169,7 +176,6 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
 
     private LambdaUpdateWrapper<Voucher> buildLambdaUpdateByYearMonthAndSerialNum(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
         return Wrappers.<Voucher>lambdaUpdate()
-                .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                 .eq(Voucher::getYearMonthNum, yearMonth)
                 .between(beginSerialNum != null && endSerialNum != null,
                         Voucher::getSerialNumber, beginSerialNum, endSerialNum);
