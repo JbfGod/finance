@@ -77,7 +77,7 @@ CREATE TABLE if not exists `resource` (
     `parent_number` varchar(50) not null default '0' comment '父级编号',
     `has_leaf` bit not null default false comment '是否有叶子节点',
     `level` int(11) not null default 1 comment '节点深度',
-    `type` enum('MENU', 'PERMIT', 'DATA_SCOPE') not null default 'MENU' comment '功能类型：MENU,BUTTON',
+    `type` enum('MENU', 'PERMIT', 'DATA_SCOPE') not null default 'MENU' comment '类型：MENU,PERMIT,DATA_SCOPE',
     `url` varchar(255) not null default '' comment '访问链接',
     `icon` varchar(255) not null default '' comment '图标',
     `permit_code` varchar(255) not null default '' comment '权限代码',
@@ -346,10 +346,10 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', '', ''),
 
 (121, '121', '凭证管理', 120, '120', true, 2, 'MENU', '/voucher/list', '', 'voucher:page'),
-(122, '122', '基本操作', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:operating'),
-(123, '123', '查询所有', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:view:all'),
-(124, '124', '审核', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:auditing'),
-(125, '125', '记账', 120, '120', false, 2, 'PERMIT', '', '', 'voucher:bookkeeping'),
+(122, '122', '基本操作', 121, '120', false, 2, 'PERMIT', '', '', 'voucher:operating'),
+(123, '123', '查询所有', 121, '120', false, 2, 'PERMIT', '', '', 'voucher:view:all'),
+(124, '124', '审核', 121, '120', false, 2, 'PERMIT', '', '', 'voucher:auditing'),
+(125, '125', '记账', 121, '120', false, 2, 'PERMIT', '', '', 'voucher:bookkeeping'),
 
 (130, '130', '批量审核', 120, '120', false, 2, 'MENU', '/voucher/batchAuditing', '', 'currency:batchBookkeeping'),
 (140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'currency:batchAuditing'),
