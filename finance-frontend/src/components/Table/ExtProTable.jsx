@@ -27,9 +27,10 @@ export default function ExProTable({columns, pagination, ...props}) {
     ),
     scroll: {y: 600},
     columns: enhanceColumns,
+    pagination,
     ...props
   }
-  if (!pagination) {
+  if (pagination == null) {
     newProps.pagination = {pageSize: 10}
   }
 
