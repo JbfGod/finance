@@ -74,10 +74,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     protected void successfulAuthentication(DecodedJWT jwt, Authentication authResult) {
-        // 1小时续签一下jwt
         CacheAttr cacheAttr = CacheKeyUtil.getToken(jwt.getToken());
-        Long expire = redisTemplate.getExpire(cacheAttr.getKey(), TimeUnit.HOURS);
-        if (expire == null || expire < 23) {
+        Long expire = redisTemplate.getExpire(cacheAttr.getKey(), TimeUnit.MINUTES);
+        if (expire == null || expire < 15) {
+            // 续签一下jwt
             redisTemplate.expire(jwt.getToken(), cacheAttr.getTimeout());
         }
         SecurityContext context = SecurityContextHolder.createEmptyContext();
