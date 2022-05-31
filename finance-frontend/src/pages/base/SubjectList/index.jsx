@@ -56,7 +56,7 @@ export default () => {
       }
     },
     {
-      title: "科目方向", dataIndex: "direction", valueType: "select"
+      title: "科目方向", dataIndex: "lendingDirection", valueType: "select"
       , fieldProps: {
         allowClear: false,
         options: Object.values(LENDING_DIRECTION)
