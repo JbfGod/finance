@@ -35,8 +35,11 @@ export function GrantResourceForm({resourceData, resourceIdentifies, ...props}) 
   )
 }
 
-export default function ResourceDrawerForm({resourceData, ...props}) {
+export default function ResourceDrawerForm({resourceData, initialValues, ...props}) {
   const [form] = useForm()
+  useEffect(() => {
+    form.setFieldsValue(initialValues)
+  }, [initialValues])
   return (
     <DrawerForm form={form} {...props}>
       <ProFormItem name="resourceIds">

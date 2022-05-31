@@ -196,7 +196,7 @@ export default () => {
         </ProFormItem>
       </ModalForm>
       <ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
-                          drawerProps={{destroyOnClose: true}} functionData={grantDrawer.functionData}
+                          drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.functionData}
                           initialValues={{resourceIds: grantDrawer.selectedResourceIds}}
                           onVisibleChange={handleGrantDrawerVisible}
                           onFinish={async (v) => {
