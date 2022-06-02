@@ -24,10 +24,10 @@ const DEFAULT_ERROR_PAGE = '/exception'
 const IGNORE_URL = ["/api/login"]
 const authHeaderInterceptor = (url, options) => {
   const token = common.getAccessToken()
-  const {value: customerId} = common.getCurrCustomer() || {}
+  const {id: CustomerId, number: CustomerNumber} = common.getCurrCustomer() || {}
   const headers = {
     ...(token ? {Authorization: token} : {}),
-    ...(customerId ? {CustomerId: customerId} : {})
+    ...(CustomerId ? {CustomerId, CustomerNumber} : {})
   }
   let loadingKey;
   switch (options?.method.toLowerCase()) {

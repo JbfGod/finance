@@ -59,9 +59,9 @@ export function flatTreeToMap(treeData = {}, keyField = "id", childrenField = "c
   return map
 }
 
-export function flatArrayToMap(array = [], keyField = "id", childrenField = "children") {
+export function flatArrayToMap(array = [], keyField = "id") {
   const map = {}
-  array.forEach(ele => map[ele.id] = ele)
+  array.forEach(ele => map[ele[keyField]] = ele)
   return map;
 }
 

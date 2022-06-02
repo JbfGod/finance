@@ -46,8 +46,6 @@ export default () => {
   const [formModal, handleFormModal, openFormModal] = useModalWithParam()
   const [print, onPrint] = usePrint()
   const [currencyType, setCurrencyType] = useState(CURRENCY_TYPE.LOCAL)
-  const isLocalCurrency = currencyType === CURRENCY_TYPE.LOCAL
-  const isForeignCurrency = currencyType === CURRENCY_TYPE.FOREIGN
 
   const [subjects, setSubjects] = useState([])
   const subjectById = useMemo(() => flatTreeToMap(subjects), [subjects])

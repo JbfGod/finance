@@ -1,12 +1,19 @@
 package org.finance.infrastructure.config.security.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.constants.Constants;
+import org.finance.infrastructure.util.SpringContextUtil;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_ID;
+import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_NUMBER;
 
 /**
  * @author jiangbangfa
@@ -31,12 +38,22 @@ public class SecurityUtil {
         return null;
     }
 
-    public static Long getCustomerId() {
-        return getCurrentUser().getCustomerId();
+    public static Long getCustomerIdFromRequest() {
+        HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
+        if (request == null) {
+            return DEFAULT_CUSTOMER_ID;
+        }
+        String headCustomerId = request.getHeader("CustomerId");
+        return StringUtils.isBlank(headCustomerId) ? DEFAULT_CUSTOMER_ID : Long.parseLong(headCustomerId);
     }
 
-    public static String getCustomerNumber() {
-        return getCurrentUser().getCustomerNumber();
+    public static String getCustomerNumberFromRequest() {
+        HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
+        if (request == null) {
+            return DEFAULT_CUSTOMER_NUMBER;
+        }
+        String customerNumber = request.getHeader("Customer");
+        return StringUtils.isBlank(customerNumber) ? DEFAULT_CUSTOMER_NUMBER : customerNumber;
     }
 
     public static Long getUserId() {

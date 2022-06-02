@@ -132,12 +132,6 @@ function AddOrUpdateModal({modal, onSuccess, ...props}) {
       <ProFormDatePickerMonth name="yearMonthNum" label="年-月" format="yyyy-MM"
                               rules={[{required: true, message: "请选择月份！"}]}
                               transform={yearMonthNumTransform}
-                              fieldProps={{
-                                disabledDate: current => {
-                                  return current && current < moment();
-                                }
-                              }}
-
       />
       <ProFormText name="number" label="编号" rules={[{required: true, message: "请填写编号！"}]}/>
       <ProFormText name="name" label="名称" rules={[{required: true, message: "请填写名称！"}]}/>

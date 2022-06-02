@@ -73,17 +73,17 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
-    public void batchAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
+    public void batchAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
         this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                        yearMonth, beginSerialNum, endSerialNum
+                        yearMonth, beginSerialNum, endSerialNum, customerId
                 ).eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
                 .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
         );
     }
 
-    public void batchUnAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
+    public void batchUnAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
         this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                        yearMonth, beginSerialNum, endSerialNum
+                        yearMonth, beginSerialNum, endSerialNum, customerId
                 ).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                 .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
         );
@@ -111,9 +111,9 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
+    public void batchBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
         boolean success = this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                                yearMonth, beginSerialNum, endSerialNum
+                                yearMonth, beginSerialNum, endSerialNum, customerId
                         ).eq(Voucher::getBookkeeping, false).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                         .set(Voucher::getBookkeeping, true)
         );
@@ -121,9 +121,9 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchUnBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
+    public void batchUnBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
         boolean success = this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                                yearMonth, beginSerialNum, endSerialNum
+                                yearMonth, beginSerialNum, endSerialNum, customerId
                         ).eq(Voucher::getBookkeeping, true).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                         .set(Voucher::getBookkeeping, false)
         );
@@ -176,9 +176,11 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
         itemMapper.insert(item);
     }
 
-    private LambdaUpdateWrapper<Voucher> buildLambdaUpdateByYearMonthAndSerialNum(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
+    private LambdaUpdateWrapper<Voucher> buildLambdaUpdateByYearMonthAndSerialNum(
+            Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
         return Wrappers.<Voucher>lambdaUpdate()
                 .eq(Voucher::getYearMonthNum, yearMonth)
+                .eq(Voucher::getCustomerId, customerId)
                 .between(beginSerialNum != null && endSerialNum != null,
                         Voucher::getSerialNumber, beginSerialNum, endSerialNum);
     }

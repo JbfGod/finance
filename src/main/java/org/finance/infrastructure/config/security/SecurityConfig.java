@@ -62,7 +62,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .headers().addHeaderWriter(new StaticHeadersWriter(Arrays.asList(
                         new Header("Access-control-Allow-Origin", "*"),
-                        new Header("Access-Control-Expose-Headers", "Authorization,CustomerId")
+                        new Header("Access-Control-Expose-Headers", "Authorization,CustomerId,CustomerNumber")
                 )))
                 .and()
                 .addFilterAfter(new OptionsRequestFilter(), CorsFilter.class)

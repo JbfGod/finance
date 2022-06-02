@@ -10,4 +10,5 @@ public class CustomerCueVO {
 
     private Long id;
     private String number;
+    private String name;
 }

@@ -2,21 +2,30 @@ import {Select, Space} from 'antd';
 import React, {useEffect, useMemo, useState} from 'react';
 import {debounce} from "lodash";
 import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
-import {getCurrCustomer, removeCurrCustomer, setCurrCustomer} from "@/utils/common";
+import {flatArrayToMap, getCurrCustomer, removeCurrCustomer, setCurrCustomer} from "@/utils/common";
 import styles from "./index.less"
 
 const SwitchCustomer = (props) => {
-  const [value, setValue] = useState(getCurrCustomer())
-  const [options, setOptions] = useState([])
+  const currCustomer = getCurrCustomer()
+  const [value, setValue] = useState(() => (
+    currCustomer ? {label: `${currCustomer.name}[${currCustomer.number}]`, value: currCustomer.id} : undefined
+  ))
+  const [customers, setCustomers] = useState([])
+  const options = customers.map(d => ({label: `${d.name}[${d.number}]`, value: d.id}))
+  const customerById = flatArrayToMap(customers)
   const loadCustomerOptions = useMemo(() => debounce((searchText) => {
     if (!searchText || searchText.length < 2) {
-      setOptions([])
+      setCustomers([])
       return
     }
     searchCustomerCueUsingGET({keyword: searchText}).then(({data}) => {
-      setOptions(data.map(d => ({label: d.number, value: d.id})))
+      setCustomers(data)
     })
   }, 200), [])
+  const onSelect = (v) => {
+    setCurrCustomer(customerById[v.key])
+    window.location.reload()
+  }
   const onClear = () => {
     removeCurrCustomer()
     setValue(undefined)
@@ -29,11 +38,11 @@ const SwitchCustomer = (props) => {
   return (
     <Space align="center" className={styles.switchContainer}>
       <span className="anticon">切换客户单位</span>
-      <Select style={{width: 180}} size="small" options={options}
+      <Select style={{width: 200}} size="small" options={options}
               value={value}
               labelInValue allowClear onClear={onClear}
-              onSelect={setCurrCustomer} showSearch={true} onSearch={loadCustomerOptions}
-              placeholder="输入关键字搜索客户编号" filterOption={false}
+              onSelect={onSelect} showSearch={true} onSearch={loadCustomerOptions}
+              placeholder="输入客户编号搜索客户单位" filterOption={false}
       />
     </Space>
   );

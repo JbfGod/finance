@@ -103,7 +103,7 @@ public class CustomerWeb {
     @GetMapping("/searchCustomerCue")
     public R<List<CustomerCueVO>> searchCustomerCue(QueryCustomerCueRequest request) {
         List<CustomerCueVO> cues = customerService.list(Wrappers.<Customer>lambdaQuery()
-                .select(Customer::getId, Customer::getNumber)
+                .select(Customer::getId, Customer::getNumber, Customer::getName)
                 .likeRight(Customer::getNumber, request.getKeyword())
                 .last(String.format("limit %d", Optional.ofNullable(request.getNum()).orElse(5)))
         ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO).collect(Collectors.toList());

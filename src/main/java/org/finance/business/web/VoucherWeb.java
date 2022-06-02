@@ -137,14 +137,18 @@ public class VoucherWeb {
     @PutMapping("/auditing")
     @PreAuthorize("hasPermission('voucher:batch', 'auditing')")
     public R batchAuditingVoucher(@Valid AuditingVoucherRequest request) {
-        baseService.batchAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        baseService.batchAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
+                request.getEndSerialNum(), customerId);
         return R.ok();
     }
 
     @PutMapping("/unAuditing")
     @PreAuthorize("hasPermission('voucher:batch', 'unAuditing')")
     public R batchUnAuditingVoucher(@Valid AuditingVoucherRequest request) {
-        baseService.batchUnAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        baseService.batchUnAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
+                request.getEndSerialNum(), customerId);
         return R.ok();
     }
 
@@ -165,14 +169,18 @@ public class VoucherWeb {
     @PutMapping("/bookkeeping")
     @PreAuthorize("hasPermission('voucher:batch', 'bookkeeping')")
     public R batchBookkeepingVoucher(@Valid BookkeepingVoucherRequest request) {
-        baseService.batchBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        baseService.batchBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
+                request.getEndSerialNum(), customerId);
         return R.ok();
     }
 
     @PutMapping("/unBookkeeping")
     @PreAuthorize("hasPermission('voucher:batch', 'unBookkeeping')")
     public R batchUnBookkeepingVoucher(@Valid UnBookkeepingVoucherRequest request) {
-        baseService.batchUnBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
+        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        baseService.batchUnBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
+                request.getEndSerialNum(), customerId);
         return R.ok();
     }
 

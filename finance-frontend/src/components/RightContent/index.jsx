@@ -20,13 +20,13 @@ const GlobalHeaderRight = () => {
   if ((navTheme === 'dark' && layout === 'top') || layout === 'mix') {
     className = `${styles.right}  ${styles.dark}`;
   }
-  const {treeMenus} = initialState
+  /*const {treeMenus} = initialState
   const searchOptions = common.flatTree(treeMenus, "routes")
     .filter(menu => !searchKey || menu.name.includes(searchKey))
     .map(menu => ({
       label: <div onClick={() => history.push(menu.path)}><a>{menu.name}</a></div>,
       value: menu.name
-    }))
+    }))*/
   return (
     <Space className={className}>
       {initialState?.currentUser?.customerId === 0 && <SwitchCustomer />}

@@ -25,6 +25,9 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     mode = "add", currencyType = CURRENCY_TYPE.LOCAL,
     voucherId, visible
   } = modal
+  if (!visible) {
+    return null
+  }
   const isAddMode = mode === "add"
   const isViewMode = mode === "view"
   const isEditMode = mode === "edit"
