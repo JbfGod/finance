@@ -1,20 +1,11 @@
 package org.finance.business.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.finance.business.web.request.UpdateExpenseBillRequest;
-import org.springframework.web.multipart.MultipartFile;
+import org.finance.business.entity.enums.AuditStatus;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author jiangbangfa
@@ -34,5 +25,6 @@ public class ExpenseBillVO {
     private LocalDateTime expenseTime;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createTime;
+    private AuditStatus auditStatus;
 
 }

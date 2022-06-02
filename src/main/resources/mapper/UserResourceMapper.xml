@@ -6,6 +6,7 @@
         select f.* from `resource` f
         inner join user_resource uf
         on (uf.user_id = #{userId} and uf.resource_id = f.id)
+        order by f.sort_num asc
     </select>
 
 </mapper>

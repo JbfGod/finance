@@ -4,6 +4,7 @@ import org.finance.business.entity.Resource;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceVO;
 import org.finance.business.web.vo.UserOwnedMenuVO;
+import org.finance.infrastructure.config.security.handler.MyPermissionEvaluator;
 import org.finance.infrastructure.util.CollectionUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -50,7 +51,9 @@ public interface ResourceConvert {
         if (type == Resource.Type.MENU) {
             return String.format("%s:%s", Resource.Type.MENU.name(), res.getUrl());
         } else if (type == Resource.Type.PERMIT) {
-            return String.format("%s:%s", Resource.Type.PERMIT.name(), res.getUrl());
+            return String.format("%s%s", MyPermissionEvaluator.PERMIT_PREFIX, res.getPermitCode());
+        } else if (type == Resource.Type.DATA_SCOPE) {
+            return String.format("%s:%s", Resource.Type.DATA_SCOPE.name(), res.getPermitCode());
         }
         return "";
     }

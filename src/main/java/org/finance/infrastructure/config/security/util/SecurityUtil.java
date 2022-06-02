@@ -1,15 +1,12 @@
 package org.finance.infrastructure.config.security.util;
 
+import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.constants.Constants;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import java.util.Collection;
 
 /**
  * @author jiangbangfa
@@ -73,12 +70,14 @@ public class SecurityUtil {
                 ));
     }
 
-    public static boolean hasAuthority(String authority) {
+    public static boolean canViewAll(String target) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return false;
         }
         return authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals(authority));
+                .anyMatch(auth -> auth.getAuthority().equals(
+                        String.format("%s:%s:view:all", Resource.Type.DATA_SCOPE.name(), target)
+                ));
     }
 }

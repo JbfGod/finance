@@ -8,22 +8,23 @@ import {
   ProFormSelect,
   ProFormText
 } from "@ant-design/pro-form";
-import {Form, InputNumber, Row} from "antd";
+import {Button, Empty, Form, InputNumber, Row} from "antd";
 import styles from "./index.less"
 import {searchExpenseItemCueUsingGET} from "@/services/swagger/expenseBillWeb";
-import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
-import {CURRENCY_TYPE, LENDING_DIRECTION, SUBJECT_TYPE} from "@/constants";
+import {CURRENCY_TYPE, LENDING_DIRECTION} from "@/constants";
 import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
 import {addVoucherUsingPOST, updateVoucherUsingPUT, voucherDetailUsingGET} from "@/services/swagger/voucherWeb";
-import {flatArrayToMap, flatTreeToMap} from "@/utils/common";
-import {currencyOfCurrentMonthUsingGET} from "@/services/swagger/currencyWeb";
+import {flatArrayToMap} from "@/utils/common";
+import {currencyOfYearMonthUsingGET} from "@/services/swagger/currencyWeb";
+import {history} from "umi";
+import ProCard from "@ant-design/pro-card";
 
-export default ({modal, onSuccess, ...props}) => {
-  const {mode = "add", currencyType = CURRENCY_TYPE.LOCAL, voucherId, visible} = modal
-  if (!visible) {
-    return null
-  }
+export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
+  const {
+    mode = "add", currencyType = CURRENCY_TYPE.LOCAL,
+    voucherId, visible
+  } = modal
   const isAddMode = mode === "add"
   const isViewMode = mode === "view"
   const isEditMode = mode === "edit"
@@ -31,20 +32,15 @@ export default ({modal, onSuccess, ...props}) => {
   const [formRef] = Form.useForm()
   const [selectedRowIndex, setSelectedRowIndex] = useState(0)
 
-  const [subjects, setSubjects] = useState([])
-  const subjectById = useMemo(() => flatTreeToMap(subjects), [subjects])
-
   const [currencies, setCurrencies] = useState([])
   const currencyById = useMemo(() => flatArrayToMap(currencies), [currencies])
-
   const [voucherDetail, setVoucherDetail] = useState({})
-  const loadSubjects = () => {
-    treeSubjectUsingGET().then(({data}) => {
-      setSubjects(data)
-    })
-  }
-  const loadCurrencies = () => {
-    currencyOfCurrentMonthUsingGET().then(({data}) => setCurrencies(data))
+
+  // 加载货币列表
+  const loadCurrencyByYearMonth = (yearMonth) => {
+    isForeignCurrency && yearMonth && (
+      currencyOfYearMonthUsingGET({yearMonth}).then(({data}) => setCurrencies(data))
+    )
   }
   const initialBillDetail = () => {
     voucherDetailUsingGET({id: voucherId})
@@ -60,9 +56,12 @@ export default ({modal, onSuccess, ...props}) => {
       currItems.findIndex(tmp => tmp.id === itemId) === -1
     )
   }
+  const voucherDate = Form.useWatch("voucherDate", formRef)
+  const yearMonth = voucherDate && voucherDate.format("YYYYMM")
   useEffect(() => {
-    loadSubjects()    // 加载科目数据
-    loadCurrencies()  // 加载货币列表
+    loadCurrencyByYearMonth(yearMonth)
+  }, [yearMonth])
+  useEffect(() => {
     if (isAddMode) {
       formRef.setFieldsValue({items: [{}]})
     }
@@ -70,9 +69,12 @@ export default ({modal, onSuccess, ...props}) => {
       initialBillDetail()
     }
   }, [])
-  const title = isForeignCurrency? "外币凭证" : "本币凭证"
+  const title = isForeignCurrency ? "外币凭证" : "本币凭证"
   const currencyId = Form.useWatch('currencyId', formRef);
-  const currencyLabel = `币种(汇率：${currencyById[currencyId]?.rate||1})`
+  const currencyLabel = `币种(汇率：${currencyById[currencyId]?.rate || 1})`
+  if (!visible) {
+    return null
+  }
   return (
     <DrawerForm width={1000} form={formRef}
                 title={`${isAddMode ? "添加" : isEditMode ? "编辑" : "预览"}${title}`}
@@ -82,7 +84,7 @@ export default ({modal, onSuccess, ...props}) => {
                   }
                   let formData = {
                     ...f,
-                    ...(isForeignCurrency? {}:{
+                    ...(isForeignCurrency ? {} : {
                       rate: 1,
                       currencyId: 0,
                       currencyName: "人民币",
@@ -118,8 +120,25 @@ export default ({modal, onSuccess, ...props}) => {
         <ProFormGroup size={8}>
           {isForeignCurrency && (
             <>
-              <ProFormSelect name="currencyId" label={currencyLabel} placeholder="币种" width={125}
-                             options={currencies.map(v => ({label:v.name, value: v.id}))}
+              <ProFormDatePicker name="voucherDate" label="凭证日期" placeholder="凭证日期" width={120} disabled={isViewMode}/>
+              <ProFormSelect name="currencyId" label={currencyLabel} placeholder="币种" width={200}
+                             fieldProps={{
+                               notFoundContent: (
+                                 <ProCard colSpan={24} bordered>
+                                   {yearMonth? (
+                                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                            description={<span>{yearMonth}月暂无外可用的汇率数据，无法添加外币凭证</span>}>
+                                       <Button type="primary" onClick={() => history.push("/voucher/currency")}>去添加外币汇率</Button>
+                                     </Empty>
+                                   ) : (
+                                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                            description={<span>请先选择凭证日期</span>}>
+                                     </Empty>
+                                   )}
+                                 </ProCard>
+                               )
+                             }}
+                             options={currencies.map(v => ({label: v.name, value: v.id}))}
                              transform={v => ({
                                currencyId: v,
                                currencyName: currencyById[v]?.name,
@@ -129,7 +148,6 @@ export default ({modal, onSuccess, ...props}) => {
             </>
           )}
           <ProFormText name="unit" label="单位" placeholder="单位" width={125} disabled={isViewMode}/>
-          <ProFormDatePicker name="voucherDate" label="凭证日期" placeholder="凭证日期" width={120} disabled={isViewMode}/>
           <ProFormItem name="attachmentNum" label="附件张数">
             <InputNumber placeholder="附件张数" min={0} disabled={isViewMode}/>
           </ProFormItem>
@@ -174,7 +192,7 @@ export default ({modal, onSuccess, ...props}) => {
                     lendingDirection = lendingDirection === LENDING_DIRECTION.DEFAULT.value
                       ? LENDING_DIRECTION.BORROW.value
                       : lendingDirection
-                    formRef.setFields([{name : ["items", index, "lendingDirection"], value: lendingDirection}])
+                    formRef.setFields([{name: ["items", index, "lendingDirection"], value: lendingDirection}])
                   }
                   return shouldUpdate
                 }}>
@@ -191,13 +209,13 @@ export default ({modal, onSuccess, ...props}) => {
                 <ProFormItem name="amount" label="原币金额">
                   <InputNumber placeholder="原币金额" min={0} disabled={isViewMode} width={200}/>
                 </ProFormItem>
-                {isForeignCurrency? (
+                {isForeignCurrency ? (
                   <Form.Item noStyle shouldUpdate={(prev, next) => {
                     const currAmount = next.items[index]?.amount
                     const shouldUpdate = prev.items[index]?.amount !== currAmount || prev.currencyId !== next.currencyId
                     const {rate} = currencyById[next.currencyId] || {}
                     if (shouldUpdate) {
-                      formRef.setFields([{name : ["items", index, "billAmount"], value: currAmount * (rate || 1)}])
+                      formRef.setFields([{name: ["items", index, "billAmount"], value: currAmount * (rate || 1)}])
                     }
                   }}>
                     {(f) => {

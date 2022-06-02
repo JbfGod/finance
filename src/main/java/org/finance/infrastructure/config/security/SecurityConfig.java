@@ -4,6 +4,7 @@ import org.finance.business.service.UserService;
 import org.finance.infrastructure.config.security.filter.CustomerUsernamePasswordAuthenticationFilter;
 import org.finance.infrastructure.config.security.filter.JwtAuthenticationFilter;
 import org.finance.infrastructure.config.security.filter.OptionsRequestFilter;
+import org.finance.infrastructure.config.security.handler.MyPermissionEvaluator;
 import org.finance.infrastructure.config.security.provider.CustomerUsernamePasswordAuthenticationProvider;
 import org.finance.infrastructure.config.security.provider.JwtAuthenticationProvider;
 import org.finance.infrastructure.constants.Constants;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,7 +32,7 @@ import java.util.Arrays;
  * @author jiangbangfa
  */
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
@@ -52,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         ,"/druid/**", "/api/downloadOpenapi"
                         , "/swagger-ui.html", "/swagger-ui/**", "/webjars/**", "/swagger-resources/**", "/v2/api-docs")
                 .permitAll()
-                .antMatchers("/**").authenticated()
+                .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
                 .sessionManagement().disable()
@@ -67,6 +69,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(jwtAuthenticationFilter(), LogoutFilter.class)
                 .addFilterAt(customerUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .logout().logoutUrl("/api/logout").addLogoutHandler(userLogoutHandler);
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        super.configure(web);
     }
 
     @Override
@@ -99,5 +106,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtAuthenticationProvider jwtAuthenticationProvider() throws Exception {
         return new JwtAuthenticationProvider(userService, redisTemplate);
+    }
+
+    @Bean
+    public MyPermissionEvaluator myPermissionEvaluator() {
+        return new MyPermissionEvaluator();
     }
 }

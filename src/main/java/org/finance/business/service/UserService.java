@@ -14,7 +14,6 @@ import org.finance.infrastructure.exception.HxException;
 import org.finance.infrastructure.util.AssertUtil;
 import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -80,7 +79,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     }
 
     @Override
-    @Cacheable(value = "User", unless = "#result == null")
     public User loadUserById(Long userId) {
         User user = baseMapper.selectById(userId);
         Customer customer = customerMapper.findByNumber(user.getCustomerNumber());
@@ -89,7 +87,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     }
 
     @Override
-    @Cacheable("User")
     public List<GrantedAuthority> loadAuthoritiesByUserId(Long userId) {
         return userResourceMapper.listResourceByUserId(userId)
                 .stream().map(ResourceConvert.INSTANCE::toAccess)

@@ -11,6 +11,7 @@ import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import {SUBJECT_ASSIST_SETTLEMENT, LENDING_DIRECTION, SUBJECT_TYPE} from "@/constants";
 import PageContainer from "@/components/PageContainer";
+import styles from "@/global.less"
 
 export default () => {
   const [expandable, onLoad] = useTableExpandable()
@@ -37,45 +38,46 @@ export default () => {
   const actionRef = useRef()
   const columns = [
     {
-      title: "科目编号", dataIndex: "number", editable: false
+      title: "科目编号", dataIndex: "number", editable: false, width: 255
     },
     {
-      title: "级数", dataIndex: "level", editable: false
+      title: "级数", dataIndex: "level", editable: false, width: 50
     },
     {
-      title: "所属行业", dataIndex: "industry", editable: false,
+      title: "所属行业", dataIndex: "industry", editable: false, width: 125
     },
     {
-      title: "科目名称", dataIndex: "name"
+      title: "科目名称", dataIndex: "name", width: 125
     },
     {
-      title: "科目类型", dataIndex: "type", valueType: "select"
+      title: "科目类型", dataIndex: "type", valueType: "select", width: 115
       , fieldProps: {
         allowClear: false,
         options: Object.values(SUBJECT_TYPE)
       }
     },
     {
-      title: "科目方向", dataIndex: "lendingDirection", valueType: "select"
+      title: "科目方向", dataIndex: "lendingDirection", valueType: "select", width: 80
       , fieldProps: {
         allowClear: false,
         options: Object.values(LENDING_DIRECTION)
       }
     },
     {
-      title: "辅助结算", dataIndex: "assistSettlement", valueType: "select"
+      title: "辅助结算", dataIndex: "assistSettlement", valueType: "select", width: 125
       , fieldProps: {
         allowClear: false,
         options: Object.values(SUBJECT_ASSIST_SETTLEMENT)
       }
     },
     {
-      title: "备注", dataIndex: "remark", valueType: "textarea",
+      title: "备注", dataIndex: "remark", valueType: "textarea",width: 125,
       fieldProps: {showCount: true, maxLength: 255}
     },
     {
       title: '操作', dataIndex: 'id',
       width: 180, valueType: 'option',
+      fixed: "right",
       render: (dom, row, index, action) => {
         return [
           <a key="addSub" onClick={(e) => {
@@ -101,7 +103,7 @@ export default () => {
     <PageContainer>
       {hasIndustry ? (
         <ProCard ghost gutter={[8, 0]}>
-          <ProCard colSpan={5} bordered className="cardCommon">
+          <ProCard bordered className={styles.cardCommon} colSpan={5}>
             <Tree showLine={{showLeafIcon: false}} selectedKeys={[selectedIndustry.id]} defaultExpandAll
                   fieldNames={{title: "name", key: "id"}} treeData={industryTreeData}
                   onSelect={(keys, {node}) => {
@@ -119,10 +121,13 @@ export default () => {
                         editable={editable}
                         request={async () => subjectWeb.treeSubjectUsingGET({industryId: selectedIndustry.id || undefined})}
             />
-            <ModalForm title="新增科目" width="400px" visible={createModal.visible}
+            <ModalForm title="新增科目" width="420px" visible={createModal.visible}
                        initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
                        modalProps={{destroyOnClose: true}}
                        onVisibleChange={handleModal}
+                       layout="inline"
+                       grid={true}
+                       rowProps={{gutter: [0,12]}}
                        onFinish={async (value) => {
                          await subjectWeb.addSubjectUsingPOST({
                            ...value,
@@ -144,8 +149,10 @@ export default () => {
                              {required: true, message: "科目名称不能为空！"},
                            ]}
               />
-              <ProFormSelect name="type" allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
-              <ProFormSelect name="lendingDirection" allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
+              <ProFormSelect name="type"
+                             allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
+              <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
+                             allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
               <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
                              options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
               <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>

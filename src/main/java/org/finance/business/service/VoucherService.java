@@ -112,20 +112,22 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
 
     @Transactional(rollbackFor = Exception.class)
     public void batchBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
-        this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
+        boolean success = this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
                                 yearMonth, beginSerialNum, endSerialNum
-                        ).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                        ).eq(Voucher::getBookkeeping, false).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                         .set(Voucher::getBookkeeping, true)
         );
+        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void batchUnBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum) {
-        this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
+        boolean success = this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
                                 yearMonth, beginSerialNum, endSerialNum
-                        ).eq(Voucher::getBookkeeping, true)
-                        .set(Voucher::getBookkeeping, false).set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                        ).eq(Voucher::getBookkeeping, true).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                        .set(Voucher::getBookkeeping, false)
         );
+        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -52,8 +52,9 @@ export async function getInitialState() {
 
 export const layout = ({ initialState, setInitialState }) => {
   return {
+    siderWidth: 180,
     rightContentRender: () => <RightContent />,
-    disableContentMargin: false,
+    disableContentMargin: true,
     access: {
       strictMode: true,
     },

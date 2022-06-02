@@ -26,6 +26,9 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
             return null;
         }
         HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
+        if (request == null) {
+            return null;
+        }
         String headCustomerId = request.getHeader("CustomerId");
         if (StringUtils.isNotBlank(headCustomerId) && currentUser.getCustomerId() == DEFAULT_CUSTOMER_ID) {
             return new LongValue(headCustomerId);

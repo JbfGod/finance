@@ -32,13 +32,21 @@ export function useSecurity(permissionPrefix = "") {
   const isAdmin = role === "ADMIN"
   const isSuperCustomer = customerId === 0
 
-  const canAuditing = isSuperCustomer || isAdmin || access[`PERMIT:${permissionPrefix}:auditing`]
-  const canOperating = isSuperCustomer || isAdmin || access[`PERMIT:${permissionPrefix}:operating`]
+  const canAuditing = isAdmin || access[`PERMIT:${permissionPrefix}:auditing`]
+  const canUnAuditing = isAdmin || access[`PERMIT:${permissionPrefix}:unAuditing`]
+  const canBookkeeping = isAdmin || access[`PERMIT:${permissionPrefix}:bookkeeping`]
+  const canUnBookkeeping = isAdmin || access[`PERMIT:${permissionPrefix}:unBookkeeping`]
+  const canOperating = isAdmin || access[`PERMIT:${permissionPrefix}:operating`]
+  const canPrint = isAdmin || access[`PERMIT:${permissionPrefix}:print`]
   return {
     isSuperCustomer,
     onlyRead : true,
     canAuditing,
+    canUnAuditing,
+    canBookkeeping,
+    canUnBookkeeping,
     canOperating,
+    canPrint
   }
 }
 

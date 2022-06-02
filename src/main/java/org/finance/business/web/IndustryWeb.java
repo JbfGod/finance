@@ -47,12 +47,17 @@ public class IndustryWeb {
 
     @GetMapping("/tree")
     public R<List<TreeIndustryVO>> treeIndustry() {
-        return R.ok(IndustryConvert.INSTANCE.toTreeIndustryVO(industryService.list()));
+        return R.ok(IndustryConvert.INSTANCE.toTreeIndustryVO(industryService.list(
+                Wrappers.<Industry>lambdaQuery().orderByAsc(Industry::getNumber)
+        )));
     }
 
     @GetMapping("/list")
     public R<List<IndustryVO>> listIndustry() {
-        List<IndustryVO> list = industryService.list().stream()
+        List<IndustryVO> list = industryService.list(
+                        Wrappers.<Industry>lambdaQuery().orderByAsc(Industry::getNumber)
+                )
+                .stream()
                 .map(IndustryConvert.INSTANCE::toIndustryVO)
                 .collect(Collectors.toList());
         return R.ok(list);

@@ -1,16 +1,22 @@
 import React, {useRef} from "react"
 import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
-import {pageExpenseBillUsingGET} from "@/services/swagger/expenseBillWeb"
-import BillForm from "@/pages/expense/BillList/BillForm"
-import {Button} from "antd"
+import {
+  auditingExpenseBillUsingPUT,
+  deleteExpenseBillUsingDELETE,
+  pageExpenseBillUsingGET,
+  unAuditingExpenseBillUsingPUT
+} from "@/services/swagger/expenseBillWeb"
+import BillForm from "@/pages/ExpenseBillList/BillForm"
+import {Button, Popconfirm} from "antd"
 import {PlusOutlined} from "@ant-design/icons"
 import {useModalWithParam, usePrint, useSecurity} from "@/utils/hooks"
-import BillPrint from "@/pages/expense/BillList/BillPrint";
+import BillPrint from "@/pages/ExpenseBillList/BillPrint";
+import {AuditStatus} from "@/constants";
 
 export default () => {
   const actionRef = useRef()
-  const security = useSecurity()
+  const security = useSecurity("expenseBill")
   const [addModal, handleAddModal, openAddModal] = useModalWithParam()
   const [editModal, handleEditModal, openEditModal] = useModalWithParam()
   const [viewModal, handleViewModal, openViewModal] = useModalWithParam()
@@ -36,11 +42,31 @@ export default () => {
       width: 255, valueType: 'option',
       render: (dom, row) => [
         <a key="detail" onClick={() => openViewModal({billId: row.id})}>详情</a>,
-        <a key="print" onClick={() => onPrint({billId: row.id})}>打印</a>,
-        ...(security.onlyRead ? [] : [
+        ...security.canOperating && [
           <a key="edit" onClick={() => openEditModal({billId: row.id})}>编辑</a>,
-          <a key="resetPwd">审批</a>
-        ])
+          <Popconfirm key="delete" title="确认删除该报销单？"
+                      onConfirm={() => deleteExpenseBillUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
+            <a>删除</a>
+          </Popconfirm>
+        ],
+        security.canPrint && (
+          <a key="print" onClick={() => onPrint({billId: row.id})}>打印</a>
+        ),
+        row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
+          security.canAuditing && (
+            <Popconfirm key="auditing" title="确认审核该报销单？"
+                        onConfirm={() => auditingExpenseBillUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+              <a>审核</a>
+            </Popconfirm>
+          )
+        ) : (
+          security.canUnAuditing && (
+            <Popconfirm key="unAuditing" title="确认弃审该凭证？"
+                        onConfirm={() => unAuditingExpenseBillUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+              <a>弃审</a>
+            </Popconfirm>
+          )
+        )
       ]
     },
   ]
@@ -48,7 +74,7 @@ export default () => {
     <PageContainer>
       <ExProTable actionRef={actionRef} columns={columns}
                   request={pageExpenseBillUsingGET}
-                  toolBarRender={() => (
+                  toolBarRender={() => security.canOperating && (
                     <Button type="primary" onClick={openAddModal}>
                       <PlusOutlined/>
                       新增报销单

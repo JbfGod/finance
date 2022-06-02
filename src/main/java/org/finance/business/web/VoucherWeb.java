@@ -27,6 +27,7 @@ import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,11 +60,11 @@ public class VoucherWeb {
     private VoucherService baseService;
     @Resource
     private VoucherItemService itemService;
-    private final String AUTH_VOUCHER_VIEW_ALL = "voucher:view:all";
+    private final String RESOURCE_TARGET = "voucher";
 
     @GetMapping("/page")
     public RPage<VoucherVO> pageVoucher(@Valid QueryVoucherRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_VOUCHER_VIEW_ALL);
+        boolean canSearchAll = SecurityUtil.canViewAll(RESOURCE_TARGET);
         User currentUser = SecurityUtil.getCurrentUser();
         boolean isLocalCurrency = request.getCurrencyType() == QueryVoucherRequest.CurrencyType.LOCAL;
         IPage<VoucherVO> page = baseService.page(request.extractPage(), Wrappers.<Voucher>lambdaQuery()
@@ -87,6 +88,7 @@ public class VoucherWeb {
     }
 
     @GetMapping("/{id}/printContent")
+    @PreAuthorize("hasPermission('voucher', 'print')")
     public R<VoucherPrintContentVO> printContentOfVoucher(@PathVariable("id") long id) {
         Voucher voucher = baseService.getAndItemsById(id);
         VoucherPrintContentVO voucherPrintContentVO = VoucherConvert.INSTANCE.toVoucherPrintContentVO(voucher);
@@ -96,7 +98,7 @@ public class VoucherWeb {
 
     @GetMapping("/searchItemCue")
     public R<List<String>> searchVoucherCue(QueryVoucherItemCueRequest request) {
-        boolean canSearchAll = SecurityUtil.hasAuthority(AUTH_VOUCHER_VIEW_ALL);
+        boolean canSearchAll = SecurityUtil.canViewAll(RESOURCE_TARGET);
         User currentUser = SecurityUtil.getCurrentUser();
         QueryVoucherItemCueRequest.Column column = request.getColumn();
         List<String> cues = itemService.list(Wrappers.<VoucherItem>lambdaQuery()
@@ -111,6 +113,7 @@ public class VoucherWeb {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasPermission('voucher', 'operating')")
     public R addVoucher(@Valid @RequestBody AddVoucherRequest request) {
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
         baseService.addOrUpdate(voucher, null);
@@ -118,54 +121,63 @@ public class VoucherWeb {
     }
 
     @PutMapping("/auditing/{id}")
+    @PreAuthorize("hasPermission('voucher', 'auditing')")
     public R auditingVoucher(@PathVariable("id") long id) {
         baseService.auditingById(id);
         return R.ok();
     }
 
     @PutMapping("/unAuditing/{id}")
+    @PreAuthorize("hasPermission('voucher', 'unAuditing')")
     public R unAuditingVoucher(@PathVariable("id") long id) {
         baseService.unAuditingById(id);
         return R.ok();
     }
 
     @PutMapping("/auditing")
+    @PreAuthorize("hasPermission('voucher:batch', 'auditing')")
     public R batchAuditingVoucher(@Valid AuditingVoucherRequest request) {
         baseService.batchAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
         return R.ok();
     }
 
     @PutMapping("/unAuditing")
+    @PreAuthorize("hasPermission('voucher:batch', 'unAuditing')")
     public R batchUnAuditingVoucher(@Valid AuditingVoucherRequest request) {
         baseService.batchUnAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
         return R.ok();
     }
 
     @PutMapping("/bookkeeping/{id}")
+    @PreAuthorize("hasPermission('voucher', 'bookkeeping')")
     public R bookkeepingVoucher(@PathVariable("id") long id) {
         baseService.bookkeepingById(id);
         return R.ok();
     }
 
     @PutMapping("/unBookkeeping/{id}")
+    @PreAuthorize("hasPermission('voucher', 'unBookkeeping')")
     public R unBookkeepingVoucher(@PathVariable("id") long id) {
         baseService.unBookkeepingById(id);
         return R.ok();
     }
 
     @PutMapping("/bookkeeping")
+    @PreAuthorize("hasPermission('voucher:batch', 'bookkeeping')")
     public R batchBookkeepingVoucher(@Valid BookkeepingVoucherRequest request) {
         baseService.batchBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
         return R.ok();
     }
 
     @PutMapping("/unBookkeeping")
+    @PreAuthorize("hasPermission('voucher:batch', 'unBookkeeping')")
     public R batchUnBookkeepingVoucher(@Valid UnBookkeepingVoucherRequest request) {
         baseService.batchUnBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(), request.getEndSerialNum());
         return R.ok();
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasPermission('voucher', 'operating')")
     public R deleteVoucher(@PathVariable("id") long id) {
         assertUnAudited(id);
         baseService.deleteById(id);
@@ -173,6 +185,7 @@ public class VoucherWeb {
     }
 
     @PutMapping("/update")
+    @PreAuthorize("hasPermission('voucher', 'operating')")
     public R updateVoucher(@Valid @RequestBody UpdateVoucherRequest request) {
         assertUnAudited(request.getId());
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
@@ -185,7 +198,7 @@ public class VoucherWeb {
     private void assertUnAudited(long voucherId) {
         boolean unAudited = baseService.count(Wrappers.<Voucher>lambdaQuery()
                 .eq(Voucher::getId, voucherId)
-                .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
         ) > 0;
         AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
     }

@@ -52,6 +52,7 @@ public class SubjectWeb {
         }
         List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
             .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
+                .orderByAsc(Subject::getNumber)
         );
         List<TreeSubjectVO> treeSubjectVOList = SubjectConvert.INSTANCE.toTreeSubjectVO(subjects, (sub) -> {
             sub.setIndustry(industryService.getById(sub.getIndustryId()).getName());
@@ -62,7 +63,9 @@ public class SubjectWeb {
     @GetMapping("/list")
     public R<List<SubjectVO>> listSubject(@Valid QuerySubjectRequest request) {
         List<SubjectVO> list = subjectService.list(Wrappers.<Subject>lambdaQuery()
-                        .eq(Subject::getIndustryId, request.getIndustryId()))
+                        .eq(Subject::getIndustryId, request.getIndustryId())
+                        .orderByAsc(Subject::getNumber)
+                )
                 .stream()
                 .map(SubjectConvert.INSTANCE::toSubjectVO)
                 .collect(Collectors.toList());

@@ -13,6 +13,7 @@ body,
 .ant-layout {
   min-height: 100vh;
 }
+
 .ant-pro-sider.ant-layout-sider.ant-pro-sider-fixed {
   left: unset;
 }
@@ -36,11 +37,13 @@ ol {
   .ant-table {
     width: 100%;
     overflow-x: auto;
+
     &-thead > tr,
     &-tbody > tr {
       > th,
       > td {
         white-space: pre;
+
         > span {
           display: block;
         }
@@ -61,11 +64,16 @@ ol {
   padding: inherit;
 }
 
-.selectedRow{
+.selectedRow {
   background-color: #f2f4f6;
 }
 
-.cardCommon{
+.cardCommon {
   height: 738px;
+  :global {
+    .ant-pro-card-body {
+      padding: 12px;
+    }
+  }
   overflow-y: auto;
 }

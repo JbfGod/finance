@@ -6,6 +6,7 @@
         select f.* from `resource` f
         inner join `customer_resource` cf
         on (cf.customer_id = #{customerId} and cf.resource_id = f.id)
+        order by f.sort_num asc
     </select>
 
 </mapper>

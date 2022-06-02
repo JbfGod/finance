@@ -78,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Long expire = redisTemplate.getExpire(cacheAttr.getKey(), TimeUnit.MINUTES);
         if (expire == null || expire < 15) {
             // 续签一下jwt
-            redisTemplate.expire(jwt.getToken(), cacheAttr.getTimeout());
+            redisTemplate.expire(cacheAttr.getKey(), cacheAttr.getTimeout());
         }
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);

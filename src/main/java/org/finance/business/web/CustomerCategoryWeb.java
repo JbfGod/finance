@@ -44,12 +44,16 @@ public class CustomerCategoryWeb {
 
     @GetMapping("/tree")
     public R<List<TreeCustomerCategoryVO>> treeCustomerCategory() {
-        return R.ok(CustomerCategoryConvert.INSTANCE.toTreeCustomerCategoryVO(customerCategoryService.list()));
+        return R.ok(CustomerCategoryConvert.INSTANCE.toTreeCustomerCategoryVO(customerCategoryService.list(
+                Wrappers.<CustomerCategory>lambdaQuery().orderByAsc(CustomerCategory::getNumber)
+        )));
     }
 
     @GetMapping("/list")
     public R<List<CustomerCategoryVO>> listCustomerCategory() {
-        List<CustomerCategoryVO> list = customerCategoryService.list().stream()
+        List<CustomerCategoryVO> list = customerCategoryService.list(
+                        Wrappers.<CustomerCategory>lambdaQuery().orderByAsc(CustomerCategory::getNumber)
+                ).stream()
                 .map(CustomerCategoryConvert.INSTANCE::toCustomerCategoryVO)
                 .collect(Collectors.toList());
         return R.ok(list);

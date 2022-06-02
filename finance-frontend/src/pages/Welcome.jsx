@@ -1,6 +1,6 @@
 import React from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Card, Typography} from 'antd';
+import {Alert, Card, Typography} from 'antd';
 import styles from './Welcome.less';
 
 const CodePreview = ({ children }) => (
@@ -15,8 +15,8 @@ const Welcome = () => {
   return (
     <PageContainer>
       <Card>
-        {/*<Alert
-          message="Faster and stronger heavy-duty components have been released."
+        <Alert
+          message="欢迎使用慧记账平台."
           type="success"
           showIcon
           banner
@@ -25,7 +25,7 @@ const Welcome = () => {
             marginBottom: 24,
           }}
         />
-        <Typography.Text strong>
+        {/*<Typography.Text strong>
           Advanced Form{' '}
           <a
             href="https://procomponents.ant.design/components/table"

@@ -4,9 +4,12 @@ import {Button, Form, InputNumber, Popconfirm} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import ExProTable from "@/components/Table/ExtProTable";
 import {
-  addCurrencyUsingPOST, auditingCurrencyUsingPUT,
-  currencyByIdUsingGET, deleteCurrencyUsingDELETE,
-  pageCurrencyUsingGET, unAuditingCurrencyUsingPUT,
+  addCurrencyUsingPOST,
+  auditingCurrencyUsingPUT,
+  currencyByIdUsingGET,
+  deleteCurrencyUsingDELETE,
+  pageCurrencyUsingGET,
+  unAuditingCurrencyUsingPUT,
   updateCurrencyUsingPUT
 } from "@/services/swagger/currencyWeb";
 import {useModalWithParam, useSecurity} from "@/utils/hooks";
@@ -14,11 +17,6 @@ import {ModalForm, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/
 import moment from "moment";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
 import {AuditStatus} from "@/constants";
-import {
-  auditingVoucherUsingPUT,
-  deleteVoucherUsingDELETE,
-  unAuditingVoucherUsingPUT
-} from "@/services/swagger/voucherWeb";
 
 const yearMonthNumTransform = v => ({
   yearMonthNum: moment(v).format("YYYYMM")
@@ -64,15 +62,19 @@ export default function CurrencyList() {
         ] : [],
         security.canAuditing && (
           row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
-            <Popconfirm key="auditing" title="确认审核该凭证？"
-                        onConfirm={() => auditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
-              <a>审核</a>
-            </Popconfirm>
+            security.canAuditing && (
+              <Popconfirm key="auditing" title="确认审核该凭证？"
+                          onConfirm={() => auditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                <a>审核</a>
+              </Popconfirm>
+            )
           ) : (
-            <Popconfirm key="unAuditing" title="确认弃审该凭证？"
-                        onConfirm={() => unAuditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
-              <a>弃审</a>
-            </Popconfirm>
+            security.canUnAuditing && (
+              <Popconfirm key="unAuditing" title="确认弃审该凭证？"
+                          onConfirm={() => unAuditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                <a>弃审</a>
+              </Popconfirm>
+            )
           )
         ),
       ]
