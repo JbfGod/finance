@@ -56,11 +56,11 @@ const Login = () => {
               size: 'large',
               prefix: <MyIcon type="icon-danwei1" />,
             }}
-            placeholder="请输入单位账户:HX_TOP"
+            placeholder="请输入单位编号"
             rules={[
               {
                 required: true,
-                message: "请输入单位账号！"
+                message: "请输入单位编号！"
               },
             ]}
           />
@@ -71,7 +71,7 @@ const Login = () => {
               size: 'large',
               prefix: <UserOutlined className={styles.prefixIcon} />,
             }}
-            placeholder="请输入用户名:super_admin"
+            placeholder="请输入用户名"
             rules={[
               {
                 required: true,
@@ -86,7 +86,7 @@ const Login = () => {
               size: 'large',
               prefix: <LockOutlined className={styles.prefixIcon} />,
             }}
-            placeholder="请输入密码:123456"
+            placeholder="请输入密码"
             rules={[
               {
                 required: true,

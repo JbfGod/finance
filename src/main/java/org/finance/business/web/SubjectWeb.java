@@ -75,28 +75,16 @@ public class SubjectWeb {
     @PostMapping("/add")
     public R addSubject(@RequestBody @Valid AddSubjectRequest request) {
         boolean numberExists = subjectService.count(Wrappers.<Subject>lambdaQuery()
+                .eq(Subject::getIndustryId, request.getIndustryId())
                 .eq(Subject::getNumber, request.getNumber())
         ) > 0;
-        AssertUtil.isFalse(numberExists, String.format("科目编号：%s，已存在！", request.getNumber()));
-        boolean nameExists = subjectService.count(Wrappers.<Subject>lambdaQuery()
-                .eq(Subject::getParentId, request.getParentId())
-                .eq(Subject::getName, request.getName())
-        ) > 0;
-        AssertUtil.isFalse(nameExists, "同一级目录下不能定义相同的科目名称！");
+        AssertUtil.isFalse(numberExists, String.format("科目编号：%s，在当前行业下已存在！", request.getNumber()));
         subjectService.add(SubjectConvert.INSTANCE.toSubject(request));
         return R.ok();
     }
 
     @PutMapping("/update")
     public R updateSubject(@RequestBody @Valid UpdateSubjectRequest request) {
-        Subject dbCategory = subjectService.getById(request.getId());
-        Subject anyCategory = subjectService.getOne(Wrappers.<Subject>lambdaQuery()
-                .eq(Subject::getParentId, dbCategory.getParentId())
-                .eq(Subject::getName, request.getName())
-                .last("limit 1")
-        );
-        AssertUtil.isTrue(anyCategory == null || anyCategory.getId().equals(dbCategory.getId())
-                , "同一级目录下不能定义相同的科目名称！");
         subjectService.updateById(SubjectConvert.INSTANCE.toSubject(request));
         return R.ok();
     }

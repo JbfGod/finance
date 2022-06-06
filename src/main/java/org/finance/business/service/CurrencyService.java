@@ -33,7 +33,7 @@ public class CurrencyService extends ServiceImpl<CurrencyMapper, Currency> {
             return;
         }
         Map<String, Currency> currencyOfSourceMonthByNumber = baseMapper.selectList(Wrappers.<Currency>lambdaQuery()
-                .eq(Currency::getYearMonthNum, targetYearMonth)
+                .eq(Currency::getYearMonthNum, sourceYearMonth)
         ).stream().collect(Collectors.toMap(Currency::getNumber, c -> c));
         currencyOfTargetMonth.forEach(currency -> {
             Currency sourceCurrency = currencyOfSourceMonthByNumber.get(currency.getNumber());

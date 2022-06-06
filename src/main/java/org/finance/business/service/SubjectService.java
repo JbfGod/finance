@@ -70,7 +70,7 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
 
     public void delete(long id) {
         Subject dbSubject = baseMapper.selectById(id);
-        AssertUtil.isTrue(dbSubject != null, "行业不存在，删除失败！");
+        AssertUtil.isTrue(dbSubject != null, "科目不存在，删除失败！");
         baseMapper.delete(Wrappers.<Subject>lambdaQuery()
                 .eq(Subject::getRootNumber, dbSubject.getRootNumber())
                 .ge(Subject::getLeftValue, dbSubject.getLeftValue())

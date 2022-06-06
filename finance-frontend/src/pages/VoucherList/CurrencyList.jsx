@@ -1,11 +1,12 @@
 import React, {useEffect, useRef} from 'react'
 import {PageContainer} from "@ant-design/pro-layout";
 import {Button, Form, InputNumber, Popconfirm} from "antd";
-import {PlusOutlined} from "@ant-design/icons";
+import {FileSyncOutlined, PlusOutlined} from "@ant-design/icons";
 import ExProTable from "@/components/Table/ExtProTable";
 import {
   addCurrencyUsingPOST,
   auditingCurrencyUsingPUT,
+  copyCurrencyByMonthUsingPOST,
   currencyByIdUsingGET,
   deleteCurrencyUsingDELETE,
   pageCurrencyUsingGET,
@@ -90,10 +91,16 @@ export default function CurrencyList() {
                     })
                   }}
                   toolBarRender={() => security.canOperating && (
-                    <Button type="primary" onClick={openFormModal}>
-                      <PlusOutlined/>
-                      新增外币
-                    </Button>
+                    <>
+                      <Button type="primary" onClick={openFormModal}>
+                        <PlusOutlined/>
+                        新增外币
+                      </Button>
+                      <Button type="primary" onClick={() => copyCurrencyByMonthUsingPOST({}).then(actionRef.current?.reload)}>
+                        <FileSyncOutlined />
+                        同步上月汇率
+                      </Button>
+                    </>
                   )}
                   editable={false}
       />
