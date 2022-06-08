@@ -4,10 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.CustomerConvert;
 import org.finance.business.convert.ResourceConvert;
-import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
-import org.finance.business.entity.User;
 import org.finance.business.service.CustomerCategoryService;
 import org.finance.business.service.CustomerResourceService;
 import org.finance.business.service.CustomerService;
@@ -79,7 +77,6 @@ public class CustomerWeb {
         }
 
         IPage<CustomerListVO> pages = customerService.page(request.extractPage(), Wrappers.<Customer>lambdaQuery()
-                .likeRight(StringUtils.hasText(request.getUserAccount()), Customer::getUserAccount, request.getUserAccount())
                 .likeRight(StringUtils.hasText(request.getAccount()), Customer::getNumber, request.getAccount())
                 .likeRight(StringUtils.hasText(request.getName()), Customer::getName, request.getName())
                 .eq(request.getIndustryId() != null, Customer::getIndustryId, request.getIndustryId())
@@ -117,15 +114,14 @@ public class CustomerWeb {
     }
 
     @PostMapping("/add")
-    public R addCustomer(@RequestBody @Valid AddCustomerRequest request) {
+    public R addCustomer(@Valid AddCustomerRequest request) {
         Customer customer = CustomerConvert.INSTANCE.toCustomer(request);
-        User user = UserConvert.INSTANCE.toAdminUser(request.getUser());
-        customerService.addCustomerAndUser(customer, user);
+        customerService.addCustomerAndUser(customer);
         return R.ok();
     }
 
     @PutMapping("/update")
-    public R updateCustomer(@RequestBody @Valid UpdateCustomerRequest request) {
+    public R updateCustomer(@Valid UpdateCustomerRequest request) {
         customerService.updateById(CustomerConvert.INSTANCE.toCustomer(request));
         return R.ok();
     }

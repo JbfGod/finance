@@ -28,7 +28,7 @@ const SwitchCustomer = (props) => {
   }
   const onClear = () => {
     removeCurrCustomer()
-    setValue(undefined)
+    window.location.reload()
   }
   useEffect(() => {
     return () => {

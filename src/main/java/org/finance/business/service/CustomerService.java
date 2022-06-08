@@ -11,15 +11,14 @@ import org.finance.business.entity.Customer;
 import org.finance.business.entity.Industry;
 import org.finance.business.entity.Sequence;
 import org.finance.business.entity.Subject;
-import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.IndustryMapper;
 import org.finance.business.mapper.SequenceMapper;
 import org.finance.business.mapper.SubjectMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.business.task.CustomerTask;
-import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.exception.HxException;
+import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -70,7 +69,11 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addCustomerAndUser(Customer customer, User user) {
+    public void addCustomerAndUser(Customer customer) {
+        boolean existsCustomer = baseMapper.exists(Wrappers.<Customer>lambdaQuery()
+                .eq(Customer::getNumber, customer.getNumber())
+        );
+        AssertUtil.isFalse(existsCustomer, "客户编号已存在！");
         // 生成 客户的表标识
         Sequence sequence = new Sequence().setUseCategory(Sequence.CATEGORY_CUSTOMER_TBL_ID);
         sequenceMapper.insert(sequence);
@@ -79,10 +82,6 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         // TODO 数据初始化成功,以后如果出现分表的情况，需要等表初始化才设置为success
         customer.setStatus(Customer.Status.SUCCESS);
         baseMapper.insert(customer);
-
-        user.setCustomerNumber(customer.getNumber())
-                .setCustomerId(customer.getId());
-        userMapper.insert(user);
 
         // 初始化客户数据
         // CustomerTask.addInitialCustomer(customer);

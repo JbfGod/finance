@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.ResourceConvert;
 import org.finance.business.convert.UserConvert;
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.business.service.CustomerResourceService;
+import org.finance.business.service.CustomerService;
 import org.finance.business.service.UserResourceService;
 import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddUserRequest;
@@ -54,6 +56,8 @@ public class UserWeb {
     private UserResourceService userResourceService;
     @javax.annotation.Resource
     private CustomerResourceService customerResourceService;
+    @javax.annotation.Resource
+    private CustomerService customerService;
 
     @GetMapping("/self")
     public R<UserSelfVO> selfInfo() {
@@ -107,6 +111,15 @@ public class UserWeb {
     public R addUser(@RequestBody @Valid AddUserRequest request) {
         User currentUser = SecurityUtil.getCurrentUser();
         User user = UserConvert.INSTANCE.toUser(request, currentUser.getCustomerId(), currentUser.getCustomerNumber());
+        String customerNumber = user.getCustomerNumber();
+        if (StringUtils.hasText(customerNumber)) {
+            Customer dbCustomer = customerService.getOne(Wrappers.<Customer>lambdaQuery()
+                    .select(Customer::getId)
+                    .eq(Customer::getNumber, customerNumber)
+            );
+            AssertUtil.notNull(dbCustomer, "客户单位不存在！");
+            user.setCustomerId(dbCustomer.getId());
+        }
         userService.addUser(user);
         return R.ok();
     }

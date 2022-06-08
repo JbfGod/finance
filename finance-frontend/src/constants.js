@@ -20,8 +20,7 @@ export const IMG_ACCEPT = ".jpeg,.jpg,.png,.gif"
  */
 export const USER_ROLE = {
   NORMAL: {label: "操作人员", value: "NORMAL"},
-  APPROVER: {label: "审批人员", value: "APPROVER"},
-  OFFICER: {label: "机关人员", value: "OFFICER"}
+  APPROVER: {label: "审批人员", value: "APPROVER"}
 }
 export const SUBJECT_TYPE = {
   SUBJECT: {label: "科目", value: "SUBJECT"},

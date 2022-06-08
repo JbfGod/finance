@@ -14,6 +14,8 @@ import javax.validation.constraints.Size;
 @Data
 public class AddUserRequest {
 
+    private String customerNumber;
+
     @NotBlank(message = "请填写用户姓名！")
     @Size(min = 2, max = 20, message = "用户姓名只允许有2-20个字符！")
     private String name;

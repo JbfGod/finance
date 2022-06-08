@@ -3,7 +3,7 @@ import PageContainer from "@/components/PageContainer";
 import * as userWeb from "@/services/swagger/userWeb";
 import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam} from "@/utils/hooks";
+import {useModalWithParam, useSecurity} from "@/utils/hooks";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
@@ -36,7 +36,7 @@ export default () => {
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
   const actionRef = useRef()
-
+  const security = useSecurity("user")
   const columns = [
     {
       title: "用户姓名", dataIndex: "name", valueType: "text"
@@ -83,6 +83,7 @@ export default () => {
     menu: {
       type: 'tab',
       activeKey: activeTabKey,
+      multipleLine:true,
       items: [
         {
           key: 'NORMAL',
@@ -91,11 +92,7 @@ export default () => {
         {
           key: 'APPROVER',
           label: <span>审批人员{renderBadge(activeTabKey === 'APPROVER')}</span>,
-        },
-        /*{
-          key: 'OFFICER',
-          label: <span>机关人员{renderBadge(activeTabKey === 'OFFICER')}</span>,
-        },*/
+        }
       ],
       onChange: (key) => {
         setActiveTabKey(key);
@@ -123,6 +120,7 @@ export default () => {
                    })
                  }}
       >
+        <ProFormText name="customerNumber" label="客户编号" />
         <ProFormSelect name="role" allowClear={false} label="用户类型" options={Object.values(USER_ROLE)}/>
         <ProFormText name="name" label="用户姓名" rules={nameRules}/>
         <ProFormText name="account" label="登录账号"

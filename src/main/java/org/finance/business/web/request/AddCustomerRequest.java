@@ -3,7 +3,6 @@ package org.finance.business.web.request;
 import lombok.Data;
 import org.finance.business.entity.Customer;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -60,6 +59,4 @@ public class AddCustomerRequest {
     @Size(max = 255, message = "备注信息不能超出255个字符")
     private String remark;
 
-    @Valid
-    private AddUserRequest user;
 }

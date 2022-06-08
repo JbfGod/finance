@@ -6,7 +6,6 @@ import org.finance.business.web.request.UpdateCustomerRequest;
 import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -19,7 +18,6 @@ public interface CustomerConvert {
 
     CustomerListVO toCustomerListVO(Customer customer);
 
-    @Mapping(target = "userAccount", expression = "java(request.getUser().getAccount())")
     Customer toCustomer(AddCustomerRequest request);
 
     Customer toCustomer(UpdateCustomerRequest request);

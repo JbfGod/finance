@@ -31,11 +31,6 @@ public class Customer implements Serializable {
     private Long id;
 
     /**
-     * 用户账号
-     */
-    private String userAccount;
-
-    /**
      * 客户编号
      */
     private String number;

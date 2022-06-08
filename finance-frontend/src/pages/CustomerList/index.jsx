@@ -7,7 +7,7 @@ import {useModalWithParam} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {
   ModalForm,
-  ProForm,
+  ProForm, ProFormDateRangePicker,
   ProFormDateTimeRangePicker,
   ProFormItem,
   ProFormRadio,
@@ -205,113 +205,64 @@ export default () => {
 
 function AddFormModal({createModal, handleModal, categoryId, actionRef, industryTreeData}) {
   return (
-    <StepsForm
-      onFinish={(values) => {
-        const {dateRange, user} = values;
-        customerWeb.addCustomerUsingPOST({
-          ...values,
-          user: {...user, password: user.password || "123456", role: "ADMIN"},
-          categoryId: categoryId,
-          effectTime: dateRange[0],
-          expireTime: dateRange[1],
-        }).then(() => {
-          handleModal(false)
-          actionRef.current?.reload()
-        })
-      }}
-      formProps={{
-        initialValues: {
-          type: "RENT",
-          enabled: true,
-          useForeignExchange: false
-        }
-      }}
-      stepsFormRender={(dom, submitter) => {
-        return (
-          <Modal title="新增客户" width={600}
-                 visible={createModal.visible} onCancel={() => handleModal(false)}
-                 footer={submitter} destroyOnClose
-          >{dom}</Modal>
-        )
-      }}
+    <ModalForm width={750}
+               title="新增客户" visible={createModal.visible}
+               onVisibleChange={handleModal}
+               grid={true}
+               layout="inline" rowProps={{gutter: [0, 12]}}
+               onFinish={(values) => {
+                 const {dateRange, user} = values;
+                 customerWeb.addCustomerUsingPOST({
+                   ...values,
+                   categoryId: categoryId,
+                   effectTime: dateRange[0],
+                   expireTime: dateRange[1],
+                 }).then(() => {
+                   handleModal(false)
+                   actionRef.current?.reload()
+                 })
+               }}
+               initialValues={{
+                 type: "RENT",
+                 enabled: true,
+                 useForeignExchange: false
+               }}
     >
-      <StepsForm.StepForm name="customer" title="客户基本信息">
-        <ProForm.Group>
-          <ProFormText name="number" label="客户编号" colon={8} rules={[
-            {required: true, message: "客户编号不能为空！"},
-            {min: 5, max: 25, message: "客户编号只允许有5-25个字符！"},
-            {pattern: /[\da-zA-Z]{5,25}/, message: "客户编号只允许包含数字和字母！"}
-          ]}/>
-          <ProFormText name="name" label="客户名称" rules={[{required: true, message: "客户名称不能为空！"}]}/>
-        </ProForm.Group>
-        <ProForm.Group>
-          <ProFormSelect name="type" label="客户类型" options={Object.values(CUSTOMER_TYPE)}
-                         allowClear={false}
-                         rules={[{required: true, message: "客户类型不能为空！"}]}/>
-          <ProFormSwitch name="enabled" label="客户状态" checkedChildren="启用" unCheckedChildren="停用" />
-          <ProFormRadio.Group name="useForeignExchange" label="是否使用外汇"
-                              options={[{label: "是", value: true}, {label: "否", value: false}]}/>
-        </ProForm.Group>
-        <ProFormItem name="industryId" label="行业分类" >
+      <ProFormSelect name="type" label="客户类型" options={Object.values(CUSTOMER_TYPE)}
+                     allowClear={false} colProps={{span: 12}}
+                     rules={[{required: true, message: "客户类型不能为空！"}]}/>
+      <Col span={12}>
+        <ProFormItem name="industryId" label="行业分类">
           <ExtTreeSelect options={industryTreeData} placeholder="只能选择叶子节点"
-                         treeLine={{showLeafIcon: false}} style={{ width: '100%' }}
+                         treeLine={{showLeafIcon: false}} style={{width: '100%'}}
                          onlySelectedLeaf={true} rules={[{required: true, message: "行业分类不能为空！"}]}
           />
         </ProFormItem>
-        <ProForm.Group>
-          <ProFormText name="contactName" label="联系人" rules={[{required: true, message: "联系人不能为空！"}]}/>
-          <ProFormText name="telephone" label="联系电话" rules={[{required: true, message: "联系电话不能为空！"}]}/>
-        </ProForm.Group>
-        <ProFormDateTimeRangePicker name="dateRange" label="代理(租用)日期"
-                                    placeholder={["开始日期", "过期日期"]}
-                                    format="yyyy-MM-DD"
-                                    rules={[{required: true, message: "科目名称不能为空！"}]}/>
-        <ProForm.Group>
-          <ProFormText name="bankAccount" label="银行账号" rules={[{required: true, message: "银行账号不能为空！"}]}/>
-          <ProFormText name="bankAccountName" label="开户人" rules={[{required: true, message: "开户人不能为空！"}]}/>
-        </ProForm.Group>
-        <ProFormTextArea name="remark" label="备注" fieldProps={{showCount: true, maxLength: 255}}/>
-      </StepsForm.StepForm>
-      <StepsForm.StepForm name="user" title="创建客户管理员">
-        <ProFormText name={["user", "name"]} label="用户姓名" rules={[{required: true, message: "用户姓名不能为空！"}]}/>
-        <ProFormText name={["user", "account"]} label="登录账号"
-                     rules={[
-                       {required: true, message: "登录账号不能为空！"},
-                       {min: 5, max: 25, message: "登录账号只允许有5-25个字符！"},
-                       {pattern: /[0-9a-zA-Z]{5,25}/, message: "登录账号只允许包含数字和字母！"}
-                     ]}
-        />
-        <ProFormRadio.Group name="pwdType" label="登录密码" initialValue="默认" tooltip="默认密码：123456"
-                            options={["默认", "自定义"]}/>
-        <ProFormItem noStyle shouldUpdate={(prev, curr) => prev.pwdType !== curr.pwdType}>
-          {({getFieldValue}) =>
-            getFieldValue("pwdType") === "自定义" ? (
-              <ProFormText.Password name="pwd" label="登录密码"
-                                    rules={[
-                                      {required: true, message: "密码不能为空！"},
-                                      {min: 6, max: 20, message: "密码只允许有6-20个字符！"}
-                                    ]}
-              />
-            ) : null
-          }
-        </ProFormItem>
-        <ProFormItem noStyle shouldUpdate={(prev, curr) => prev.pwdType !== curr.pwdType}>
-          {({getFieldValue}) =>
-            getFieldValue("pwdType") === "自定义" ? (
-              <ProFormText.Password name={["user", "password"]} label="确认密码"
-                                    rules={[{
-                                      validator: async (_, v) => {
-                                        if (v !== getFieldValue("pwd")) {
-                                          return Promise.reject("两次密码不一致！")
-                                        }
-                                      }
-                                    }]}
-              />
-            ) : null
-          }
-        </ProFormItem>
-      </StepsForm.StepForm>
-    </StepsForm>
+      </Col>
+      <ProFormText name="number" label="客户编号" colProps={{span: 12}} rules={[
+        {required: true, message: "客户编号不能为空！"},
+        {min: 5, max: 25, message: "客户编号只允许有5-25个字符！"},
+        {pattern: /[\da-zA-Z]{5,25}/, message: "客户编号只允许包含数字和字母！"}
+      ]}/>
+      <ProFormText name="name" label="客户名称" colProps={{span: 12}}
+                   rules={[{required: true, message: "客户名称不能为空！"}]}/>
+      <ProFormText name="contactName" label="联系人" colProps={{span: 12}}
+                   rules={[{required: true, message: "联系人不能为空！"}]}/>
+      <ProFormText name="telephone" label="联系电话" colProps={{span: 12}}
+                   rules={[{required: true, message: "联系电话不能为空！"}]}/>
+      <ProFormText name="bankAccount" label="银行账号" colProps={{span: 12}}
+                   rules={[{required: true, message: "银行账号不能为空！"}]}/>
+      <ProFormText name="bankAccountName" label="开户人" colProps={{span: 12}}
+                   rules={[{required: true, message: "开户人不能为空！"}]}/>
+      <ProFormDateRangePicker name="dateRange" label="代理(租用)日期"
+                              placeholder={["开始日期", "过期日期"]}
+                              format="yyyy-MM-DD" colProps={{span: 12}}
+                              rules={[{required: true, message: "科目名称不能为空！"}]}/>
+      <ProFormSwitch name="enabled" label="客户状态" colProps={{span: 6}} checkedChildren="启用" unCheckedChildren="停用"/>
+      <ProFormSwitch name="useForeignExchange" colProps={{span: 6}} label="是否使用外汇" checkedChildren="是"
+                     unCheckedChildren="否"/>
+      <ProFormTextArea name="remark" label="备注" fieldProps={{showCount: true, maxLength: 255}}/>
+    </ModalForm>
   )
 }
 
@@ -352,9 +303,9 @@ function EditFormModal({modal, handleModal, actionRef, industryTreeData}) {
                             options={[{label: "是", value: true}, {label: "否", value: false}]}/>
         <ProFormSwitch name="enabled" label="客户状态" checkedChildren="启用" unCheckedChildren="停用"/>
       </ProForm.Group>
-      <ProFormItem name="industryId" label="行业分类" >
+      <ProFormItem name="industryId" label="行业分类">
         <ExtTreeSelect options={industryTreeData} placeholder="只能选择费用类科目"
-                       treeLine={{showLeafIcon: false}} style={{ width: '100%' }}
+                       treeLine={{showLeafIcon: false}} style={{width: '100%'}}
                        onlySelectedLeaf={true} rules={[{required: true, message: "行业分类不能为空！"}]}
         />
       </ProFormItem>
