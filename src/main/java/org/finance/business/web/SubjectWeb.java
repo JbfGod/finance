@@ -1,5 +1,6 @@
 package org.finance.business.web;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.SubjectConvert;
 import org.finance.business.entity.Subject;
@@ -46,14 +47,7 @@ public class SubjectWeb {
 
     @GetMapping("/tree")
     public R<List<TreeSubjectVO>> treeSubject(@Valid QuerySubjectRequest request) {
-        List<Long> industryWithChildrenIds = new ArrayList<>();
-        if (request.getIndustryId() != null) {
-            industryWithChildrenIds = industryService.listChildrenIdsById(request.getIndustryId());
-        }
-        List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
-            .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
-                .orderByAsc(Subject::getNumber)
-        );
+        List<Subject> subjects = this.listSubjectByRequest(request);
         List<TreeSubjectVO> treeSubjectVOList = SubjectConvert.INSTANCE.toTreeSubjectVO(subjects, (sub) -> {
             sub.setIndustry(industryService.getById(sub.getIndustryId()).getName());
         });
@@ -62,11 +56,7 @@ public class SubjectWeb {
 
     @GetMapping("/list")
     public R<List<SubjectVO>> listSubject(@Valid QuerySubjectRequest request) {
-        List<SubjectVO> list = subjectService.list(Wrappers.<Subject>lambdaQuery()
-                        .eq(Subject::getIndustryId, request.getIndustryId())
-                        .orderByAsc(Subject::getNumber)
-                )
-                .stream()
+        List<SubjectVO> list = this.listSubjectByRequest(request).stream()
                 .map(SubjectConvert.INSTANCE::toSubjectVO)
                 .collect(Collectors.toList());
         return R.ok(list);
@@ -94,5 +84,17 @@ public class SubjectWeb {
         subjectService.delete(id);
         return R.ok();
     }
-    
+
+    private List<Subject> listSubjectByRequest(QuerySubjectRequest request) {
+        List<Long> industryWithChildrenIds = new ArrayList<>();
+        if (request.getIndustryId() != null) {
+            industryWithChildrenIds = industryService.listChildrenIdsById(request.getIndustryId());
+        }
+        return subjectService.list(Wrappers.<Subject>lambdaQuery()
+                .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
+                .likeRight(StringUtils.isNotBlank(request.getNumber()), Subject::getNumber,request.getNumber())
+                .likeRight(StringUtils.isNotBlank(request.getName()), Subject::getName, request.getName())
+                .orderByAsc(Subject::getNumber)
+        );
+    }
 }

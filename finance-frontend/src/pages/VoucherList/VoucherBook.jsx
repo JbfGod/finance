@@ -19,7 +19,7 @@ export default () => {
       title: "科目编号", dataIndex: "subjectNumber", search: false
     },
     {
-      title: "凭证日期", dataIndex: "voucherTime", search: false
+      title: "凭证日期", dataIndex: "voucherDate", search: false
     },
     {
       title: "凭证单号", dataIndex: "serialNumber", search: false

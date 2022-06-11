@@ -206,7 +206,7 @@ public class VoucherWeb {
     private void assertUnAudited(long voucherId) {
         boolean unAudited = baseService.count(Wrappers.<Voucher>lambdaQuery()
                 .eq(Voucher::getId, voucherId)
-                .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
         ) > 0;
         AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
     }

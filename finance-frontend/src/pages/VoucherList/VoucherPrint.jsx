@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import styled from "styled-components";
-import {printContentOfExpenseBillUsingGET} from "@/services/swagger/expenseBillWeb";
 import {printContentOfVoucherUsingGET} from "@/services/swagger/voucherWeb";
 import {CURRENCY_TYPE, LENDING_DIRECTION} from "@/constants";
 import {convertCurrency} from "@/utils/common";

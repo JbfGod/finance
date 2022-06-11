@@ -26,10 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -49,13 +47,10 @@ public class CurrencyWeb {
     private CurrencyService baseService;
 
     @GetMapping("/listAuditedOfYearMonth")
-    public R<List<CurrencyVO>> currencyOfYearMonth(Integer yearMonth) {
-        yearMonth = Optional.ofNullable(yearMonth).orElseGet(() -> (
-                Integer.valueOf(LocalDate.now().format(YEAR_MONTH_FMT))
-        ));
+    public R<List<CurrencyVO>> currencyOfYearMonth(int yearMonthNum) {
         List<CurrencyVO> list = baseService.list(Wrappers.<Currency>lambdaQuery()
                 .eq(Currency::getAuditStatus, AuditStatus.AUDITED)
-                .eq(Currency::getYearMonthNum, yearMonth)
+                .eq(Currency::getYearMonthNum, yearMonthNum)
         ).stream().map(CurrencyConvert.INSTANCE::toCurrencyVO).collect(Collectors.toList());
         return R.ok(list);
     }
@@ -128,7 +123,7 @@ public class CurrencyWeb {
     private void assertUnAudited(long currencyId) {
         boolean unAudited = baseService.count(Wrappers.<Currency>lambdaQuery()
                 .eq(Currency::getId, currencyId)
-                .eq(Currency::getAuditStatus, AuditStatus.AUDITED)
+                .eq(Currency::getAuditStatus, AuditStatus.TO_BE_AUDITED)
         ) > 0;
         AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
     }

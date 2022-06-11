@@ -75,19 +75,17 @@ const responseInterceptor = async (response, options) => {
       break
     case ErrorShowType.ERROR_MESSAGE:
     case ErrorShowType.NOTIFICATION:
-      console.log(errorMessage, options.loadingKey)
       message.error({content: errorMessage, key: loadingKey})
       break;
     case ErrorShowType.REDIRECT:
-      message.error({content: errorMessage, key: loadingKey})
       let pathname = DEFAULT_ERROR_PAGE;
-      if (data.errorCode === "401") {
+      if (errorCode === "401") {
+        common.clearAccessToken()
         pathname = "/user/login"
       }
-      history.push({
-        pathname,
-        query: {errorCode: data.errorCode, errorMessage}
-      })
+      message.error({content: errorMessage, key: loadingKey, onClose: () => {
+          pathname && (window.location.href = pathname)
+      }})
       break
     default:
       message.error(errorMessage)

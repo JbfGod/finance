@@ -33,7 +33,7 @@ export default function ExtTreeSelect(
     let itemProps = {
       key: nodeData[fieldsName.key] || nodeData.value,
       value: nodeData[fieldsName.key] || nodeData.value,
-      title: nodeData[fieldsName.title],
+      title: typeof fieldsName.title === "function" ? fieldsName.title(nodeData) : nodeData[fieldsName.title],
     }
     itemPropsHandler && (itemProps = {...itemProps, ...itemPropsHandler(nodeData)})
     disableFilter && disableFilter(nodeData) && (itemProps.disabled = true)

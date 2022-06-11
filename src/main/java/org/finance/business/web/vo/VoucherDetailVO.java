@@ -36,6 +36,14 @@ public class VoucherDetailVO {
         private LendingDirection lendingDirection;
         private BigDecimal amount;
 
+        public BigDecimal getDebitAmount() {
+            return lendingDirection == LendingDirection.BORROW ? amount : null;
+        }
+
+        public BigDecimal getCreditAmount() {
+            return lendingDirection == LendingDirection.LOAN ? amount : null;
+        }
+
     }
 
     @JsonFormat(pattern = "yyyy-MM-dd")

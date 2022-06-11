@@ -186,7 +186,7 @@ public class ExpenseBillWeb {
     private void assertUnAudited(long id) {
         boolean unAudited = baseService.count(Wrappers.<ExpenseBill>lambdaQuery()
                 .eq(ExpenseBill::getId, id)
-                .eq(ExpenseBill::getAuditStatus, AuditStatus.AUDITED)
+                .eq(ExpenseBill::getAuditStatus, AuditStatus.TO_BE_AUDITED)
         ) > 0;
         AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
     }

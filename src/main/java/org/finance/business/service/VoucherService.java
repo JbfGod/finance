@@ -10,11 +10,13 @@ import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.mapper.VoucherItemMapper;
 import org.finance.business.mapper.VoucherMapper;
 import org.finance.business.web.vo.VoucherBookVO;
+import org.finance.infrastructure.constants.LendingDirection;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +60,8 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     }
 
     public void auditingById(long voucherId) {
+        Voucher voucher = this.getById(voucherId);
+        this.assertVoucherItemLoanBalanced(voucherId, voucher.getSerialNumber());
         boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
                 .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
@@ -73,12 +77,23 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void batchAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
-        this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                        yearMonth, beginSerialNum, endSerialNum, customerId
-                ).eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
-                .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
+        List<Voucher> dbVouchers = baseMapper.selectList(Wrappers.<Voucher>lambdaQuery()
+                .select(Voucher::getId, Voucher::getSerialNumber)
+                .eq(Voucher::getYearMonthNum, yearMonth)
+                .eq(Voucher::getCustomerId, customerId)
+                .between(beginSerialNum != null && endSerialNum != null,
+                        Voucher::getSerialNumber, beginSerialNum, endSerialNum)
         );
+        for (Voucher dbVoucher : dbVouchers) {
+            this.assertVoucherItemLoanBalanced(dbVoucher.getId(), dbVoucher.getSerialNumber());
+            this.update(Wrappers.<Voucher>lambdaUpdate()
+                    .eq(Voucher::getId, dbVoucher.getId())
+                    .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                    .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
+            );
+        }
     }
 
     public void batchUnAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
@@ -183,6 +198,28 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
                 .eq(Voucher::getCustomerId, customerId)
                 .between(beginSerialNum != null && endSerialNum != null,
                         Voucher::getSerialNumber, beginSerialNum, endSerialNum);
+    }
+
+    /**
+     * 断言凭证的借贷金额平衡
+     */
+    private void assertVoucherItemLoanBalanced(long voucherId, int voucherSerialNum) {
+        List<VoucherItem> voucherItems = itemMapper.selectList(Wrappers.<VoucherItem>lambdaQuery()
+                .eq(VoucherItem::getVoucherId, voucherId)
+        );
+        BigDecimal borrowAmount = new BigDecimal("0");
+        BigDecimal loanAmount = new BigDecimal("0");
+        for (VoucherItem item : voucherItems) {
+            if (item.getLendingDirection() == LendingDirection.BORROW) {
+                borrowAmount = borrowAmount.add(item.getAmount().multiply(item.getRate()));
+            } else if (item.getLendingDirection() == LendingDirection.LOAN) {
+                loanAmount = loanAmount.add(item.getAmount().multiply(item.getRate()));
+            }
+        }
+        BigDecimal diff = borrowAmount.subtract(loanAmount).abs();
+        AssertUtil.isTrue(borrowAmount.equals(loanAmount),
+                String.format("凭证号：%d，借贷金额不平衡，借-贷相差:%s", voucherSerialNum, diff.toString().replaceFirst("\\.?0*$", ""))
+        );
     }
 
 }

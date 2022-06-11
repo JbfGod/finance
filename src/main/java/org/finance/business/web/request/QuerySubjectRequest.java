@@ -9,5 +9,6 @@ import lombok.Data;
 public class QuerySubjectRequest {
 
     private Long industryId;
-
+    private String name;
+    private String number;
 }

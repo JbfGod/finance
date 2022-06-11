@@ -1,6 +1,9 @@
-div.voucherDrawer {
+div.voucherContainer {
   :global {
     div.ant-drawer-body {
+      padding: 15px;
+    }
+    div.ant-modal-body {
       padding: 15px;
     }
     .ant-pro-card-body {
@@ -9,5 +12,18 @@ div.voucherDrawer {
   }
   .selectedRow{
     background-color: #f2f4f6;
+  }
+}
+
+div.voucherTbl {
+  :global{
+    .ant-table-thead > tr > th.ant-table-cell {
+      padding: 4px;
+      text-align: center;
+    }
+    .ant-table-tbody > tr > td.ant-table-cell {
+      padding: 8px 4px;
+      text-align: center;
+    }
   }
 }

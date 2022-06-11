@@ -41,37 +41,37 @@ export default () => {
       title: "科目编号", dataIndex: "number", editable: false, width: 255
     },
     {
-      title: "级数", dataIndex: "level", editable: false, width: 50
+      title: "级数", dataIndex: "level", editable: false, search: false, width: 50
     },
     {
-      title: "所属行业", dataIndex: "industry", editable: false, width: 125
+      title: "所属行业", dataIndex: "industry", editable: false, search: false, width: 125
     },
     {
       title: "科目名称", dataIndex: "name", width: 125
     },
     {
-      title: "科目类型", dataIndex: "type", valueType: "select", width: 115
+      title: "科目类型", dataIndex: "type", valueType: "select", search: false, width: 115
       , fieldProps: {
         allowClear: false,
         options: Object.values(SUBJECT_TYPE)
       }
     },
     {
-      title: "科目方向", dataIndex: "lendingDirection", valueType: "select", width: 80
+      title: "科目方向", dataIndex: "lendingDirection", valueType: "select", search: false, width: 80
       , fieldProps: {
         allowClear: false,
         options: Object.values(LENDING_DIRECTION)
       }
     },
     {
-      title: "辅助结算", dataIndex: "assistSettlement", valueType: "select", width: 125
+      title: "辅助结算", dataIndex: "assistSettlement", valueType: "select", search: false, width: 125
       , fieldProps: {
         allowClear: false,
         options: Object.values(SUBJECT_ASSIST_SETTLEMENT)
       }
     },
     {
-      title: "备注", dataIndex: "remark", valueType: "textarea",width: 125,
+      title: "备注", dataIndex: "remark", valueType: "textarea", search: false,width: 125,
       fieldProps: {showCount: true, maxLength: 255}
     },
     {
@@ -117,9 +117,10 @@ export default () => {
           <Col span={19}>
             <ExProTable pagination={false} actionRef={actionRef} columns={columns}
                         expandable={expandable} onLoad={onLoad}
-                        search={false} onNew={() => openModalWithCheck({parentId: 0})}
+                        params={{industryId: selectedIndustry.id||undefined}}
+                        onNew={() => openModalWithCheck({parentId: 0})}
                         editable={editable}
-                        request={async () => subjectWeb.treeSubjectUsingGET({industryId: selectedIndustry.id || undefined})}
+                        request={subjectWeb.treeSubjectUsingGET}
             />
             <ModalForm title="新增科目" width="420px" visible={createModal.visible}
                        initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}

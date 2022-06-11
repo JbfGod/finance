@@ -1,13 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Button, Col, Empty, message, Modal, Tree} from "antd";
+import {Button, Col, Empty, Form, message, Modal, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import {useModalWithParam} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {
   ModalForm,
-  ProForm, ProFormDateRangePicker,
+  ProForm, ProFormDatePicker, ProFormDateRangePicker,
   ProFormDateTimeRangePicker,
   ProFormItem,
   ProFormRadio,
@@ -31,9 +31,9 @@ export default () => {
   const selectedCategoryId = selectedCategory.id
   const [industryTreeData, setIndustryTreeData] = useState([])
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
-  const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
+ /* const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
     resourceData: [], selectedResourceIds: [], customer: null
-  })
+  })*/
   const [createModal, handleModal, openModal] = useModalWithParam()
 
   const [editModal, handleEditModal, openEditModal] = useModalWithParam()
@@ -126,22 +126,22 @@ export default () => {
       width: 150, valueType: 'option',
       render: (dom, row, index, action) => {
         return [
-          <ExtConfirmDel key="del" onConfirm={async () => {
-            await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
-            actionRef.current?.reload()
-          }}/>,
           <a key="edit" onClick={(e) => {
             e.stopPropagation()
             console.log(row)
             openEditModal({initialValues: row})
           }}>编辑</a>,
-          <a key="grant" onClick={async () => {
+          <ExtConfirmDel key="del" onConfirm={async () => {
+            await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
+            actionRef.current?.reload()
+          }}/>,
+          /*<a key="grant" onClick={async () => {
             const {data: selectedResourceIds} = await customerWeb.resourceIdsOfCustomerUsingGET({customerId: row.id})
             const {data: resourceData} = await resourceWeb.treeResourcesUsingGET()
             openGrantDrawer({
               customer: row, resourceData, selectedResourceIds
             })
-          }}>授权</a>,
+          }}>授权</a>,*/
         ]
       }
     },
@@ -178,7 +178,7 @@ export default () => {
             />
             <EditFormModal modal={editModal} handleModal={handleEditModal} actionRef={actionRef}
                            industryTreeData={industryTreeData}/>
-            <ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
+            {/*<ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
                                 drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.resourceData}
                                 initialValues={{resourceIds: grantDrawer.selectedResourceIds}}
                                 onVisibleChange={handleGrantDrawerVisible}
@@ -188,7 +188,7 @@ export default () => {
                                     customerId: grantDrawer.customer.id
                                   })
                                 }}
-            />
+            />*/}
           </Col>
         </ProCard>
       ) : (
@@ -208,8 +208,7 @@ function AddFormModal({createModal, handleModal, categoryId, actionRef, industry
     <ModalForm width={750}
                title="新增客户" visible={createModal.visible}
                onVisibleChange={handleModal}
-               grid={true}
-               layout="inline" rowProps={{gutter: [0, 12]}}
+               grid={true} layout="inline" rowProps={{gutter: [0, 12]}}
                onFinish={(values) => {
                  const {dateRange, user} = values;
                  customerWeb.addCustomerUsingPOST({

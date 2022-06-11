@@ -36,12 +36,12 @@ export function GrantResourceForm({resourceData, resourceIdentifies, ...props}) 
 }
 
 export default function ResourceDrawerForm({resourceData, initialValues, ...props}) {
-  const [form] = useForm()
+  const [formRef] = useForm()
   useEffect(() => {
-    form.setFieldsValue(initialValues)
+    formRef.setFieldsValue(initialValues)
   }, [initialValues])
   return (
-    <DrawerForm form={form} {...props}>
+    <DrawerForm form={formRef} formRef={formRef} {...props}>
       <ProFormItem name="resourceIds">
         <TreeInput defaultExpandAll={true} fieldNames={{title: "name", key: "id"}} treeData={resourceData}/>
       </ProFormItem>
