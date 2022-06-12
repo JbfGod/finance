@@ -11,7 +11,7 @@ import {Button, Empty, Form, InputNumber} from "antd";
 import styles from "./index.less"
 import {CURRENCY_TYPE, LENDING_DIRECTION} from "@/constants";
 import {addVoucherUsingPOST, updateVoucherUsingPUT, voucherDetailUsingGET} from "@/services/swagger/voucherWeb";
-import {convertCurrency, flatArrayToMap} from "@/utils/common";
+import {flatArrayToMap} from "@/utils/common";
 import {currencyOfYearMonthUsingGET} from "@/services/swagger/currencyWeb";
 import {history} from "umi";
 import ProCard from "@ant-design/pro-card";
@@ -21,7 +21,7 @@ import {searchExpenseItemCueUsingGET} from "@/services/swagger/expenseBillWeb";
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
 import moment from "moment";
 
-const CAPACITY = 6
+const CAPACITY = 5
 export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
   const {
     mode = "add", currencyType = CURRENCY_TYPE.LOCAL,
@@ -71,32 +71,9 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     )
   }
   const currencyId = Form.useWatch('currencyId', formRef);
-  const sharedOnCell = (_, index) => {
-    if (index === CAPACITY - 1) {
-      return {colSpan: 0};
-    }
-    return {};
-  };
   const columns = [
     {
       title: (<div style={{textAlign: "center"}}>摘要</div>), dataIndex: "summary", width: 200,
-      onCell: (_, index) => ({
-        colSpan: index < CAPACITY - 1 ? 1 : (isForeignCurrency ? 8 : 4)
-      }),
-      editable: (_, _2, index) => {
-        return index < CAPACITY - 1
-      },
-      render: (v, row, index) => {
-        if (index < CAPACITY - 1) {
-          return v
-        }
-        const items = formRef.getFieldValue(["items"]) || []
-        const rate = currencyById[currencyId]?.rate || 1
-        const summaryAmount = items.reduce((curr, next) => {
-          return curr + (next.debitAmount * rate || 0) + (next.creditAmount * rate || 0)
-        }, 0)
-        return <div style={{textAlign: "left"}}>合计：{summaryAmount && convertCurrency(summaryAmount) || ""}</div>
-      },
       renderFormItem: () => (
         <AutoCompleteInput placeholder="摘要" disabled={isViewMode} request={(keyword) => {
           return searchExpenseItemCueUsingGET({column: 'SUMMARY', keyword})
@@ -104,7 +81,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
       ),
     },
     {
-      title: "会计科目", dataIndex: "subjectId", width: 250, onCell: sharedOnCell,
+      title: "会计科目", dataIndex: "subjectId", width: 250,
       renderFormItem: () => (
         <ExtTreeSelect options={subjects} placeholder="只能选择费用类科目"
                        fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
@@ -119,42 +96,38 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     ...(isForeignCurrency ? [
       {
         title: "借方金额",
-        onCell: sharedOnCell,
         children: [
           {
             title: "原币",
             dataIndex: "debitAmount",
             valueType: "digit",
-            onCell: sharedOnCell,
             fieldProps: {style: {width: "100%"}}
           },
           {
-            title: "汇率", dataIndex: "debitAmount", editable: false, width: 50, onCell: sharedOnCell,
+            title: "汇率", dataIndex: "debitAmount", editable: false, width: 50,
             renderText: (v) => v && currencyById[currencyId]?.rate || "-"
           },
           {
-            title: "本币", dataIndex: "debitAmount", valueType: "digit", editable: false, onCell: sharedOnCell,
+            title: "本币", dataIndex: "debitAmount", valueType: "digit", editable: false,
             render: (v, row) => ((currencyById[currencyId]?.rate || 1) * row.debitAmount) || "-"
           },
         ]
       },
       {
         title: "贷方金额",
-        onCell: sharedOnCell,
         children: [
           {
             title: "原币",
             dataIndex: "creditAmount",
             valueType: "digit",
-            onCell: sharedOnCell,
             fieldProps: {style: {width: "100%"}}
           },
           {
-            title: "汇率", dataIndex: "creditAmount", editable: false, width: 50, onCell: sharedOnCell,
+            title: "汇率", dataIndex: "creditAmount", editable: false, width: 50,
             renderText: (v) => v && currencyById[currencyId]?.rate || "-"
           },
           {
-            title: "本币", dataIndex: "creditAmount", valueType: "digit", editable: false, onCell: sharedOnCell,
+            title: "本币", dataIndex: "creditAmount", valueType: "digit", editable: false,
             render: (v, row) => ((currencyById[currencyId]?.rate || 1) * row.creditAmount) || "-"
           },
         ]
@@ -164,14 +137,12 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
         title: "借方金额",
         valueType: "digit",
         dataIndex: "debitAmount",
-        onCell: sharedOnCell,
         fieldProps: {style: {width: "100%"}}
       },
       {
         title: "贷方金额",
         valueType: "digit",
         dataIndex: "creditAmount",
-        onCell: sharedOnCell,
         fieldProps: {style: {width: "100%"}}
       }
     ]),
