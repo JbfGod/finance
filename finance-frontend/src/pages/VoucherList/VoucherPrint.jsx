@@ -48,7 +48,7 @@ export default ({dataSource, voucherId, print = {}}) => {
               return (
                 <tr key={item.id}>
                   <CenterTd colSpan={2}>{item.summary}</CenterTd>
-                  <CenterTd colSpan={2}>{item.subjectName}</CenterTd>
+                  <CenterTd colSpan={2}>{item.subjectNumber}-{item.subjectName}</CenterTd>
                   <CenterTd>{isLoan ? "" : item.amount}</CenterTd>
                   <CenterTd>{isLoan ? item.amount : ""}</CenterTd>
                 </tr>
@@ -80,7 +80,7 @@ export default ({dataSource, voucherId, print = {}}) => {
               return (
                 <tr key={item.id}>
                   <CenterTd colSpan={2}>{item.summary}</CenterTd>
-                  <CenterTd colSpan={2}>{item.subjectName}</CenterTd>
+                  <CenterTd colSpan={2}>{item.subjectNumber}-{item.subjectName}</CenterTd>
                   <CenterTd>{isLoan ? "" : item.amount}</CenterTd>
                   <CenterTd>{isLoan ? "" : item.rate}</CenterTd>
                   <CenterTd>{isLoan ? "" : item.localAmount}</CenterTd>

@@ -177,7 +177,6 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     ]),
   ]
   const voucherDate = Form.useWatch("voucherDate", formRef)
-  console.log(voucherDate)
   const yearMonth = moment.isMoment(voucherDate) ? voucherDate.format("YYYYMM")
     :
     `${voucherDate||""}`.replaceAll(/(\d{4})-(1[0-2]|0?[1-9])-\d{1,2}/g, "$1$2")

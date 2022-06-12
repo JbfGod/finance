@@ -37,6 +37,7 @@ public class VoucherPrintContentVO {
         private String summary;
         private Long subjectId;
         private String subjectName;
+        private String subjectNumber;
         private LendingDirection lendingDirection;
         private BigDecimal rate;
         private BigDecimal amount;
