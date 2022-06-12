@@ -56,7 +56,11 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     voucherDetailUsingGET({id: voucherId})
       .then(({data}) => {
         setVoucherDetail(data)
-        formRef.setFieldsValue({...data, items: data.items.map((item, index) => ({...item, index}))})
+        const newItems = []
+        for (let i = 0; i < CAPACITY; i++) {
+          newItems.push({index: `${i}`, ...(data.items[i] || {})})
+        }
+        formRef.setFieldsValue({...data, items: newItems})
       })
   }
   const getDeleteItemIds = (formValues) => {
@@ -173,7 +177,10 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     ]),
   ]
   const voucherDate = Form.useWatch("voucherDate", formRef)
-  const yearMonth = moment.isMoment(voucherDate) ? voucherDate.format("YYYYMM") : undefined
+  console.log(voucherDate)
+  const yearMonth = moment.isMoment(voucherDate) ? voucherDate.format("YYYYMM")
+    :
+    `${voucherDate||""}`.replaceAll(/(\d{4})-(1[0-2]|0?[1-9])-\d{1,2}/g, "$1$2")
   useEffect(() => {
     loadCurrencyByYearMonth(yearMonth)
   }, [yearMonth])
@@ -184,8 +191,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
         newItems.push({index: `${i}`})
       }
       formRef.setFieldsValue({items: newItems})
-    }
-    if (voucherId != null) {
+    } else if (isEditMode || isViewMode) {
       initialBillDetail()
     }
   }, [])
@@ -280,7 +286,8 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
                                <ProCard colSpan={24} bordered>
                                  {voucherDate ? (
                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                          description={<span>{voucherDate?.format?.("YYYY年MM月")},暂无外可用的汇率数据，无法添加外币凭证</span>}>
+                                          description={
+                                            <span>{voucherDate?.format?.("YYYY年MM月")},暂无外可用的汇率数据，无法添加外币凭证</span>}>
                                      <Button type="primary"
                                              onClick={() => history.push("/voucher/currency")}>去添加外币汇率</Button>
                                    </Empty>
