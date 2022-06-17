@@ -1,6 +1,7 @@
 package org.finance.infrastructure.config.security;
 
 import org.finance.business.service.UserService;
+import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.filter.CustomerUsernamePasswordAuthenticationFilter;
 import org.finance.infrastructure.config.security.filter.JwtAuthenticationFilter;
 import org.finance.infrastructure.config.security.filter.OptionsRequestFilter;
@@ -38,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private UserService userService;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, UserRedisContextState> redisTemplate;
     @Resource
     private UserLogoutHandler userLogoutHandler;
     @Bean
@@ -90,21 +91,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public CustomerUsernamePasswordAuthenticationFilter customerUsernamePasswordAuthenticationFilter() throws Exception {
-        return new CustomerUsernamePasswordAuthenticationFilter(authenticationManagerBean(), redisTemplate);
+        return new CustomerUsernamePasswordAuthenticationFilter(authenticationManagerBean());
     }
 
     @Bean
     public CustomerUsernamePasswordAuthenticationProvider customerUsernamePasswordAuthenticationProvider() {
-        return new CustomerUsernamePasswordAuthenticationProvider(userService);
+        return new CustomerUsernamePasswordAuthenticationProvider(userService, redisTemplate);
     }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        return new JwtAuthenticationFilter(authenticationManagerBean(), redisTemplate);
+        return new JwtAuthenticationFilter(authenticationManagerBean());
     }
 
     @Bean
-    public JwtAuthenticationProvider jwtAuthenticationProvider() throws Exception {
+    public JwtAuthenticationProvider jwtAuthenticationProvider() {
         return new JwtAuthenticationProvider(userService, redisTemplate);
     }
 

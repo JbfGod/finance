@@ -6,7 +6,7 @@ export default function AutoCompleteInput({request, onChange, ...props}) {
   const [value, setValue] = useState('')
   const [options, setOptions] = useState([])
   const onSearch = useMemo(() => debounce((searchText) => {
-    if (!searchText || searchText.length < 2) {
+    if (!searchText || searchText.length < 1) {
       setOptions([])
       return
     }

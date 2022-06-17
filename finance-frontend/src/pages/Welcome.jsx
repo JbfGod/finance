@@ -3,14 +3,6 @@ import PageContainer from "@/components/PageContainer";
 import {Alert, Card, Typography} from 'antd';
 import styles from './Welcome.less';
 
-const CodePreview = ({ children }) => (
-  <pre className={styles.pre}>
-    <code>
-      <Typography.Text copyable>{children}</Typography.Text>
-    </code>
-  </pre>
-);
-
 const Welcome = () => {
   return (
     <PageContainer>

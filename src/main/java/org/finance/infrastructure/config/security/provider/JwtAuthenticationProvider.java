@@ -1,10 +1,14 @@
 package org.finance.infrastructure.config.security.provider;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.User;
+import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
+import org.finance.infrastructure.config.security.util.JwtTokenUtil;
 import org.finance.infrastructure.constants.Constants;
+import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -17,17 +21,19 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author jiangbangfa
  */
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-    private final CustomerUserService userService;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final CustomerUserService customerUserService;
+    private final RedisTemplate<String, UserRedisContextState> redisTemplate;
 
-    public JwtAuthenticationProvider(CustomerUserService userService, RedisTemplate<String, Object> redisTemplate) {
-        this.userService = userService;
+    public JwtAuthenticationProvider(CustomerUserService customerUserService, RedisTemplate<String, UserRedisContextState> redisTemplate) {
+        this.customerUserService = customerUserService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -37,27 +43,54 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
         User dbUser = null;
         try {
-            DecodedJWT jwt = token.getJwt();
+            DecodedJWT jwt = JwtTokenUtil.getDecodedJWT(token.getJwt());
             String cacheKey = CacheKeyUtil.getToken(jwt.getToken()).getKey();
-            Boolean hasKey = redisTemplate.hasKey(cacheKey);
-            if (Boolean.FALSE.equals(hasKey)) {
-                throw new BadCredentialsException("JWT verify fail");
+            UserRedisContextState state = redisTemplate.opsForValue().get(cacheKey);
+            if (state == null) {
+                throw new BadCredentialsException("无效的凭证，请重新登录！");
             }
             String userId = jwt.getSubject();
-            dbUser = userService.loadUserById(Long.valueOf(userId));
+            dbUser = customerUserService.loadUserById(Long.valueOf(userId));
             if (dbUser == null) {
-                throw new AccountNotFoundException();
+                throw new AccountNotFoundException("账户不存在！");
+            }
+            // 如果当前用户代理客户单位，则该单位信息当如当前用户上下文中
+            Long proxyCustomerId = state.getProxyCustomerId();
+            if (proxyCustomerId != null) {
+                dbUser.setProxyCustomer(customerUserService.loadCustomerById(proxyCustomerId));
             }
         } catch (Exception e) {
-            throw new BadCredentialsException("JWT verify fail", e);
+            throw new BadCredentialsException("无效的凭证，请重新登录！", e);
         }
-        List<GrantedAuthority> authorities = this.userService.loadAuthoritiesByUserId(dbUser.getId());
-        authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));
-        return new UsernamePasswordAuthenticationToken(dbUser, token.getCredentials(), authorities);
+
+        // 刷新登录凭证
+        this.flushToken(token.getJwt());
+        return new UsernamePasswordAuthenticationToken(dbUser, token.getCredentials(), grantedAuthorities(dbUser));
      }
 
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.isAssignableFrom(JwtAuthenticationToken.class);
+    }
+
+    private List<GrantedAuthority> grantedAuthorities(User user) {
+        List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(user.getId());
+        authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, user.getRole())));
+        // 获取当前操作员记账的客户单位
+        Customer customer = Optional.ofNullable(user.getProxyCustomer()).orElse(user.getCustomer());
+        // 是否能够添加外币凭证
+        if (customer.getUseForeignExchange()) {
+            authorities.add(new SimpleGrantedAuthority("voucher:foreign"));
+        }
+        return authorities;
+    }
+
+    private void flushToken(String jwt) {
+        CacheAttr cacheAttr = CacheKeyUtil.getToken(jwt);
+        Long expire = redisTemplate.getExpire(cacheAttr.getKey(), TimeUnit.MINUTES);
+        if (expire == null || expire < 15) {
+            // 续签一下jwt
+            redisTemplate.expire(cacheAttr.getKey(), cacheAttr.getTimeout());
+        }
     }
 }

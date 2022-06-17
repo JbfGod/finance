@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -77,7 +76,7 @@ public class CustomerWeb {
         }
 
         IPage<CustomerListVO> pages = customerService.page(request.extractPage(), Wrappers.<Customer>lambdaQuery()
-                .likeRight(StringUtils.hasText(request.getAccount()), Customer::getNumber, request.getAccount())
+                .likeRight(StringUtils.hasText(request.getNumber()), Customer::getNumber, request.getNumber())
                 .likeRight(StringUtils.hasText(request.getName()), Customer::getName, request.getName())
                 .eq(request.getIndustryId() != null, Customer::getIndustryId, request.getIndustryId())
                 .in(request.getCategoryId() != null, Customer::getCategoryId, categoryIds)
@@ -102,7 +101,7 @@ public class CustomerWeb {
         List<CustomerCueVO> cues = customerService.list(Wrappers.<Customer>lambdaQuery()
                 .select(Customer::getId, Customer::getNumber, Customer::getName)
                 .likeRight(Customer::getNumber, request.getKeyword())
-                .last(String.format("limit %d", Optional.ofNullable(request.getNum()).orElse(5)))
+                .last(String.format("limit %d", request.getNum()))
         ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO).collect(Collectors.toList());
         return R.ok(cues);
     }
@@ -125,7 +124,6 @@ public class CustomerWeb {
         customerService.updateById(CustomerConvert.INSTANCE.toCustomer(request));
         return R.ok();
     }
-
 
     @DeleteMapping("/delete/{id}")
     public R deleteCustomer(@PathVariable("id") long id) {

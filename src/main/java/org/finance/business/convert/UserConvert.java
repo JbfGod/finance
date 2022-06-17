@@ -3,6 +3,7 @@ package org.finance.business.convert;
 import org.finance.business.entity.User;
 import org.finance.business.web.request.AddUserRequest;
 import org.finance.business.web.request.UpdateUserRequest;
+import org.finance.business.web.vo.UserCueVO;
 import org.finance.business.web.vo.UserListVO;
 import org.finance.business.web.vo.UserSelfVO;
 import org.mapstruct.Mapper;
@@ -31,4 +32,6 @@ public interface UserConvert {
     User toAdminUser(AddUserRequest req);
 
     User toUser(UpdateUserRequest req);
+
+    UserCueVO toUserCueVO(User user);
 }

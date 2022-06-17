@@ -65,6 +65,7 @@ const responseInterceptor = async (response, options) => {
   }
   const errorCode = data?.errorCode
   let errorMessage = data?.message || "未知的服务异常！"
+  console.log(options.url)
   const loadingKey = options?.loadingKey
   switch (data?.showType) {
     case ErrorShowType.SILENT:

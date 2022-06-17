@@ -11,7 +11,7 @@ public class QueryCustomerRequest extends AbstractPageRequest {
 
     private String userAccount;
 
-    private String account;
+    private String number;
 
     private String name;
 

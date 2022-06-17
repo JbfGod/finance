@@ -18,6 +18,8 @@ public class CustomerListVO {
 
     private String name;
 
+    private Long businessUserId;
+
     private String contactName;
 
     private Long industryId;
@@ -47,4 +49,7 @@ public class CustomerListVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createTime;
 
+    public Long getBusinessUserId() {
+        return this.businessUserId == 0 ? null : this.businessUserId;
+    }
 }

@@ -41,6 +41,11 @@ public class Customer implements Serializable {
     private String name;
 
     /**
+     * 业务负责人
+     */
+    private Long businessUserId;
+
+    /**
      * 所属行业
      */
     private Long industryId;

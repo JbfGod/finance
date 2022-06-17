@@ -1,11 +1,15 @@
 package org.finance.infrastructure.config.security.provider;
 
 import org.finance.business.entity.User;
+import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.config.security.util.JwtTokenUtil;
 import org.finance.infrastructure.constants.Constants;
+import org.finance.infrastructure.util.CacheAttr;
+import org.finance.infrastructure.util.CacheKeyUtil;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,9 +33,11 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
     private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
     private final PasswordEncoder passwordEncoder;
     private final CustomerUserService customerUserService;
+    private final RedisTemplate<String, UserRedisContextState> redisTemplate;
     private volatile String userNotFoundEncodedPassword;
 
-    public CustomerUsernamePasswordAuthenticationProvider(CustomerUserService customerUserService) {
+    public CustomerUsernamePasswordAuthenticationProvider(CustomerUserService customerUserService, RedisTemplate<String, UserRedisContextState> redisTemplate) {
+        this.redisTemplate = redisTemplate;
         super.hideUserNotFoundExceptions = false;
         this.customerUserService = customerUserService;
         this.passwordEncoder = new BCryptPasswordEncoder();
@@ -75,8 +81,11 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(dbUser.getId());
         authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));
         // 构造Authentication
-        JwtAuthenticationToken result = new JwtAuthenticationToken(JwtTokenUtil.getDecodedJWT(token), authorities);
+        JwtAuthenticationToken result = new JwtAuthenticationToken(token, authorities);
         result.setDetails(authentication.getDetails());
+        // 将token写入缓存
+        CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
+        redisTemplate.opsForValue().set(cacheAttr.getKey(), new UserRedisContextState(), cacheAttr.getTimeout());
         return result;
     }
 

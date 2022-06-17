@@ -1,6 +1,5 @@
 package org.finance.infrastructure.config.security.token;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -12,14 +11,14 @@ import java.util.Collection;
  */
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
-    private DecodedJWT jwt;
+    private String jwt;
 
-    public JwtAuthenticationToken(DecodedJWT jwt) {
+    public JwtAuthenticationToken(String jwt) {
         super(new ArrayList<>());
         this.jwt = jwt;
     }
 
-    public JwtAuthenticationToken(DecodedJWT jwt, Collection<? extends GrantedAuthority> authorities) {
+    public JwtAuthenticationToken(String jwt, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.jwt = jwt;
     }
@@ -34,7 +33,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         return this.jwt;
     }
 
-    public DecodedJWT getJwt() {
+    public String getJwt() {
         return jwt;
     }
 }

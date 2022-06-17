@@ -33,24 +33,20 @@ public class AddCustomerRequest {
     @NotNull(message = "请填写客户类型")
     private Customer.Type type;
 
+    private Long businessUserId;
+
     private Boolean enabled;
 
-    @NotNull(message = "请选择生效时间！")
     private LocalDateTime effectTime;
 
-    @NotNull(message = "请选择过期时间！")
     private LocalDateTime expireTime;
 
-    @NotNull(message = "请填写联系人！")
     private String contactName;
 
-    @NotNull(message = "请填写联系电话！")
     private String telephone;
 
-    @NotNull(message = "请填写银行账号！")
     private String bankAccount;
 
-    @NotNull(message = "请填写开户人！")
     private String bankAccountName;
 
     @NotNull(message = "请选择是否使用外汇！")

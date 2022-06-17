@@ -86,7 +86,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
         <ExtTreeSelect options={subjects} placeholder="只能选择费用类科目"
                        fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
                        onlySelectedLeaf={true} disabled={isViewMode}
-                       style={{width: '100%'}}/>
+                       style={{width: '100%'}} />
       ),
       render: (_, row) => {
         const v = subjectById[row.subjectId]
@@ -291,7 +291,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
                           }
                         })}
                         editable={isViewMode ? false : {editableKeys}} controlled
-                        size="small" className={styles["voucherTbl"]} rowKey="index"
+                        size="small" className={styles.voucherTbl} rowKey="index"
                         recordCreatorProps={false}
       />
     </ModalForm>

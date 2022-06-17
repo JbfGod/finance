@@ -1,21 +1,21 @@
 import React, {useEffect, useRef, useState} from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Button, Col, Empty, Form, message, Modal, Tree} from "antd";
+import {Button, Col, Empty, message, Select, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import {useModalWithParam} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {
   ModalForm,
-  ProForm, ProFormDatePicker, ProFormDateRangePicker,
+  ProForm,
+  ProFormDateRangePicker,
   ProFormDateTimeRangePicker,
   ProFormItem,
   ProFormRadio,
   ProFormSelect,
   ProFormSwitch,
   ProFormText,
-  ProFormTextArea,
-  StepsForm
+  ProFormTextArea
 } from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
@@ -23,26 +23,21 @@ import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
 import {CUSTOMER_TYPE} from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import * as industryWeb from "@/services/swagger/industryWeb";
-import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
+import {listUserUsingGET} from "@/services/swagger/userWeb";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
   const selectedCategoryId = selectedCategory.id
   const [industryTreeData, setIndustryTreeData] = useState([])
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
- /* const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
-    resourceData: [], selectedResourceIds: [], customer: null
-  })*/
-  const [createModal, handleModal, openModal] = useModalWithParam()
-
-  const [editModal, handleEditModal, openEditModal] = useModalWithParam()
+  const [formModal, handleFormModal, openFormModal] = useModalWithParam()
 
   const openModalWithCheck = (params) => {
     if (selectedCategory.hasLeaf || selectedCategoryId === 0) {
       return message.warn("新增客户只能选择叶子节点的分类！")
     }
-    openModal(params)
+    openFormModal(params)
   }
 
   const fetchTreeCustomerCategory = async () => {
@@ -64,6 +59,10 @@ export default () => {
       width: 125
     },
     {
+      title: "客户编号", dataIndex: "number", editable: false,
+      width: 125
+    },
+    {
       title: "所属分类", dataIndex: "category", editable: false, search: false,
       width: 125
     },
@@ -81,41 +80,12 @@ export default () => {
       },
     },
     {
-      title: "客户类型", dataIndex: "type", valueType: "select",
-      width: 85,
-      fieldProps: {
-        options: Object.values(CUSTOMER_TYPE)
-      }
-    },
-    {
-      title: "代理(租用)日期", dataIndex: "dateRange", search: false,
-      width: 180, valueType: "dateRange",
-      render: (dom, row) => {
-        return [row.effectTime, "至", row.expireTime]
-      }
-    },
-    {
       title: "联系人", dataIndex: "contactName", search: false,
       width: 85,
     },
     {
       title: "联系电话", dataIndex: "telephone", search: false,
       width: 100,
-    },
-    {
-      title: "银行账号", dataIndex: "bankAccount", search: false,
-      width: 85,
-    },
-    {
-      title: "开户人", dataIndex: "bankAccountName", search: false
-    },
-    {
-      title: "是否外汇", dataIndex: "useForeignExchange", search: false
-      , render: (dom, row) => row.useForeignExchange ? "是" : "否"
-    },
-    {
-      title: "备注", dataIndex: "remark", valueType: "textarea",
-      fieldProps: {showCount: true, maxLength: 255}, search: false
     },
     {
       title: "创建日期", dataIndex: "createTime", width: 150
@@ -128,20 +98,12 @@ export default () => {
         return [
           <a key="edit" onClick={(e) => {
             e.stopPropagation()
-            console.log(row)
-            openEditModal({initialValues: row})
+            openFormModal({mode: "edit", initialValues: row})
           }}>编辑</a>,
           <ExtConfirmDel key="del" onConfirm={async () => {
             await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
             actionRef.current?.reload()
           }}/>,
-          /*<a key="grant" onClick={async () => {
-            const {data: selectedResourceIds} = await customerWeb.resourceIdsOfCustomerUsingGET({customerId: row.id})
-            const {data: resourceData} = await resourceWeb.treeResourcesUsingGET()
-            openGrantDrawer({
-              customer: row, resourceData, selectedResourceIds
-            })
-          }}>授权</a>,*/
         ]
       }
     },
@@ -151,9 +113,8 @@ export default () => {
     <PageContainer>
       {hasCustomerCategory ? (
         <ProCard ghost gutter={[8, 0]}>
-          <ProCard colSpan={4} bordered className="cardCommon">
+          <ProCard colSpan={5} bordered className="cardCommon">
             <Tree showLine={{showLeafIcon: false}}
-              // titleRender={(node) => (node.id ? `[${node.number}] ` : "") + node.name}
                   selectedKeys={[selectedCategoryId]} defaultExpandAll={true}
                   fieldNames={{title: "name", key: "id"}} treeData={customerCategoryTreeData}
                   onSelect={(keys, {node}) => {
@@ -164,31 +125,18 @@ export default () => {
                   }}
             />
           </ProCard>
-          <Col span={20}>
+          <Col span={19}>
             <ExProTable actionRef={actionRef} columns={columns}
                         scroll={{x: 1200, y: 600}} editable={false}
                         params={{categoryId: selectedCategoryId || undefined}}
                         expandable={{expandRowByClick: true}}
-                        onNew={() => openModalWithCheck({parentId: 0})}
+                        onNew={() => openModalWithCheck({mode: "add"})}
                         request={customerWeb.pageCustomerUsingGET}
             />
-            <AddFormModal createModal={createModal} handleModal={handleModal}
-                          categoryId={selectedCategoryId} actionRef={actionRef}
-                          industryTreeData={industryTreeData}
+            <AddOrUpdateFormModal modal={formModal} onVisibleChange={handleFormModal}
+                                  categoryId={selectedCategoryId}
+                                  industryTreeData={industryTreeData} onSuccess={() => actionRef.current?.reload()}
             />
-            <EditFormModal modal={editModal} handleModal={handleEditModal} actionRef={actionRef}
-                           industryTreeData={industryTreeData}/>
-            {/*<ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
-                                drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.resourceData}
-                                initialValues={{resourceIds: grantDrawer.selectedResourceIds}}
-                                onVisibleChange={handleGrantDrawerVisible}
-                                onFinish={async (v) => {
-                                  return customerWeb.grantResourceToCustomerUsingPOST({
-                                    ...v,
-                                    customerId: grantDrawer.customer.id
-                                  })
-                                }}
-            />*/}
           </Col>
         </ProCard>
       ) : (
@@ -203,38 +151,64 @@ export default () => {
   )
 }
 
-function AddFormModal({createModal, handleModal, categoryId, actionRef, industryTreeData}) {
+function AddOrUpdateFormModal({modal, categoryId, onSuccess, industryTreeData, ...props}) {
+  const {mode, initialValues} = modal
+  const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
+  const title = isAddMode ? "新增客户" : isEditMode ? "编辑客户" : "客户详情"
+  const [directors, setDirectors] = useState([])
+  const directorOptions = directors.map(user => ({label: user.name, value: user.id}))
+  const loadDirectors = () => {
+    listUserUsingGET().then(({data}) => setDirectors(data || []))
+  }
+  useEffect(() => {
+    loadDirectors()
+  }, [])
   return (
-    <ModalForm width={750}
-               title="新增客户" visible={createModal.visible}
-               onVisibleChange={handleModal}
+    <ModalForm width={750} title={title} visible={modal.visible}
                grid={true} layout="inline" rowProps={{gutter: [0, 12]}}
+               modalProps={{
+                 destroyOnClose: true
+               }}
                onFinish={(values) => {
-                 const {dateRange, user} = values;
-                 customerWeb.addCustomerUsingPOST({
+                 if (isViewMode) {
+                   return true
+                 }
+                 const {dateRange} = values;
+                 const formValue = {
                    ...values,
                    categoryId: categoryId,
                    effectTime: dateRange[0],
                    expireTime: dateRange[1],
-                 }).then(() => {
-                   handleModal(false)
-                   actionRef.current?.reload()
+                 }
+                 if (isAddMode) {
+                   return customerWeb.addCustomerUsingPOST(formValue).then(() => {
+                     onSuccess && onSuccess()
+                     return true
+                   })
+                 }
+                 return customerWeb.updateCustomerUsingPUT({...formValue, id: initialValues.id}).then(() => {
+                   onSuccess && onSuccess()
+                   return true
                  })
                }}
-               initialValues={{
+               initialValues={initialValues?{
+                 ...initialValues,
+                 dateRange: [initialValues.effectTime, initialValues.expireTime]
+               } : {
                  type: "RENT",
                  enabled: true,
                  useForeignExchange: false
                }}
+               {...props}
     >
       <ProFormSelect name="type" label="客户类型" options={Object.values(CUSTOMER_TYPE)}
                      allowClear={false} colProps={{span: 12}}
                      rules={[{required: true, message: "客户类型不能为空！"}]}/>
       <Col span={12}>
-        <ProFormItem name="industryId" label="行业分类">
+        <ProFormItem name="industryId" label="行业分类" rules={[{required: true, message: "行业分类不能为空！"}]}>
           <ExtTreeSelect options={industryTreeData} placeholder="只能选择叶子节点"
                          treeLine={{showLeafIcon: false}} style={{width: '100%'}}
-                         onlySelectedLeaf={true} rules={[{required: true, message: "行业分类不能为空！"}]}
+                         onlySelectedLeaf={true}
           />
         </ProFormItem>
       </Col>
@@ -245,84 +219,17 @@ function AddFormModal({createModal, handleModal, categoryId, actionRef, industry
       ]}/>
       <ProFormText name="name" label="客户名称" colProps={{span: 12}}
                    rules={[{required: true, message: "客户名称不能为空！"}]}/>
-      <ProFormText name="contactName" label="联系人" colProps={{span: 12}}
-                   rules={[{required: true, message: "联系人不能为空！"}]}/>
-      <ProFormText name="telephone" label="联系电话" colProps={{span: 12}}
-                   rules={[{required: true, message: "联系电话不能为空！"}]}/>
-      <ProFormText name="bankAccount" label="银行账号" colProps={{span: 12}}
-                   rules={[{required: true, message: "银行账号不能为空！"}]}/>
-      <ProFormText name="bankAccountName" label="开户人" colProps={{span: 12}}
-                   rules={[{required: true, message: "开户人不能为空！"}]}/>
+      <ProFormText name="contactName" label="联系人" colProps={{span: 12}}/>
+      <ProFormText name="telephone" label="联系电话" colProps={{span: 12}}/>
+      <ProFormText name="bankAccountName" label="开户银行" colProps={{span: 12}}/>
+      <ProFormText name="bankAccount" label="银行账号" colProps={{span: 12}}/>
       <ProFormDateRangePicker name="dateRange" label="代理(租用)日期"
                               placeholder={["开始日期", "过期日期"]}
-                              format="yyyy-MM-DD" colProps={{span: 12}}
-                              rules={[{required: true, message: "科目名称不能为空！"}]}/>
+                              format="yyyy-MM-DD" colProps={{span: 12}}/>
       <ProFormSwitch name="enabled" label="客户状态" colProps={{span: 6}} checkedChildren="启用" unCheckedChildren="停用"/>
       <ProFormSwitch name="useForeignExchange" colProps={{span: 6}} label="是否使用外汇" checkedChildren="是"
                      unCheckedChildren="否"/>
-      <ProFormTextArea name="remark" label="备注" fieldProps={{showCount: true, maxLength: 255}}/>
-    </ModalForm>
-  )
-}
-
-
-function EditFormModal({modal, handleModal, actionRef, industryTreeData}) {
-  if (!modal.visible) {
-    return null
-  }
-  const {initialValues} = modal
-  return (
-    <ModalForm title="新增客户" width={600} modalProps={{destroyOnClose: true}}
-               visible={modal.visible} onVisibleChange={handleModal}
-               onFinish={(values) => {
-                 const {dateRange} = values;
-                 customerWeb.updateCustomerUsingPUT({
-                   ...values,
-                   id: initialValues.id,
-                   effectTime: dateRange[0],
-                   expireTime: dateRange[1],
-                 }).then(() => {
-                   handleModal(false)
-                   actionRef.current?.reload()
-                 })
-               }}
-               initialValues={{
-                 ...initialValues,
-                 dateRange: [initialValues.effectTime, initialValues.expireTime]
-               }}
-    >
-      <ProForm.Group>
-        <ProFormText name="account" label="客户编号" disabled/>
-        <ProFormText name="name" label="客户名称" rules={[{required: true, message: "客户名称不能为空！"}]}/>
-      </ProForm.Group>
-      <ProForm.Group>
-        <ProFormSelect name="type" label="客户类型" options={Object.values(CUSTOMER_TYPE)} allowClear={false}
-                       rules={[{required: true, message: "客户类型不能为空！"}]}/>
-        <ProFormRadio.Group name="useForeignExchange" label="是否使用外汇"
-                            options={[{label: "是", value: true}, {label: "否", value: false}]}/>
-        <ProFormSwitch name="enabled" label="客户状态" checkedChildren="启用" unCheckedChildren="停用"/>
-      </ProForm.Group>
-      <ProFormItem name="industryId" label="行业分类">
-        <ExtTreeSelect options={industryTreeData} placeholder="只能选择费用类科目"
-                       treeLine={{showLeafIcon: false}} style={{width: '100%'}}
-                       onlySelectedLeaf={true} rules={[{required: true, message: "行业分类不能为空！"}]}
-        />
-      </ProFormItem>
-
-      <ProForm.Group>
-        <ProFormText name="contactName" label="联系人" rules={[{required: true, message: "联系人不能为空！"}]}/>
-        <ProFormText name="telephone" label="联系电话" rules={[{required: true, message: "联系电话不能为空！"}]}/>
-      </ProForm.Group>
-      <ProFormDateTimeRangePicker name="dateRange" label="代理(租用)日期"
-                                  placeholder={["开始日期", "过期日期"]}
-                                  format="yyyy-MM-DD"
-                                  rules={[{required: true, message: "科目名称不能为空！"}]}/>
-
-
-      <ProForm.Group>
-        <ProFormText name="bankAccount" label="银行账号" rules={[{required: true, message: "银行账号不能为空！"}]}/>
-        <ProFormText name="bankAccountName" label="开户人" rules={[{required: true, message: "开户人不能为空！"}]}/>
-      </ProForm.Group>
+      <ProFormSelect name="businessUserId" label="业务负责人" showSearch options={directorOptions}/>
       <ProFormTextArea name="remark" label="备注" fieldProps={{showCount: true, maxLength: 255}}/>
     </ModalForm>
   )

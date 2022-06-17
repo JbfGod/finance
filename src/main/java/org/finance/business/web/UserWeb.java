@@ -1,7 +1,9 @@
 package org.finance.business.web;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.finance.business.convert.CustomerConvert;
 import org.finance.business.convert.ResourceConvert;
 import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
@@ -13,10 +15,13 @@ import org.finance.business.service.UserResourceService;
 import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddUserRequest;
 import org.finance.business.web.request.GrantResourcesToUserRequest;
+import org.finance.business.web.request.QueryUserCueRequest;
 import org.finance.business.web.request.QueryUserRequest;
 import org.finance.business.web.request.UpdateSelfPasswordRequest;
 import org.finance.business.web.request.UpdateUserPasswordRequest;
 import org.finance.business.web.request.UpdateUserRequest;
+import org.finance.business.web.vo.CustomerCueVO;
+import org.finance.business.web.vo.UserCueVO;
 import org.finance.business.web.vo.UserListVO;
 import org.finance.business.web.vo.UserOwnedMenuVO;
 import org.finance.business.web.vo.UserSelfVO;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -89,16 +95,36 @@ public class UserWeb {
 
     @GetMapping("/page")
     public RPage<UserListVO> pageUser(QueryUserRequest request) {
-        User currentUser = SecurityUtil.getCurrentUser();
-        IPage<UserListVO> pages = userService.page(request.extractPage(), Wrappers.<User>lambdaQuery()
-                .eq(User::getRole, request.getRole())
-                .eq(currentUser.getCustomerId() > 0, User::getCustomerId, currentUser.getCustomerId())
-                .likeRight(StringUtils.hasText(request.getCustomerNumber()), User::getCustomerNumber, request.getCustomerNumber())
-                .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
-                .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())
-                .orderByDesc(User::getCreateBy)
-        ).convert(UserConvert.INSTANCE::toUserListVO);
+        IPage<UserListVO> pages = userService.page(request.extractPage(), this.buildQueryWrapperByRequest(request))
+                .convert(UserConvert.INSTANCE::toUserListVO);
         return RPage.build(pages);
+    }
+
+    @GetMapping("/list")
+    public R<List<UserListVO>> listUser(QueryUserRequest request) {
+        return R.ok(userService.list(this.buildQueryWrapperByRequest(request))
+                .stream().map(UserConvert.INSTANCE::toUserListVO)
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/searchUserCue")
+    public R<List<UserCueVO>> searchUserCue(QueryUserCueRequest request) {
+        List<UserCueVO> cues = userService.list(Wrappers.<User>lambdaQuery()
+                .select(User::getId, User::getAccount, User::getName)
+                .likeRight(StringUtils.hasText(request.getKeyword()), User::getAccount, request.getKeyword())
+        ).stream().map(UserConvert.INSTANCE::toUserCueVO).collect(Collectors.toList());
+        return R.ok(cues);
+    }
+
+    @GetMapping("/ownedCustomer")
+    public R<List<CustomerCueVO>> ownedCustomer() {
+        Long userId = SecurityUtil.getUserId();
+        return R.ok(
+            customerService.list(Wrappers.<Customer>lambdaQuery()
+                .eq(Customer::getBusinessUserId, userId)
+            ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO)
+            .collect(Collectors.toList())
+        );
     }
 
     @PostMapping("/grantResources")
@@ -157,6 +183,13 @@ public class UserWeb {
         return R.ok();
     }
 
+    @GetMapping("/switch/proxyCustomer/{customerId}")
+    public R switchProxyCustomer(@PathVariable("customerId") long customerId, @RequestHeader("Authorization") String authorization) {
+        String token = authorization.substring("Bearer ".length());
+        userService.proxyCustomer(SecurityUtil.getUserId(), customerId, token);
+        return R.ok();
+    }
+
     private List<Resource> getSelfResources() {
         List<Resource> resources;
         User currentUser = SecurityUtil.getCurrentUser();
@@ -169,4 +202,14 @@ public class UserWeb {
         return resources;
     }
 
+    private LambdaQueryWrapper<User> buildQueryWrapperByRequest(QueryUserRequest request) {
+        User currentUser = SecurityUtil.getCurrentUser();
+        return Wrappers.<User>lambdaQuery()
+                .eq(currentUser.getCustomerId() > 0, User::getCustomerId, currentUser.getCustomerId())
+                .eq(request.getRole() != null, User::getRole, request.getRole())
+                .likeRight(StringUtils.hasText(request.getCustomerNumber()), User::getCustomerNumber, request.getCustomerNumber())
+                .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
+                .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())
+                .orderByDesc(User::getCreateBy);
+    }
 }

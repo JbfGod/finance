@@ -8,6 +8,7 @@ import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.business.mapper.UserResourceMapper;
+import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.exception.HxException;
@@ -25,6 +26,7 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -95,6 +97,11 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Customer loadCustomerById(long customerId) {
+        return customerMapper.selectById(customerId);
+    }
+
     public void updatePassword(long userId, String password) {
         baseMapper.updateById(new User().setId(userId).setPassword(SecurityUtil.encodePassword(password)));
     }
@@ -106,6 +113,20 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
         );
         AssertUtil.isFalse(exists, "用户账号已存在！");
         baseMapper.insert(user);
+    }
+
+    public void proxyCustomer(long userId, long proxyCustomerId, String token) {
+        boolean isProxyUser = customerMapper.exists(Wrappers.<Customer>lambdaQuery()
+            .eq(Customer::getId, proxyCustomerId)
+            .eq(Customer::getBusinessUserId, userId)
+        );
+        AssertUtil.isTrue(isProxyUser, "操作失败，当前用户不是该客户单位的负责人！");
+        CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
+        Object obj = redisTemplate.opsForValue().get(cacheAttr.getKey());
+        UserRedisContextState state = Optional.ofNullable(obj).map(o -> (UserRedisContextState) o)
+                .orElseGet(UserRedisContextState::new)
+                .setProxyCustomerId(proxyCustomerId);
+        redisTemplate.opsForValue().set(cacheAttr.getKey(), state);
     }
 
     public Function<Long, String> getUserNameFunction() {

@@ -22,7 +22,7 @@ values(1, '超级管理员', 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7O
 CREATE TABLE if not exists `customer` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `number` varchar(50) not null comment '客户编号',
-    `user_account` varchar(50) not null comment '客户账户',
+    `business_user_id` bigint(20) not null default 0 comment '业务负责人',
     `name` varchar(255) NOT NULL COMMENT '客户名称',
     `industry_id` bigint(20) not null comment '所属行业',
     `category_id` bigint(20) not null comment '客户类别',

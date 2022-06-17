@@ -1,5 +1,6 @@
 package org.finance.infrastructure.config.security;
 
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,4 +33,6 @@ public interface CustomerUserService {
      * @return
      */
     List<GrantedAuthority> loadAuthoritiesByUserId(Long userId);
+
+    Customer loadCustomerById(long customerId);
 }

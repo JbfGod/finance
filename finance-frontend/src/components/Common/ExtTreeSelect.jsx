@@ -55,6 +55,9 @@ export default function ExtTreeSelect(
       showSearch
       allowClear
       treeDefaultExpandAll
+      filterTreeNode={(v, treeNode) => {
+        return treeNode?.title?.startsWith(v)
+      }}
       treeLine={{showLine: true}}
       onChange={triggerChange}
       value={labelInValue ? safeValue.value : safeValue}

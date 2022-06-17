@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from "react"
 import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
-import {Badge, Button, Empty, Popconfirm} from "antd"
+import {Badge, Button, Popconfirm} from "antd"
 import {PlusOutlined} from "@ant-design/icons"
 import {useModalWithParam, usePrint, useSecurity} from "@/utils/hooks"
 import {
@@ -17,11 +17,8 @@ import {AuditStatus, CURRENCY_TYPE} from "@/constants";
 import VoucherPrint from "@/pages/VoucherList/VoucherPrint";
 import moment from "moment";
 import AutoDropdown from "@/components/Common/AutoDropdown";
-import {flatArrayToMap, flatTreeToMap} from "@/utils/common";
+import {flatTreeToMap} from "@/utils/common";
 import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
-import {currencyOfCurrentMonthUsingGET} from "@/services/swagger/currencyWeb";
-import {history} from "umi";
-import ProCard from "@ant-design/pro-card";
 
 const renderBadge = (active = false) => {
   return (

@@ -87,6 +87,9 @@ public class User implements Serializable, UserDetails {
     @TableField(exist = false)
     private Customer customer;
 
+    @TableField(exist = false)
+    private Customer proxyCustomer;
+
     public enum Role {
         /**
          * 管理员、每个客户下只有一个
