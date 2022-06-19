@@ -6,11 +6,12 @@ import {flatTree} from "@/utils/common";
  * */
 
 export default function access(initialState) {
-  const {selfPermissions} = initialState ?? {}
+  const {selfPermissions, treeMenus = []} = initialState ?? {}
+  const selfMenuPaths = flatTree(treeMenus, "children").map(m => m.path)
   const allMenuAccess = flatTree(menus, "routes")
-    .filter(menu => menu.access)
+    .filter(menu => menu.path)
     .reduce((curr, next) => {
-      curr[next.access] = (selfPermissions || []).includes(next.access)
+      curr[next.path] = (selfMenuPaths || []).includes(next.path)
       return curr
     }, {})
   return {

@@ -1,17 +1,22 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.Resource;
+import org.finance.business.entity.enums.ResourceOperate;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceVO;
+import org.finance.business.web.vo.TreeResourceWithOperateVO;
 import org.finance.business.web.vo.UserOwnedMenuVO;
-import org.finance.infrastructure.config.security.handler.MyPermissionEvaluator;
 import org.finance.infrastructure.util.CollectionUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -28,6 +33,32 @@ public interface ResourceConvert {
     UserOwnedMenuVO toUserOwnedMenuVO(Resource f);
 
     TreeResourceVO toTreeResourceVO(Resource resource);
+
+    TreeResourceWithOperateVO toTreeResourceWithOperateVO(Resource resource);
+    default List<TreeResourceWithOperateVO> toTreeResourceWithOperateVO(List<Resource> resources) {
+        List<TreeResourceWithOperateVO> operateList = resources.stream().flatMap(r -> {
+            TreeResourceWithOperateVO operateVO = this.toTreeResourceWithOperateVO(r);
+            String permitCode = r.getPermitCode();
+            if (!StringUtils.hasText(permitCode)) {
+                return Stream.of(operateVO);
+            }
+            List<TreeResourceWithOperateVO> list = new ArrayList<>();
+            list.add(operateVO);
+            String[] operateCode = permitCode.split(",");
+            for (String code : operateCode) {
+                ResourceOperate resourceOperate = ResourceOperate.getByCode(code);
+                list.add(new TreeResourceWithOperateVO()
+                        .setId(resourceOperate.getId(r.getId()))
+                        .setName(resourceOperate.getLabel())
+                        .setParentId(r.getId().toString())
+                        .setSortNum(0)
+                );
+            }
+            return list.stream();
+        }).collect(Collectors.toList());
+        return CollectionUtil.transformTree(operateList, TreeResourceWithOperateVO::getId, TreeResourceWithOperateVO::getParentId
+                , TreeResourceWithOperateVO::getChildren, TreeResourceWithOperateVO::setChildren);
+    }
 
     ResourceIdentifiedVO toResourceIdentifiedVO(Resource resource);
 
@@ -46,15 +77,12 @@ public interface ResourceConvert {
                 , UserOwnedMenuVO::getChildren, UserOwnedMenuVO::setChildren);
     }
 
-    default String toAccess(Resource res) {
-        Resource.Type type = res.getType();
-        if (type == Resource.Type.MENU) {
-            return String.format("%s:%s", Resource.Type.MENU.name(), res.getUrl());
-        } else if (type == Resource.Type.PERMIT) {
-            return String.format("%s%s", MyPermissionEvaluator.PERMIT_PREFIX, res.getPermitCode());
-        } else if (type == Resource.Type.DATA_SCOPE) {
-            return String.format("%s:%s", Resource.Type.DATA_SCOPE.name(), res.getPermitCode());
+    default Stream<String> toAccess(Resource r) {
+        String permitCode = r.getPermitCode();
+        if (StringUtils.hasText(permitCode)) {
+            return Arrays.stream(r.getPermitCode().split(","))
+                    .map(code -> String.join(":", r.getBusinessCode(), code));
         }
-        return "";
+        return Stream.of("");
     }
 }

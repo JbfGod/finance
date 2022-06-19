@@ -1,5 +1,6 @@
-import {request} from "umi";
+import {history, request} from "umi";
 import * as common from "@/utils/common";
+import {stringify} from "querystring";
 
 export async function login(body) {
   return request('/api/login', {
@@ -13,3 +14,9 @@ export async function logout() {
     method: 'POST'
   }).then(_ => common.clearAccessToken());
 }
+
+
+export const loginOut = async () => {
+  await logout();
+  history.replace('/user/login')
+};

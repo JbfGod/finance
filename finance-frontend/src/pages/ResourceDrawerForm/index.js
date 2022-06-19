@@ -41,8 +41,8 @@ export default function ResourceDrawerForm({resourceData, initialValues, ...prop
     formRef.setFieldsValue(initialValues)
   }, [initialValues])
   return (
-    <DrawerForm form={formRef} formRef={formRef} {...props}>
-      <ProFormItem name="resourceIds">
+    <DrawerForm form={formRef} {...props}>
+      <ProFormItem name="resourceWithOperateIds">
         <TreeInput defaultExpandAll={true} fieldNames={{title: "name", key: "id"}} treeData={resourceData}/>
       </ProFormItem>
     </DrawerForm>

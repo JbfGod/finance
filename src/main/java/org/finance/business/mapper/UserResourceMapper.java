@@ -17,6 +17,11 @@ import java.util.List;
  */
 public interface UserResourceMapper extends BaseMapper<UserResource> {
 
+    /**
+     * permit_code 取用 UserResource 的permit_code
+     * @param userId
+     * @return
+     */
     List<Resource> listResourceByUserId(@Param("userId") Long userId);
 
 }

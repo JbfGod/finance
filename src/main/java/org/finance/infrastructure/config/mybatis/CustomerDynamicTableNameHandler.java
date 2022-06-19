@@ -1,6 +1,7 @@
 package org.finance.infrastructure.config.mybatis;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.TableNameHandler;
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 
@@ -25,10 +26,10 @@ public class CustomerDynamicTableNameHandler implements TableNameHandler {
         } catch (Exception e) {
             return tableName;
         }
-        if (user.getCustomerId() == 0) {
+        if (Customer.DEFAULT_NUMBER.equals(user.getCustomerNumber())) {
             return tableName;
         }
-        return String.format("%s_%s", tableName, user.getCustomer().getTableIdentified());
+        return "";
     }
 
 }

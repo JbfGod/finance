@@ -18,6 +18,8 @@ public class UserListVO {
 
     private String customerNumber;
 
+    private String customerName;
+
     private String account;
 
     private Long createBy;

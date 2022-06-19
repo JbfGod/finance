@@ -76,6 +76,11 @@ public class Resource implements Serializable {
     private String icon;
 
     /**
+     * 业务标识
+     */
+    private String businessCode;
+
+    /**
      * 权限代码
      */
     private String permitCode;

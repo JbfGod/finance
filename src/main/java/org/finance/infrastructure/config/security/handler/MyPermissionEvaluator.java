@@ -38,8 +38,7 @@ public class MyPermissionEvaluator implements PermissionEvaluator  {
 
     private Set<String> getAuthoritySet(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        return authorities.stream().filter(auth -> auth.getAuthority().startsWith(PERMIT_PREFIX))
-                .map(auth -> auth.getAuthority().substring(PERMIT_PREFIX.length()))
+        return authorities.stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
     }
 }

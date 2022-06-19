@@ -16,8 +16,8 @@ CREATE TABLE if not exists `user` (
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='用户表';
-replace into `user` (id, name, account, password)
-values(1, '超级管理员', 'super_admin', '$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7OvWTjhXG16QSpH5k28U6o1BK0q');
+replace into `user` (id, name, account, role, password)
+values(1, '超级管理员', 'super_admin', 'ADMIN','$2a$10$YdOoLfvwipCxpCcs.yGv/ujEDs7OvWTjhXG16QSpH5k28U6o1BK0q');
 
 CREATE TABLE if not exists `customer` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -31,13 +31,12 @@ CREATE TABLE if not exists `customer` (
     `status` enum('INITIALIZING', 'SUCCESS') not null default 'INITIALIZING' comment '客户状态',
     `effect_time` datetime not null comment '租赁生效时间',
     `expire_time` datetime not null comment '租赁过期时间',
-    `contact_name` varchar(50) not null comment '联系人',
-    `telephone` varchar(50) not null comment '联系电话',
-    `bank_account` varchar(50) not null comment '银行账户',
-    `bank_account_name` varchar(50) not null comment '银行开户名称',
+    `contact_name` varchar(50) not null default '' comment '联系人',
+    `telephone` varchar(50) not null default '' comment '联系电话',
+    `bank_account` varchar(50) not null default '' comment '银行账户',
+    `bank_account_name` varchar(50) not null default '' comment '银行开户名称',
     `use_foreign_exchange` bit not null default false comment '是否使用外汇',
     `remark` varchar(500) comment '备注',
-    `table_identified` varchar(50) not null comment '客户的表标识',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -95,7 +94,8 @@ CREATE TABLE if not exists `resource` (
 CREATE TABLE if not exists `user_resource` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `user_id` bigint(20) not null comment '用户ID',
-    `resource_id` varchar(255) NOT NULL COMMENT '功能ID',
+    `resource_id` bigint(20) NOT NULL COMMENT '功能ID',
+    `permit_code` varchar(500) NOT NULL default '' COMMENT '功能操作权限，多个,分隔',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -330,47 +330,31 @@ CREATE TABLE if not exists `sequence` (
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='序列表';
 
 truncate table resource;
-replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, permit_code, sort_num)values
-(1, '1', '系统管理', 0, '', true, 1, 'MENU', '/system', 'icon-xitongguanli1', '', 40),
-(2, '2', '用户管理', 1, '1', false, 2, 'MENU', '/system/user', '', '', 1000),
-(6, '6', '客户授权管理', 1, '1', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', 'customer:authorize', 1000),
-(50, '50', '基础数据管理', 0, '', true, 1, 'MENU', '/base', 'icon-jichushuju_icox', '', 30),
-(51, '51', '行业管理', 50, '50', false, 2, 'MENU', '/base/industry', '', '', 300),
-(60, '60', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', '', 400),
-(70, '70', '客户分类管理', 50, '50', false, 2, 'MENU', '/base/customerCategory', '', '', 200),
-(80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', '', 100),
-(100, '100', '费用报销管理', 0, '', true, 1, 'MENU', '/expense/bill', 'icon-baoxiaoshenqing-feiyongbaoxiaoshenqing-06', '', 10),
-(101, '101', '查询所有', 100, '100', false, 2, 'DATA_SCOPE', '', '', 'expenseBill:view:all', 1000),
-(102, '102', '基本操作', 100, '100', false, 2, 'PERMIT', '', '', 'expenseBill:operating', 1000),
-(103, '103', '审核', 100, '100', false, 2, 'PERMIT', '', '', 'expenseBill:auditing', 1000),
-(104, '104', '弃审', 100, '100', false, 2, 'PERMIT', '', '', 'expenseBill:unAuditing', 1000),
-(105, '105', '打印', 100, '100', false, 2, 'PERMIT', '', '', 'expenseBill:print', 1000),
-(120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', 'icon-ico_hushigongzuozhan_jizhangguanli', '', 20),
-(121, '121', '凭证管理', 120, '120', true, 2, 'MENU', '/voucher/list', '', '', 100),
-(122, '122', '基本操作', 121, '121', false, 2, 'PERMIT', '', '', 'voucher:operating', 1000),
-(123, '123', '查询所有', 121, '121', false, 2, 'DATA_SCOPE', '', '', 'voucher:view:all', 1000),
-(124, '124', '审核', 121, '121', false, 2, 'PERMIT', '', '', 'voucher:auditing', 1000),
-(125, '125', '弃审', 121, '121', false, 2, 'PERMIT', '', '', 'voucher:unAuditing', 1000),
-(126, '126', '记账', 121, '121', false, 2, 'PERMIT', '', '', 'voucher:bookkeeping', 1000),
-(127, '127', '反记账', 121, '121', false, 2, 'PERMIT', '', '', 'voucher:unAuditing', 1000),
-(128, '128', '打印', 121, '121', false, 2, 'PERMIT', '', '', 'voucher:print', 1000),
-(130, '130', '批量审核', 120, '120', true, 2, 'MENU', '/voucher/batchAuditing', '', '', 300),
-(131, '131', '审核', 130, '130', false, 2, 'PERMIT', '', '', 'voucher:batch:auditing', 300),
-(132, '132', '弃审', 130, '130', false, 2, 'PERMIT', '', '', 'voucher:batch:unAuditing', 300),
-(140, '140', '批量记账', 120, '120', true, 2, 'MENU', '/voucher/batchBookkeeping', '', '', 400),
-(141, '141', '记账', 140, '140', false, 2, 'PERMIT', '', '', 'voucher:batch:bookkeeping', 400),
-(142, '142', '反记账', 140, '140', false, 2, 'PERMIT', '', '', 'voucher:batch:unBookkeeping', 400),
-(150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', '', 200),
-(160, '160', '汇率管理', 120, '120', true, 2, 'MENU', '/voucher/currency', '', '', 500),
-(161, '161', '基本操作', 160, '160', false, 2, 'PERMIT', '', '', 'currency:operating', 1000),
-(162, '162', '审核', 160, '160', false, 2, 'PERMIT', '', '', 'currency:auditing', 1000),
-(163, '163', '弃审', 160, '160', false, 2, 'PERMIT', '', '', 'currency:unAuditing', 1000)
+replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, business_code,permit_code, sort_num)values
+(1, '1', '系统管理', 0, '', true, 1, 'MENU', '/system', 'icon-xitongguanli1', '', '', 40),
+(2, '2', '用户管理', 1, '1', false, 2, 'MENU', '/system/user', '', '', '', 1000),
+(6, '6', '客户授权管理', 1, '1', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', '', '', 1000),
+(50, '50', '基础数据管理', 0, '', true, 1, 'MENU', '/base', 'icon-jichushuju_icox', '', '', 30),
+(51, '51', '行业管理', 50, '50', false, 2, 'MENU', '/base/industry', '', '', '', 300),
+(60, '60', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', '', '', 400),
+(70, '70', '客户分类管理', 50, '50', false, 2, 'MENU', '/base/customerCategory', '', '', '', 200),
+(80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', '', '', 100),
+(100, '100', '费用报销管理', 0, '', false, 1, 'MENU', '/expense/bill', 'icon-baoxiaoshenqing-feiyongbaoxiaoshenqing-06', 'expenseBill', 'view:all,base,auditing,unAuditing,print', 10),
+(120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', 'icon-ico_hushigongzuozhan_jizhangguanli', '', '', 20),
+(121, '121', '凭证管理', 120, '120', false, 2, 'MENU', '/voucher/list', '', 'voucher', 'view:all,base,auditing,unAuditing,bookkeeping,unBookkeeping,print', 100),
+(130, '130', '批量审核', 120, '120', false, 2, 'MENU', '/voucher/batchAuditing', '', 'voucher:batch', 'auditing,unAuditing', 300),
+(140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'voucher:batch', 'bookkeeping,unBookkeeping', 400),
+(150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', '', '', 200),
+(160, '160', '汇率管理', 120, '120', false, 2, 'MENU', '/voucher/currency', '', 'currency', 'base,auditing,unAuditing', 500)
 ;
 
 delete from `user_resource` where user_id = 1;
-insert into `user_resource` (user_id, resource_id)
-select 1, f.id from `resource` f;
+insert into `user_resource` (user_id, resource_id,permit_code)
+select 1, f.id,f.permit_code from `resource` f;
 
 delete from `customer_resource` where customer_id = 0;
 insert into `customer_resource` (customer_id, resource_id)
 select 0, f.id from `resource` f;
+
+replace into customer (id,`number`,`name`,industry_id,category_id,type,use_foreign_exchange,business_user_id)
+values(0, '0', '记账平台',0,0,'RENT_AND_PROXY', true, 1);

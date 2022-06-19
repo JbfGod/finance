@@ -66,10 +66,12 @@ export default () => {
           key: CURRENCY_TYPE.LOCAL,
           label: <span>本币凭证{renderBadge(currencyType === CURRENCY_TYPE.LOCAL)}</span>,
         },
-        {
-          key: CURRENCY_TYPE.FOREIGN,
-          label: <span>外币凭证{renderBadge(currencyType === CURRENCY_TYPE.FOREIGN)}</span>,
-        }
+        ...(security.canAddFeign?[
+          {
+            key: CURRENCY_TYPE.FOREIGN,
+            label: <span>外币凭证{renderBadge(currencyType === CURRENCY_TYPE.FOREIGN)}</span>,
+          }
+        ] : [])
       ],
       onChange: (key) => {
         setCurrencyType(key);

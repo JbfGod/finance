@@ -9,13 +9,11 @@ import org.finance.business.convert.IndustryConvert;
 import org.finance.business.convert.SubjectConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Industry;
-import org.finance.business.entity.Sequence;
 import org.finance.business.entity.Subject;
 import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.IndustryMapper;
 import org.finance.business.mapper.SequenceMapper;
 import org.finance.business.mapper.SubjectMapper;
-import org.finance.business.mapper.UserMapper;
 import org.finance.business.task.CustomerTask;
 import org.finance.infrastructure.exception.HxException;
 import org.finance.infrastructure.util.AssertUtil;
@@ -26,12 +24,10 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_ID;
-import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_NAME;
 
 /**
  * <p>
@@ -44,8 +40,6 @@ import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_NA
 @Service
 public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
-    @Resource
-    private UserMapper userMapper;
     @Resource
     private SequenceMapper sequenceMapper;
     @Resource
@@ -74,11 +68,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
                 .eq(Customer::getNumber, customer.getNumber())
         );
         AssertUtil.isFalse(existsCustomer, "客户编号已存在！");
-        // 生成 客户的表标识
-        Sequence sequence = new Sequence().setUseCategory(Sequence.CATEGORY_CUSTOMER_TBL_ID);
-        sequenceMapper.insert(sequence);
 
-        customer.setTableIdentified(sequence.getId().toString());
         // TODO 数据初始化成功,以后如果出现分表的情况，需要等表初始化才设置为success
         customer.setStatus(Customer.Status.SUCCESS);
         baseMapper.insert(customer);
@@ -122,6 +112,13 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         return baseMapper.exists(Wrappers.<Customer>lambdaQuery().eq(Customer::getCategoryId, categoryId));
     }
 
+    public List<Long> getIdsLikeByName(String name) {
+        return baseMapper.selectList(Wrappers.<Customer>lambdaQuery()
+                .select(Customer::getId)
+                .likeRight(Customer::getName, name)
+        ).stream().map(Customer::getId).collect(Collectors.toList());
+    }
+
     public Function<Long, String> getCustomerNameFunction() {
         Map<Long, String> nameById = new HashMap<>(10);
         return (Long customerId) -> {
@@ -140,8 +137,8 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
     }
 
     public String getCustomerNameById(long customerId) {
-        if (customerId == DEFAULT_CUSTOMER_ID) {
-            return DEFAULT_CUSTOMER_NAME;
+        if (customerId == Customer.DEFAULT_ID) {
+            return Customer.DEFAULT_NAME;
         }
         Customer customer = baseMapper.selectOne(Wrappers.<Customer>lambdaQuery()
                 .select(Customer::getName)
@@ -155,10 +152,10 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
     private void initializationData(long customerId) {
         Map<Long, Industry> industryById = industryMapper.selectList(
-                Wrappers.<Industry>lambdaQuery().eq(Industry::getCustomerId, DEFAULT_CUSTOMER_ID)
+                Wrappers.<Industry>lambdaQuery().eq(Industry::getCustomerId, Customer.DEFAULT_ID)
         ).stream().collect(Collectors.toMap(Industry::getId, i -> i));
         Map<Long, Subject> subjectById = subjectMapper.selectList(
-                Wrappers.<Subject>lambdaQuery().eq(Subject::getCustomerId, DEFAULT_CUSTOMER_ID)
+                Wrappers.<Subject>lambdaQuery().eq(Subject::getCustomerId, Customer.DEFAULT_ID)
         ).stream().collect(Collectors.toMap(Subject::getId, s -> s));
 
         // Copy industry data to new customer
@@ -191,7 +188,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         }
         subjectByNumber.put(sub.getNumber(), sub);
         Long parentId = sub.getParentId();
-        if (parentId == DEFAULT_CUSTOMER_ID) {
+        if (parentId == 0L) {
             subjectMapper.insert(sub.setId(null).setCustomerId(customerId).setIndustryId(industry.getId()));
             return;
         }
@@ -209,7 +206,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         }
         industryByNumber.put(industry.getNumber(), industry);
         Long parentId = industry.getParentId();
-        if (parentId == DEFAULT_CUSTOMER_ID) {
+        if (parentId == 0L) {
             industryMapper.insert(industry.setId(null).setCustomerId(customerId));
             return;
         }

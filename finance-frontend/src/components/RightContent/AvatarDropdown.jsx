@@ -1,40 +1,27 @@
-import React, { useCallback } from 'react';
-import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Menu, Spin } from 'antd';
-import { history, useModel } from 'umi';
-import { stringify } from 'querystring';
+import React, {useCallback} from 'react';
+import {LogoutOutlined, SettingOutlined, UserOutlined} from '@ant-design/icons';
+import {Avatar, Menu, Spin} from 'antd';
+import {history, useModel} from 'umi';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
-import { logout } from '@/services/login';
+import {loginOut} from '@/services/login';
+import {useSecurity} from "@/utils/hooks";
 
-/**
- * 退出登录，并且将当前的 url 保存
- */
-const loginOut = async () => {
-  await logout();
-  const { query = {}, search, pathname } = history.location;
-  const { redirect } = query; // Note: There may be security issues, please note
-
-  if (window.location.pathname !== '/user/login' && !redirect) {
-    history.replace({
-      pathname: '/user/login',
-      search: stringify({
-        redirect: pathname + search,
-      }),
-    });
-  }
-};
 
 const AvatarDropdown = ({ menu }) => {
-  const { initialState, setInitialState } = useModel('@@initialState');
+  const { initialState, setInitialState } = useModel('@@initialState')
+  const security = useSecurity()
   const onMenuClick = useCallback(
     (event) => {
       const { key } = event;
 
       if (key === 'logout') {
         setInitialState((s) => ({ ...s, currentUser: undefined }));
-        loginOut();
+        loginOut()
         return;
+      } else if (key === "switchCustomer") {
+        history.push("/user/switchCustomer")
+        return
       }
 
       history.push(`/account/${key}`);
@@ -62,9 +49,12 @@ const AvatarDropdown = ({ menu }) => {
     return loading;
   }
   const menuItems = [
-    {key: "center", label:"个人中心", icon:(<UserOutlined />)},
+    /*{key: "center", label:"个人中心", icon:(<UserOutlined />)},
     {key: "settings", label:"个人设置", icon:(<SettingOutlined />)},
-    {type: 'divider'},
+    {type: 'divider'},*/
+    ...(security.isSuperCustomer?[
+      {key: "switchCustomer", label:"切换客户单位", icon:false}
+    ] : []),
     {key: "logout", label:"退出登录", icon:(<LogoutOutlined />)},
   ]
 

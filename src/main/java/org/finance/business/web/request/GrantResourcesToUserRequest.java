@@ -16,5 +16,5 @@ public class GrantResourcesToUserRequest {
     private Long userId;
 
     @Size(min = 1, message = "至少选择一个功能权限")
-    private List<Long> resourceIds;
+    private List<String> resourceWithOperateIds;
 }

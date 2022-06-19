@@ -22,6 +22,8 @@ import java.util.List;
 public class AddVoucherRequest {
 
     private final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
+
+    private Integer serialNumber;
     @NotNull(message = "请选择币别！")
     private Long currencyId;
     @NotNull(message = "币别名称不能为空！")

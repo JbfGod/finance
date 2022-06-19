@@ -45,6 +45,12 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
         return baseMapper.selectVoucherBookVO(page);
     }
 
+    public Integer getMaxSerialNumberByYearMonth(int yearMonthNum) {
+        return Optional.ofNullable(
+                baseMapper.getMaxSerialNumber(yearMonthNum)
+        ).map(num -> num + 1).orElse(1);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdate(Voucher voucher, Runnable beforeCall) {
         if (beforeCall != null) {
@@ -165,14 +171,16 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     }
 
     private void addOrUpdateVoucher(Voucher voucher) {
+        if (voucher.getSerialNumber() == null) {
+            Integer serialNumber = Optional.ofNullable(
+                    baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
+            ).map(num -> num + 1).orElse(1);
+            voucher.setSerialNumber(serialNumber);
+        }
         if (voucher.getId() != null) {
             baseMapper.updateById(voucher);
             return;
         }
-        Integer serialNumber = Optional.ofNullable(
-                baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
-        ).map(num -> num + 1).orElse(1);
-        voucher.setSerialNumber(serialNumber);
 
         baseMapper.insert(voucher);
     }

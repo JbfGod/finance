@@ -1,9 +1,8 @@
 import {Space} from 'antd';
-import React, {useState} from 'react';
+import React from 'react';
 import {useModel} from 'umi';
 import Avatar from './AvatarDropdown';
 import styles from './index.less';
-import SwitchCustomer from "@/components/RightContent/SwitchCustomer";
 
 const GlobalHeaderRight = () => {
   const {initialState} = useModel('@@initialState');
@@ -11,7 +10,6 @@ const GlobalHeaderRight = () => {
   if (!initialState || !initialState.settings) {
     return null;
   }
-
   const {navTheme, layout} = initialState.settings;
   let className = styles.right;
 
@@ -20,7 +18,6 @@ const GlobalHeaderRight = () => {
   }
   return (
     <Space className={className}>
-      {initialState?.currentUser?.customerId === 0 && <SwitchCustomer />}
       <Avatar/>
     </Space>
   );

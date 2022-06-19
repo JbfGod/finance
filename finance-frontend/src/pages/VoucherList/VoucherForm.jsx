@@ -10,7 +10,12 @@ import {
 import {Button, Empty, Form, InputNumber} from "antd";
 import styles from "./index.less"
 import {CURRENCY_TYPE, LENDING_DIRECTION} from "@/constants";
-import {addVoucherUsingPOST, updateVoucherUsingPUT, voucherDetailUsingGET} from "@/services/swagger/voucherWeb";
+import {
+  addVoucherUsingPOST,
+  updateVoucherUsingPUT,
+  usableSerialNumberUsingGET,
+  voucherDetailUsingGET
+} from "@/services/swagger/voucherWeb";
 import {flatArrayToMap} from "@/utils/common";
 import {currencyOfYearMonthUsingGET} from "@/services/swagger/currencyWeb";
 import {history} from "umi";
@@ -69,6 +74,9 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     return items.map(item => item.id).filter(itemId =>
       currItems.findIndex(tmp => tmp.id === itemId) === -1
     )
+  }
+  const loadUsableSerialNumber = () => {
+    usableSerialNumberUsingGET().then(({data}) => formRef.setFieldsValue({serialNumber: data}))
   }
   const currencyId = Form.useWatch('currencyId', formRef);
   const columns = [
@@ -161,6 +169,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
         newItems.push({index: `${i}`})
       }
       formRef.setFieldsValue({items: newItems})
+      loadUsableSerialNumber()
     } else if (isEditMode || isViewMode) {
       initialBillDetail()
     }
@@ -246,7 +255,10 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
                }}
                {...props}
     >
-      <ProFormGroup size={isForeignCurrency ? 60 : 200}>
+      <ProFormGroup size={isForeignCurrency ? 20 : 100}>
+        <ProFormItem name="serialNumber" label="凭证号">
+          <InputNumber placeholder="凭证号" min={0} disabled={isViewMode}/>
+        </ProFormItem>
         <ProFormDatePicker name="voucherDate" label="凭证日期" placeholder="凭证日期" width={120} disabled={isViewMode}/>
         {isForeignCurrency && (
           <>

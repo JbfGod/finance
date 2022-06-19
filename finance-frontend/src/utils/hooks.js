@@ -28,16 +28,18 @@ export function useSecurity(permissionPrefix = "") {
   const {initialState} = useModel('@@initialState')
   const access = useAccess()
   const {currentUser = {}} = initialState || {}
-  const {customerId, role} = currentUser
+  const {customerNumber, role} = currentUser
   const isAdmin = role === "ADMIN"
-  const isSuperCustomer = customerId === 0
+  const isSuperCustomer = customerNumber === "HX_TOP"
+  const isSuperAdmin = isSuperCustomer && isAdmin
 
-  const canAuditing = isAdmin || access[`PERMIT:${permissionPrefix}:auditing`]
-  const canUnAuditing = isAdmin || access[`PERMIT:${permissionPrefix}:unAuditing`]
-  const canBookkeeping = isAdmin || access[`PERMIT:${permissionPrefix}:bookkeeping`]
-  const canUnBookkeeping = isAdmin || access[`PERMIT:${permissionPrefix}:unBookkeeping`]
-  const canOperating = isAdmin || access[`PERMIT:${permissionPrefix}:operating`]
-  const canPrint = isAdmin || access[`PERMIT:${permissionPrefix}:print`]
+  const canAuditing = isSuperAdmin || access[`${permissionPrefix}:auditing`]
+  const canUnAuditing = isSuperAdmin || access[`${permissionPrefix}:unAuditing`]
+  const canBookkeeping = isSuperAdmin || access[`${permissionPrefix}:bookkeeping`]
+  const canUnBookkeeping = isSuperAdmin || access[`${permissionPrefix}:unBookkeeping`]
+  const canOperating = isSuperAdmin || access[`${permissionPrefix}:base`]
+  const canPrint = isSuperAdmin || access[`${permissionPrefix}:print`]
+  const canAddFeign = isSuperAdmin || access[`${permissionPrefix}:addForeign`]
   return {
     isSuperCustomer,
     onlyRead : true,
@@ -46,7 +48,8 @@ export function useSecurity(permissionPrefix = "") {
     canBookkeeping,
     canUnBookkeeping,
     canOperating,
-    canPrint
+    canPrint,
+    canAddFeign
   }
 }
 

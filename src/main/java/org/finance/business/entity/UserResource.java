@@ -44,6 +44,12 @@ public class UserResource implements Serializable {
      */
     private Long resourceId;
 
+    /**
+     * 操作权限，多个权限“,”分隔
+     * {@link  org.finance.business.entity.enums.ResourceOperate}
+     */
+    private String permitCode;
+
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
 

@@ -23,7 +23,9 @@ import java.time.LocalDateTime;
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    public static final String DEFAULT_NUMBER = "HX_TOP";
+    public static final String DEFAULT_NAME = "记账平台";
+    public static final Long DEFAULT_ID = 0L;
     /**
      * 主键
      */
@@ -109,11 +111,6 @@ public class Customer implements Serializable {
      * 备注
      */
     private String remark;
-
-    /**
-     * 客户的表标识
-     */
-    private String tableIdentified;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;

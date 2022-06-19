@@ -141,7 +141,7 @@ public class ExpenseBillWeb {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasPermission('expenseBill', 'operating')")
+    @PreAuthorize("hasPermission('expenseBill', 'base')")
     public R addExpenseBill(@Valid AddExpenseBillRequest request) {
         ExpenseBill expenseBill = ExpenseBillConvert.INSTANCE.toExpenseBill(request);
         baseService.addOrUpdate(expenseBill, null);
@@ -149,7 +149,7 @@ public class ExpenseBillWeb {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasPermission('expenseBill', 'operating')")
+    @PreAuthorize("hasPermission('expenseBill', 'base')")
     public R updateExpenseBill(@Valid UpdateExpenseBillRequest request) {
         assertUnAudited(request.getId());
         ExpenseBill expenseBill = ExpenseBillConvert.INSTANCE.toExpenseBill(request);
@@ -162,7 +162,7 @@ public class ExpenseBillWeb {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasPermission('expenseBill', 'operating')")
+    @PreAuthorize("hasPermission('expenseBill', 'base')")
     public R deleteExpenseBill(@PathVariable("id") long id) {
         assertUnAudited(id);
         baseService.deleteById(id);

@@ -26,15 +26,18 @@ export const initialStateConfig = {
 export async function getInitialState() {
   const fetchUserInfo = async () => {
     try {
-      const msg = await userWeb.selfInfoUsingGET();
-      return msg.data
+      if (common.getAccessToken()) {
+        const msg = await userWeb.selfInfoUsingGET();
+        return msg.data
+      }
     } catch (error) {
-      history.push(loginPath);
+      history.push(loginPath)
+      common.clearAccessToken()
     }
     return undefined;
   }; // 如果不是登录页面，执行
 
-  if (common.getAccessToken() || history.location.pathname !== loginPath) {
+  if (history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
 
     return {
@@ -62,12 +65,21 @@ export const layout = ({ initialState, setInitialState }) => {
     onPageChange: () => {
       const { location } = history; // 如果没有登录，重定向到 login
       const currentUser = initialState?.currentUser
-      if (location.pathname === loginPath) {
-        if (currentUser) {
-          history.push("/welcome");
-        }
-      } else if (!currentUser) {
+      if (!currentUser) {
         history.push(loginPath);
+        return
+      }
+      const {customerNumber, role, proxyCustomer} = currentUser
+      const isAdmin = role === "ADMIN"
+      const isSuperCustomer = customerNumber === "HX_TOP"
+      // 平台单位非管理员必须选择客户单位后才能操作
+      const mustSwitchCustomer = isSuperCustomer && !isAdmin && proxyCustomer == null
+      if (mustSwitchCustomer) {
+        history.push(`/user/switchCustomer`)
+        return
+      }
+      if (location.pathname === loginPath) {
+        history.push("/welcome");
       }
     },
     menu: {

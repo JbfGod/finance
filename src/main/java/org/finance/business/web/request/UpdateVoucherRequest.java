@@ -25,6 +25,9 @@ public class UpdateVoucherRequest {
 
     @NotNull(message = "ID不能为空！")
     private Long id;
+
+    private Integer serialNumber;
+
     @NotNull(message = "请选择币别！")
     private Long currencyId;
     @NotNull(message = "币别名称不能为空！")

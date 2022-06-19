@@ -10,6 +10,7 @@ import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import {Badge} from "antd";
 import {USER_ROLE} from "@/constants";
+import {treeResourceWithOperateUsingGET} from "@/services/swagger/customerWeb";
 
 const nameRules = [
   {required: true, message: "用户姓名不能为空！"},
@@ -38,6 +39,14 @@ export default () => {
   const actionRef = useRef()
   const security = useSecurity("user")
   const columns = [
+    ...(security.isSuperCustomer ? [
+      {
+        title: "客户编号", dataIndex: "customerNumber", valueType: "text"
+      },
+      {
+        title: "客户名称", dataIndex: "customerName", valueType: "text"
+      },
+    ] : []),
     {
       title: "用户姓名", dataIndex: "name", valueType: "text"
       , formItemProps: {rules: nameRules}
@@ -57,7 +66,7 @@ export default () => {
           }}/>,
           <a key="grant" onClick={async () => {
             const {data: selectedResourceIds} = await userWeb.resourceIdsOfUserUsingGET({userId: row.id})
-            const {data: functionData} = await customerWeb.treeResourceOfCustomerUsingGET({customerId: row.customerId})
+            const {data: functionData} = await customerWeb.treeResourceWithOperateUsingGET({customerId: row.customerId})
             openGrantDrawer({
               user: row, functionData, selectedResourceIds
             })
@@ -83,7 +92,7 @@ export default () => {
     menu: {
       type: 'tab',
       activeKey: activeTabKey,
-      multipleLine:true,
+      multipleLine: true,
       items: [
         {
           key: 'NORMAL',
@@ -120,7 +129,7 @@ export default () => {
                    })
                  }}
       >
-        <ProFormText name="customerNumber" label="客户编号" />
+        <ProFormText name="customerNumber" label="客户编号"/>
         <ProFormSelect name="role" allowClear={false} label="用户类型" options={Object.values(USER_ROLE)}/>
         <ProFormText name="name" label="用户姓名" rules={nameRules}/>
         <ProFormText name="account" label="登录账号"
@@ -193,14 +202,16 @@ export default () => {
           }
         </ProFormItem>
       </ModalForm>
-      <ResourceDrawerForm title="功能授权" width="500px" visible={grantDrawer.visible}
-                          drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.functionData}
-                          initialValues={{resourceIds: grantDrawer.selectedResourceIds}}
-                          onVisibleChange={handleGrantDrawerVisible}
-                          onFinish={async (v) => {
-                            return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.user.id})
-                          }}
-      />
+      {grantDrawer.visible?
+        <ResourceDrawerForm title="功能授权" width="500px" visible={true}
+                            drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.functionData}
+                            initialValues={{resourceWithOperateIds: grantDrawer.selectedResourceIds}}
+                            onVisibleChange={handleGrantDrawerVisible}
+                            onFinish={async (v) => {
+                              return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.user.id})
+                            }}
+        /> : null
+      }
     </PageContainer>
   )
 }

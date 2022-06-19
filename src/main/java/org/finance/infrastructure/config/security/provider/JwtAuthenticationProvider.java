@@ -21,6 +21,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -73,14 +74,20 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         return authentication.isAssignableFrom(JwtAuthenticationToken.class);
     }
 
+    /**
+     * 授权
+     */
     private List<GrantedAuthority> grantedAuthorities(User user) {
         List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(user.getId());
         authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, user.getRole())));
         // 获取当前操作员记账的客户单位
         Customer customer = Optional.ofNullable(user.getProxyCustomer()).orElse(user.getCustomer());
+
+        // 添加认证标识权限
+        authorities.add(new SimpleGrantedAuthority("iaAuth"));
         // 是否能够添加外币凭证
-        if (customer.getUseForeignExchange()) {
-            authorities.add(new SimpleGrantedAuthority("voucher:foreign"));
+        if (Objects.equals(customer.getUseForeignExchange(), true)) {
+            authorities.add(new SimpleGrantedAuthority("voucher:addForeign"));
         }
         return authorities;
     }

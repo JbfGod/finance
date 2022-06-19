@@ -9,6 +9,7 @@ import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
+import org.finance.business.entity.enums.ResourceOperate;
 import org.finance.business.service.CustomerResourceService;
 import org.finance.business.service.CustomerService;
 import org.finance.business.service.UserResourceService;
@@ -41,8 +42,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * <p>
@@ -67,7 +71,18 @@ public class UserWeb {
 
     @GetMapping("/self")
     public R<UserSelfVO> selfInfo() {
-        return R.ok(UserConvert.INSTANCE.toUserSelfVO(userService.loadUserById(SecurityUtil.getCurrentUserId())));
+        User user = userService.loadUserById(SecurityUtil.getCurrentUserId());
+        UserSelfVO userSelfVO = UserConvert.INSTANCE.toUserSelfVO(user);
+        User currentUser = SecurityUtil.getCurrentUser();
+        Customer proxyCustomer = currentUser.getProxyCustomer();
+        if (proxyCustomer != null) {
+            UserSelfVO.ProxyCustomer agentCustomer = new UserSelfVO.ProxyCustomer();
+            agentCustomer.setId(proxyCustomer.getId())
+                        .setName(proxyCustomer.getName())
+                        .setNumber(proxyCustomer.getNumber());
+            userSelfVO.setProxyCustomer(agentCustomer);
+        }
+        return R.ok(userSelfVO);
     }
 
     @GetMapping("/self/menus")
@@ -77,26 +92,36 @@ public class UserWeb {
 
     @GetMapping("/self/permissions")
     public R<List<String>> selfPermission() {
-        List<String> permissions = this.getSelfResources().stream()
-                .map(ResourceConvert.INSTANCE::toAccess)
-                .filter(StringUtils::hasText)
-                .collect(Collectors.toList());
-        return R.ok(permissions);
+        return R.ok(SecurityUtil.getPermissions());
     }
 
     @GetMapping("/{userId}/resources")
-    public R<List<Long>> resourceIdsOfUser(@PathVariable("userId") long userId) {
-        List<Long> resourceIds = userResourceService.getResourcesByUserId(userId)
-                .stream().filter(func -> !func.getHasLeaf())
-                .map(Resource::getId)
+    public R<List<String>> resourceIdsOfUser(@PathVariable("userId") long userId) {
+        List<String> resourceIds = userResourceService.getResourcesByUserId(userId)
+                .stream() .filter(func -> !func.getHasLeaf())
+                .flatMap(r -> {
+                    Long id = r.getId();
+                    String permitCode = r.getPermitCode();
+                    if (!StringUtils.hasText(permitCode)) {
+                        return Stream.of(id.toString());
+                    }
+                    return Arrays.stream(permitCode.split(","))
+                            .map(code -> ResourceOperate.getByCode(code).getId(r.getId()));
+                })
                 .collect(Collectors.toList());
         return R.ok(resourceIds);
     }
 
     @GetMapping("/page")
     public RPage<UserListVO> pageUser(QueryUserRequest request) {
+        Function<Long, String> getCustomerNameById = customerService.getCustomerNameFunction();
         IPage<UserListVO> pages = userService.page(request.extractPage(), this.buildQueryWrapperByRequest(request))
-                .convert(UserConvert.INSTANCE::toUserListVO);
+                .convert((user -> {
+                    String customerName = getCustomerNameById.apply(user.getCustomerId());
+                    UserListVO userListVO = UserConvert.INSTANCE.toUserListVO(user);
+                    userListVO.setCustomerName(customerName);
+                    return userListVO;
+                }));
         return RPage.build(pages);
     }
 
@@ -121,7 +146,7 @@ public class UserWeb {
         Long userId = SecurityUtil.getUserId();
         return R.ok(
             customerService.list(Wrappers.<Customer>lambdaQuery()
-                .eq(Customer::getBusinessUserId, userId)
+                .eq(!SecurityUtil.isSuperAdmin(), Customer::getBusinessUserId, userId)
             ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO)
             .collect(Collectors.toList())
         );
@@ -129,7 +154,7 @@ public class UserWeb {
 
     @PostMapping("/grantResources")
     public R grantResourcesToUser(@RequestBody @Valid GrantResourcesToUserRequest request) {
-        userResourceService.grantResourcesToUser(request.getUserId(), request.getResourceIds());
+        userResourceService.grantResourcesToUser(request.getUserId(), request.getResourceWithOperateIds());
         return R.ok();
     }
 
@@ -183,7 +208,7 @@ public class UserWeb {
         return R.ok();
     }
 
-    @GetMapping("/switch/proxyCustomer/{customerId}")
+    @PutMapping("/switch/proxyCustomer/{customerId}")
     public R switchProxyCustomer(@PathVariable("customerId") long customerId, @RequestHeader("Authorization") String authorization) {
         String token = authorization.substring("Bearer ".length());
         userService.proxyCustomer(SecurityUtil.getUserId(), customerId, token);
@@ -204,12 +229,18 @@ public class UserWeb {
 
     private LambdaQueryWrapper<User> buildQueryWrapperByRequest(QueryUserRequest request) {
         User currentUser = SecurityUtil.getCurrentUser();
-        return Wrappers.<User>lambdaQuery()
-                .eq(currentUser.getCustomerId() > 0, User::getCustomerId, currentUser.getCustomerId())
+        boolean isSuperCustomer = SecurityUtil.isSuperCustomer();
+        LambdaQueryWrapper<User> condition = Wrappers.<User>lambdaQuery()
+                .eq(!isSuperCustomer, User::getCustomerId, currentUser.getCustomerId())
                 .eq(request.getRole() != null, User::getRole, request.getRole())
                 .likeRight(StringUtils.hasText(request.getCustomerNumber()), User::getCustomerNumber, request.getCustomerNumber())
                 .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
                 .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())
                 .orderByDesc(User::getCreateBy);
+        if (StringUtils.hasText(request.getCustomerName())) {
+            List<Long> ids = customerService.getIdsLikeByName(request.getCustomerName());
+            condition.in(ids.size() > 0, User::getCustomerId, ids);
+        }
+        return condition;
     }
 }

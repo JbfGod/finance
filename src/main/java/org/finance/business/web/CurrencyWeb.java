@@ -70,14 +70,14 @@ public class CurrencyWeb {
     }
 
     @PostMapping("/copy")
-    @PreAuthorize("hasPermission('currency', 'operating')")
+    @PreAuthorize("hasPermission('currency', 'base')")
     public R copyCurrencyByMonth(@RequestBody CopyCurrencyRequest request) {
         baseService.copyCurrencyByMonth(request.getTargetYearMonth(), request.getSourceYearMonth(), request.isOverride());
         return R.ok();
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasPermission('currency', 'operating')")
+    @PreAuthorize("hasPermission('currency', 'base')")
     public R addCurrency(@Valid @RequestBody AddCurrencyRequest request) {
         Currency currency = CurrencyConvert.INSTANCE.toCurrency(request);
         boolean existsNumber = baseService.count(Wrappers.<Currency>lambdaQuery()
@@ -104,7 +104,7 @@ public class CurrencyWeb {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasPermission('currency', 'operating')")
+    @PreAuthorize("hasPermission('currency', 'base')")
     public R updateCurrency(@Valid @RequestBody UpdateCurrencyRequest request) {
         assertUnAudited(request.getId());
         Currency currency = CurrencyConvert.INSTANCE.toCurrency(request);
@@ -113,7 +113,7 @@ public class CurrencyWeb {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasPermission('currency', 'operating')")
+    @PreAuthorize("hasPermission('currency', 'base')")
     public R deleteCurrency(@PathVariable("id") long id) {
         assertUnAudited(id);
         baseService.removeById(id);

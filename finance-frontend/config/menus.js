@@ -13,11 +13,17 @@ const menus = [
         access: 'can'
       },
       {
+        name: '选择客户单位',
+        path: '/user/switchCustomer',
+        layout: false,
+        component: './SwitchCustomer',
+        access: 'isAuth'
+      },
+      {
         component: './404',
       },
     ],
   },
-
   {
     path: '/expense',
     name: '费用报销单管理',

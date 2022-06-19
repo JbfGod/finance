@@ -11,6 +11,7 @@ public class QueryUserRequest extends AbstractPageRequest {
 
     private String name;
     private String customerNumber;
+    private String customerName;
     private String account;
     private User.Role role;
 

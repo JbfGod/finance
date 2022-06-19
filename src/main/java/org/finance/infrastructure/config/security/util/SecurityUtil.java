@@ -1,19 +1,17 @@
 package org.finance.infrastructure.config.security.util;
 
-import org.apache.commons.lang3.StringUtils;
-import org.finance.business.entity.Resource;
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.constants.Constants;
-import org.finance.infrastructure.util.SpringContextUtil;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.servlet.http.HttpServletRequest;
-
-import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_ID;
-import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_NUMBER;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author jiangbangfa
@@ -21,6 +19,13 @@ import static org.finance.infrastructure.constants.Constants.DEFAULT_CUSTOMER_NU
 public class SecurityUtil {
 
     public final static BCryptPasswordEncoder PWD_ENCODER = new BCryptPasswordEncoder();
+
+    public static List<String> getPermissions() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+    }
 
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,22 +43,26 @@ public class SecurityUtil {
         return null;
     }
 
-    public static Long getCustomerIdFromRequest() {
-        HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
-        if (request == null) {
-            return DEFAULT_CUSTOMER_ID;
-        }
-        String headCustomerId = request.getHeader("CustomerId");
-        return StringUtils.isBlank(headCustomerId) ? DEFAULT_CUSTOMER_ID : Long.parseLong(headCustomerId);
+    public static boolean isSuperCustomer() {
+        return Customer.DEFAULT_ID.equals(getCurrentUser().getCustomerId());
     }
 
-    public static String getCustomerNumberFromRequest() {
-        HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
-        if (request == null) {
-            return DEFAULT_CUSTOMER_NUMBER;
-        }
-        String customerNumber = request.getHeader("Customer");
-        return StringUtils.isBlank(customerNumber) ? DEFAULT_CUSTOMER_NUMBER : customerNumber;
+    public static boolean isSuperAdmin() {
+        User currentUser = getCurrentUser();
+        return Customer.DEFAULT_ID.equals(currentUser.getCustomerId()) && currentUser.getRole() == User.Role.ADMIN;
+    }
+
+    public static Customer getCurrOperateCustomer() {
+        User currentUser = getCurrentUser();
+        return Optional.ofNullable(currentUser.getProxyCustomer()).orElse(currentUser.getCustomer());
+    }
+
+    public static Long getOperateCustomerId() {
+        return getCurrOperateCustomer().getId();
+    }
+
+    public static String getOperateCustomerNumber() {
+        return getCurrOperateCustomer().getNumber();
     }
 
     public static Long getUserId() {
@@ -94,7 +103,7 @@ public class SecurityUtil {
         }
         return authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals(
-                        String.format("%s:%s:view:all", Resource.Type.DATA_SCOPE.name(), target)
+                        String.format("%s:view:all", target)
                 ));
     }
 }

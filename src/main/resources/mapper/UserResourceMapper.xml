@@ -3,7 +3,9 @@
 <mapper namespace="org.finance.business.mapper.UserResourceMapper">
 
     <select id="listResourceByUserId" resultType="org.finance.business.entity.Resource">
-        select f.* from `resource` f
+        select f.id,f.number,f.name,f.parent_id,f.parent_number,f.has_leaf,f.level,f.type,f.url,f.icon,
+            f.business_code, uf.permit_code,f.sort_num
+        from `resource` f
         inner join user_resource uf
         on (uf.user_id = #{userId} and uf.resource_id = f.id)
         order by f.sort_num asc

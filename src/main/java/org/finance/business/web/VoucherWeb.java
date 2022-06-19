@@ -26,6 +26,7 @@ import org.finance.business.web.vo.VoucherVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
+import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +40,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -112,9 +115,19 @@ public class VoucherWeb {
         return R.ok(cues);
     }
 
+    @GetMapping("/usableSerialNumber")
+    public R<Integer> usableSerialNumber(Integer yearMonthNum) {
+        yearMonthNum = Optional.ofNullable(yearMonthNum)
+                .orElseGet(() -> Integer.parseInt(LocalDate.now().format(Constants.YEAR_MONTH_FMT)));
+        return R.ok(baseService.getMaxSerialNumberByYearMonth(yearMonthNum));
+    }
+
     @PostMapping("/add")
-    @PreAuthorize("hasPermission('voucher', 'operating')")
+    @PreAuthorize("hasPermission('voucher', 'base')")
     public R addVoucher(@Valid @RequestBody AddVoucherRequest request) {
+        if (request.getSerialNumber() != null) {
+            assertSerialNumberNotExists(request.getYearMonthNum(), request.getSerialNumber());
+        }
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
         baseService.addOrUpdate(voucher, null);
         return R.ok();
@@ -137,7 +150,7 @@ public class VoucherWeb {
     @PutMapping("/auditing")
     @PreAuthorize("hasPermission('voucher:batch', 'auditing')")
     public R batchAuditingVoucher(@Valid AuditingVoucherRequest request) {
-        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        Long customerId = SecurityUtil.getOperateCustomerId();
         baseService.batchAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
@@ -146,7 +159,7 @@ public class VoucherWeb {
     @PutMapping("/unAuditing")
     @PreAuthorize("hasPermission('voucher:batch', 'unAuditing')")
     public R batchUnAuditingVoucher(@Valid AuditingVoucherRequest request) {
-        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        Long customerId = SecurityUtil.getOperateCustomerId();
         baseService.batchUnAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
@@ -169,7 +182,7 @@ public class VoucherWeb {
     @PutMapping("/bookkeeping")
     @PreAuthorize("hasPermission('voucher:batch', 'bookkeeping')")
     public R batchBookkeepingVoucher(@Valid BookkeepingVoucherRequest request) {
-        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        Long customerId = SecurityUtil.getOperateCustomerId();
         baseService.batchBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
@@ -178,14 +191,14 @@ public class VoucherWeb {
     @PutMapping("/unBookkeeping")
     @PreAuthorize("hasPermission('voucher:batch', 'unBookkeeping')")
     public R batchUnBookkeepingVoucher(@Valid UnBookkeepingVoucherRequest request) {
-        Long customerId = SecurityUtil.getCustomerIdFromRequest();
+        Long customerId = SecurityUtil.getOperateCustomerId();
         baseService.batchUnBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasPermission('voucher', 'operating')")
+    @PreAuthorize("hasPermission('voucher', 'base')")
     public R deleteVoucher(@PathVariable("id") long id) {
         assertUnAudited(id);
         baseService.deleteById(id);
@@ -193,9 +206,15 @@ public class VoucherWeb {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasPermission('voucher', 'operating')")
+    @PreAuthorize("hasPermission('voucher', 'base')")
     public R updateVoucher(@Valid @RequestBody UpdateVoucherRequest request) {
         assertUnAudited(request.getId());
+        if (request.getSerialNumber() != null) {
+            Voucher dbVoucher = baseService.getById(request.getId());
+            if (!dbVoucher.getSerialNumber().equals(request.getSerialNumber())) {
+                assertSerialNumberNotExists(request.getYearMonthNum(), request.getSerialNumber());
+            }
+        }
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
         baseService.addOrUpdate(voucher, () -> {
             itemService.removeByIds(request.getDeletedItemIds());
@@ -209,5 +228,13 @@ public class VoucherWeb {
                 .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
         ) > 0;
         AssertUtil.isTrue(unAudited, "操作失败，该记录已经审核！");
+    }
+
+    private void assertSerialNumberNotExists(int yearMonthNum, int serialNumber) {
+        boolean existsSerialNumber = baseService.count(Wrappers.<Voucher>lambdaQuery()
+                .eq(Voucher::getYearMonthNum, yearMonthNum)
+                .eq(Voucher::getSerialNumber, serialNumber)
+        ) > 0;
+        AssertUtil.isFalse(existsSerialNumber, String.format("凭证序号：%s，已存在！", serialNumber));
     }
 }

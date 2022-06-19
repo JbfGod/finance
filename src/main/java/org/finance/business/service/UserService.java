@@ -83,7 +83,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Override
     public User loadUserById(Long userId) {
         User user = baseMapper.selectById(userId);
-        Customer customer = customerMapper.findByNumber(user.getCustomerNumber());
+        Customer customer = customerMapper.selectById(user.getCustomerId());
         user.setCustomer(customer);
         return user;
     }
@@ -91,7 +91,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     @Override
     public List<GrantedAuthority> loadAuthoritiesByUserId(Long userId) {
         return userResourceMapper.listResourceByUserId(userId)
-                .stream().map(ResourceConvert.INSTANCE::toAccess)
+                .stream().flatMap(ResourceConvert.INSTANCE::toAccess)
                 .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

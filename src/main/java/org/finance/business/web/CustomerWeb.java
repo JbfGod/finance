@@ -18,6 +18,7 @@ import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceVO;
+import org.finance.business.web.vo.TreeResourceWithOperateVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
 import org.springframework.util.StringUtils;
@@ -68,6 +69,12 @@ public class CustomerWeb {
         return R.ok(ResourceConvert.INSTANCE.toTreeResourceVO(resources));
     }
 
+    @GetMapping("/{customerId}/treeResourceWithOperate")
+    public R<List<TreeResourceWithOperateVO>> treeResourceWithOperate(@PathVariable("customerId") long customerId) {
+        List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId);
+        return R.ok(ResourceConvert.INSTANCE.toTreeResourceWithOperateVO(resources));
+    }
+
     @GetMapping("/page")
     public RPage<CustomerListVO> pageCustomer(QueryCustomerRequest request) {
         List<Long> categoryIds = new ArrayList<>();
@@ -76,6 +83,7 @@ public class CustomerWeb {
         }
 
         IPage<CustomerListVO> pages = customerService.page(request.extractPage(), Wrappers.<Customer>lambdaQuery()
+                .gt(Customer::getId, 0)
                 .likeRight(StringUtils.hasText(request.getNumber()), Customer::getNumber, request.getNumber())
                 .likeRight(StringUtils.hasText(request.getName()), Customer::getName, request.getName())
                 .eq(request.getIndustryId() != null, Customer::getIndustryId, request.getIndustryId())
