@@ -116,11 +116,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     }
 
     public void proxyCustomer(long userId, long proxyCustomerId, String token) {
-        boolean isProxyUser = customerMapper.exists(Wrappers.<Customer>lambdaQuery()
-            .eq(Customer::getId, proxyCustomerId)
-            .eq(Customer::getBusinessUserId, userId)
-        );
-        AssertUtil.isTrue(isProxyUser, "操作失败，当前用户不是该客户单位的负责人！");
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
         Object obj = redisTemplate.opsForValue().get(cacheAttr.getKey());
         UserRedisContextState state = Optional.ofNullable(obj).map(o -> (UserRedisContextState) o)
