@@ -1017,6 +1017,11 @@ declare namespace API {
     role?: 'ADMIN' | 'APPROVER' | 'NORMAL' | 'OFFICER';
   };
 
+  type ownedCustomerUsingGETParams = {
+    customerName?: string;
+    customerNumber?: string;
+  };
+
   type pageUserUsingGETParams = {
     account?: string;
     current?: number;

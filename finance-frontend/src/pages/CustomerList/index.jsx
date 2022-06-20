@@ -1,17 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Button, Col, Empty, message, Select, Tree} from "antd";
+import {Button, Col, Empty, message, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import {useModalWithParam} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {
   ModalForm,
-  ProForm,
   ProFormDateRangePicker,
-  ProFormDateTimeRangePicker,
   ProFormItem,
-  ProFormRadio,
   ProFormSelect,
   ProFormSwitch,
   ProFormText,

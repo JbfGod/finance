@@ -59,9 +59,16 @@ export async function listUserUsingGET(
 }
 
 /** ownedCustomer GET /api/user/ownedCustomer */
-export async function ownedCustomerUsingGET(options?: { [key: string]: any }) {
+export async function ownedCustomerUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.ownedCustomerUsingGETParams,
+  options?: { [key: string]: any },
+) {
   return request<API.RListCustomerCueVO_>('/api/user/ownedCustomer', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

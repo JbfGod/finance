@@ -3,7 +3,6 @@ const CAN = "can"
 const menus = [
   {
     path: '/user',
-    layout: false,
     routes: [
       {
         path: '/user/login',
@@ -15,7 +14,6 @@ const menus = [
       {
         name: '选择客户单位',
         path: '/user/switchCustomer',
-        layout: false,
         component: './SwitchCustomer',
         access: 'isAuth'
       },

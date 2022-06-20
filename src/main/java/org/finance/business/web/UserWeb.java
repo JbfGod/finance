@@ -16,6 +16,7 @@ import org.finance.business.service.UserResourceService;
 import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddUserRequest;
 import org.finance.business.web.request.GrantResourcesToUserRequest;
+import org.finance.business.web.request.QueryOwnedCustomerRequest;
 import org.finance.business.web.request.QueryUserCueRequest;
 import org.finance.business.web.request.QueryUserRequest;
 import org.finance.business.web.request.UpdateSelfPasswordRequest;
@@ -142,12 +143,21 @@ public class UserWeb {
     }
 
     @GetMapping("/ownedCustomer")
-    public R<List<CustomerCueVO>> ownedCustomer() {
+    public R<List<CustomerCueVO>> ownedCustomer(QueryOwnedCustomerRequest request) {
         Long userId = SecurityUtil.getUserId();
+        List<Customer> customers = customerService.list(Wrappers.<Customer>lambdaQuery()
+            .eq(!SecurityUtil.isSuperAdmin(), Customer::getBusinessUserId, userId)
+            .likeRight(StringUtils.hasText(request.getCustomerName()), Customer::getName, request.getCustomerName())
+            .likeRight(StringUtils.hasText(request.getCustomerNumber()), Customer::getNumber, request.getCustomerNumber())
+        );
+        if (customers.isEmpty()) {
+            customers = customerService.list(Wrappers.<Customer>lambdaQuery()
+                .likeRight(StringUtils.hasText(request.getCustomerName()), Customer::getName, request.getCustomerName())
+                .likeRight(StringUtils.hasText(request.getCustomerNumber()), Customer::getNumber, request.getCustomerNumber())
+            );
+        }
         return R.ok(
-            customerService.list(Wrappers.<Customer>lambdaQuery()
-                .eq(!SecurityUtil.isSuperAdmin(), Customer::getBusinessUserId, userId)
-            ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO)
+                customers.stream().map(CustomerConvert.INSTANCE::toCustomerCueVO)
             .collect(Collectors.toList())
         );
     }

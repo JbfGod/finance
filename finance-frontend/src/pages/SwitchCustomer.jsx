@@ -1,4 +1,4 @@
-import {Button, message, Modal} from "antd";
+import {Button, Col, Input, message, Modal, Row, Space} from "antd";
 import ExProTable from "@/components/Table/ExtProTable";
 import React, {useRef, useState} from "react";
 import {ownedCustomerUsingGET, switchProxyCustomerUsingPUT} from "@/services/swagger/userWeb";
@@ -8,6 +8,8 @@ import {loginOut} from "@/services/login";
 
 export default function SwitchCustomer() {
   const actionRef = useRef()
+  const [customerName, setCustomerName] = useState()
+  const [customerNumber, setCustomerNumber] = useState()
   const { setInitialState } = useModel('@@initialState')
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const columns = [
@@ -42,9 +44,24 @@ export default function SwitchCustomer() {
              </Button>
            ]}
     >
+      <Space>
+        <Row align="middle">
+          <Col span={5}>编号：</Col>
+          <Col span={19}>
+            <Input allowClear onChange={(e) => setCustomerNumber(e.target.value || undefined)}/>
+          </Col>
+        </Row>
+        <Row align="middle">
+          <Col span={5}>名称：</Col>
+          <Col span={19}>
+            <Input allowClear onChange={(e) => setCustomerName(e.target.value || undefined)}/>
+          </Col>
+        </Row>
+        <Button type="primary" onClick={actionRef.current?.reload}>查询</Button>
+      </Space>
       <ExProTable actionRef={actionRef} columns={columns}
                   scroll={{y: 600}} editable={false}
-                  toolBarRender={false}
+                  toolBarRender={false} search={false}
                   tableAlertRender={false}
                   onRow={(record) => ({
                     onClick: () => setSelectedRowKeys([record.id])
@@ -56,7 +73,9 @@ export default function SwitchCustomer() {
                       setSelectedRowKeys(keys)
                     }
                   }}
-                  request={ownedCustomerUsingGET}
+                  request={() => {
+                    return ownedCustomerUsingGET({customerNumber, customerName})
+                  }}
       />
     </Modal>
   )
