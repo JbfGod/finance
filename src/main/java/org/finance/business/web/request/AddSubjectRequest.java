@@ -24,7 +24,6 @@ public class AddSubjectRequest {
     @Size(min = 2, max = 20, message = "科目名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "请选择所属行业")
     private Long industryId;
 
     @NotNull(message = "请选择科目类型")

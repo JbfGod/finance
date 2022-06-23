@@ -339,7 +339,7 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (51, '51', '行业管理', 50, '50', false, 2, 'MENU', '/base/industry', '', '', '', 300),
 (60, '60', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', '', '', 400),
 (70, '70', '客户分类管理', 50, '50', false, 2, 'MENU', '/base/customerCategory', '', '', '', 200),
-(80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', '', '', 100),
+(80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', 'customer', 'view:all', 100),
 (100, '100', '费用报销管理', 0, '', false, 1, 'MENU', '/expense/bill', 'icon-baoxiaoshenqing-feiyongbaoxiaoshenqing-06', 'expenseBill', 'view:all,base,auditing,unAuditing,print', 10),
 (120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', 'icon-ico_hushigongzuozhan_jizhangguanli', '', '', 20),
 (121, '121', '凭证管理', 120, '120', false, 2, 'MENU', '/voucher/list', '', 'voucher', 'view:all,base,auditing,unAuditing,bookkeeping,unBookkeeping,print', 100),
@@ -358,4 +358,4 @@ insert into `customer_resource` (customer_id, resource_id)
 select 0, f.id from `resource` f;
 
 replace into customer (id,`number`,`name`,industry_id,category_id,type,use_foreign_exchange,business_user_id)
-values(0, '0', '记账平台',0,0,'RENT_AND_PROXY', true, 1);
+values(0, 'HX_TOP', '记账平台',0,0,'RENT_AND_PROXY', true, 1);

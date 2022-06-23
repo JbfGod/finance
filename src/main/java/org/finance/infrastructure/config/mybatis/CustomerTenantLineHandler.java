@@ -26,7 +26,7 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
             return null;
         }
         if (Customer.DEFAULT_ID.equals(currentUser.getCustomerId())) {
-            return new LongValue(SecurityUtil.getOperateCustomerId());
+            return new LongValue(SecurityUtil.getProxyCustomerId());
         }
         return new LongValue(currentUser.getCustomerId());
     }
@@ -38,7 +38,7 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
 
     private final List<String> includeTables = Arrays.asList(
             "expense_bill", "expense_item", "expense_item_attachment", "expense_item_subsidy",
-            "industry", "subject", "voucher", "voucher_item", "currency"
+            "subject", "voucher", "voucher_item", "currency"
     );
 
     @Override

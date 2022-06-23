@@ -150,7 +150,7 @@ public class VoucherWeb {
     @PutMapping("/auditing")
     @PreAuthorize("hasPermission('voucher:batch', 'auditing')")
     public R batchAuditingVoucher(@Valid AuditingVoucherRequest request) {
-        Long customerId = SecurityUtil.getOperateCustomerId();
+        Long customerId = SecurityUtil.getProxyCustomerId();
         baseService.batchAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
@@ -159,7 +159,7 @@ public class VoucherWeb {
     @PutMapping("/unAuditing")
     @PreAuthorize("hasPermission('voucher:batch', 'unAuditing')")
     public R batchUnAuditingVoucher(@Valid AuditingVoucherRequest request) {
-        Long customerId = SecurityUtil.getOperateCustomerId();
+        Long customerId = SecurityUtil.getProxyCustomerId();
         baseService.batchUnAuditingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
@@ -182,7 +182,7 @@ public class VoucherWeb {
     @PutMapping("/bookkeeping")
     @PreAuthorize("hasPermission('voucher:batch', 'bookkeeping')")
     public R batchBookkeepingVoucher(@Valid BookkeepingVoucherRequest request) {
-        Long customerId = SecurityUtil.getOperateCustomerId();
+        Long customerId = SecurityUtil.getProxyCustomerId();
         baseService.batchBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();
@@ -191,7 +191,7 @@ public class VoucherWeb {
     @PutMapping("/unBookkeeping")
     @PreAuthorize("hasPermission('voucher:batch', 'unBookkeeping')")
     public R batchUnBookkeepingVoucher(@Valid UnBookkeepingVoucherRequest request) {
-        Long customerId = SecurityUtil.getOperateCustomerId();
+        Long customerId = SecurityUtil.getProxyCustomerId();
         baseService.batchUnBookkeepingVoucher(request.getYearMonth(), request.getBeginSerialNum(),
                 request.getEndSerialNum(), customerId);
         return R.ok();

@@ -21,7 +21,7 @@ import {CUSTOMER_TYPE} from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
-import {listUserUsingGET} from "@/services/swagger/userWeb";
+import {listUserFromSuperCustomerUsingGET, listUserUsingGET} from "@/services/swagger/userWeb";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
@@ -155,7 +155,7 @@ function AddOrUpdateFormModal({modal, categoryId, onSuccess, industryTreeData, .
   const [directors, setDirectors] = useState([])
   const directorOptions = directors.map(user => ({label: user.name, value: user.id}))
   const loadDirectors = () => {
-    listUserUsingGET().then(({data}) => setDirectors(data || []))
+    listUserFromSuperCustomerUsingGET().then(({data}) => setDirectors(data || []))
   }
   useEffect(() => {
     loadDirectors()

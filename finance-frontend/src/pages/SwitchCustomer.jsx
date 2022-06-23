@@ -31,7 +31,7 @@ export default function SwitchCustomer() {
   }
   return (
     <GlobalPageContainer>
-      <Card title="选择接户单位">
+      <Card title="选择客户单位">
         <Space>
           <Row align="middle">
             <Col span={5}>编号：</Col>

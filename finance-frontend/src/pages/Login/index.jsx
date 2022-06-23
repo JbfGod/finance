@@ -19,6 +19,7 @@ const Login = () => {
     if (userInfo) {
       await setInitialState((s) => ({ ...s, currentUser: userInfo }));
     }
+    return userInfo
   };
   useEffect(() => {
     removeCurrCustomer()
@@ -28,7 +29,16 @@ const Login = () => {
     common.setAccessToken(resp.data)
     localStorage.setItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT, values.customerNumber)
     message.success("登录成功！");
-    await fetchUserInfo();
+    const currentUser = await fetchUserInfo()
+    const {customerNumber, role, proxyCustomer} = currentUser || {}
+    const isAdmin = role === "ADMIN"
+    const isSuperCustomer = customerNumber === "HX_TOP"
+    // 平台单位非管理员选择客户单位
+    // const canSwitchCustomer = isSuperCustomer && !isAdmin && proxyCustomer == null
+    if (isSuperCustomer) {
+      history.push("/user/switchCustomer")
+      return
+    }
     /** 此方法会跳转到 redirect 参数所在的位置 */
     if (!history) return;
     const { query } = history.location;
@@ -40,7 +50,6 @@ const Login = () => {
       <div className={styles.content}>
         <LoginForm
           className={styles.loginForm}
-          /*logo={<MyIcon type="icon-shouzhangben"/>}*/
           title={<h2 className={styles.loginTitle}>慧记账平台</h2>}
           initialValues={{
             customerNumber: localStorage.getItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT),

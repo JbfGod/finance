@@ -108,7 +108,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
 
     public void addUser(User user) {
         boolean exists = this.baseMapper.exists(Wrappers.<User>lambdaQuery()
-                .eq(User::getCustomerId, user.getCustomerId())
+                .eq(User::getCustomerNumber, user.getCustomerNumber())
                 .eq(User::getAccount, user.getAccount())
         );
         AssertUtil.isFalse(exists, "用户账号已存在！");
@@ -116,6 +116,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     }
 
     public void proxyCustomer(long userId, long proxyCustomerId, String token) {
+        User user = baseMapper.selectById(userId);
+        AssertUtil.isTrue(Customer.DEFAULT_ID.equals(user.getCustomerId()), "操作失败，只有记账平台单位用户才能切换其他客户单位！");
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
         Object obj = redisTemplate.opsForValue().get(cacheAttr.getKey());
         UserRedisContextState state = Optional.ofNullable(obj).map(o -> (UserRedisContextState) o)

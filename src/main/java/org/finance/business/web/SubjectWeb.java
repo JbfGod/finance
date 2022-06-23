@@ -3,15 +3,16 @@ package org.finance.business.web;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.SubjectConvert;
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.Subject;
 import org.finance.business.service.IndustryService;
 import org.finance.business.service.SubjectService;
 import org.finance.business.web.request.AddSubjectRequest;
 import org.finance.business.web.request.QuerySubjectRequest;
 import org.finance.business.web.request.UpdateSubjectRequest;
-import org.finance.business.web.vo.SubjectVO;
 import org.finance.business.web.vo.TreeSubjectVO;
 import org.finance.infrastructure.common.R;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -47,23 +47,32 @@ public class SubjectWeb {
 
     @GetMapping("/tree")
     public R<List<TreeSubjectVO>> treeSubject(@Valid QuerySubjectRequest request) {
-        List<Subject> subjects = this.listSubjectByRequest(request);
+        List<Subject> subjects;
+        Customer proxyCustomer = SecurityUtil.getProxyCustomer();
+        if (proxyCustomer.isSuperCustomer()){
+            subjects = this.listSubjectByRequest(request);
+        } else {
+            subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
+                    .eq(Subject::getIndustryId, proxyCustomer.getIndustryId())
+                    .likeRight(StringUtils.isNotBlank(request.getNumber()) ,Subject::getNumber, request.getNumber())
+                    .likeRight(StringUtils.isNotBlank(request.getName()) ,Subject::getName, request.getName())
+            );
+        }
+
         List<TreeSubjectVO> treeSubjectVOList = SubjectConvert.INSTANCE.toTreeSubjectVO(subjects, (sub) -> {
             sub.setIndustry(industryService.getById(sub.getIndustryId()).getName());
         });
         return R.ok(treeSubjectVOList);
     }
 
-    @GetMapping("/list")
-    public R<List<SubjectVO>> listSubject(@Valid QuerySubjectRequest request) {
-        List<SubjectVO> list = this.listSubjectByRequest(request).stream()
-                .map(SubjectConvert.INSTANCE::toSubjectVO)
-                .collect(Collectors.toList());
-        return R.ok(list);
-    }
-
     @PostMapping("/add")
     public R addSubject(@RequestBody @Valid AddSubjectRequest request) {
+        Customer proxyCustomer = SecurityUtil.getProxyCustomer();
+        if (proxyCustomer.isSuperCustomer()) {
+            AssertUtil.isTrue(request.getIndustryId() != null, "请选择行业！");
+        } else {
+            request.setIndustryId(proxyCustomer.getIndustryId());
+        }
         boolean numberExists = subjectService.count(Wrappers.<Subject>lambdaQuery()
                 .eq(Subject::getIndustryId, request.getIndustryId())
                 .eq(Subject::getNumber, request.getNumber())

@@ -23,7 +23,7 @@ declare namespace API {
 
   type AddSubjectRequest = {
     assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
-    industryId: number;
+    industryId?: number;
     lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
     name: string;
     number: string;
@@ -69,6 +69,12 @@ declare namespace API {
     rate?: number;
     remark?: string;
     yearMonthNum?: string;
+  };
+
+  type Customer = {
+    id?: number;
+    name?: string;
+    number?: string;
   };
 
   type CustomerCategoryVO = {
@@ -201,12 +207,6 @@ declare namespace API {
 
   type Json = true;
 
-  type ProxyCustomer = {
-    id?: number;
-    name?: string;
-    number?: string;
-  };
-
   type R = {
     data?: Record<string, any>;
     errorCode?: string;
@@ -222,22 +222,6 @@ declare namespace API {
     hasLeaf?: boolean;
     id?: number;
     number?: string;
-  };
-
-  type SubjectVO = {
-    assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
-    hasLeaf?: boolean;
-    id?: number;
-    industry?: string;
-    industryId?: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
-    level?: number;
-    name?: string;
-    number?: string;
-    parentId?: number;
-    parentNumber?: string;
-    remark?: string;
-    type?: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
 
   type TreeCustomerCategoryVO = {
@@ -391,13 +375,14 @@ declare namespace API {
     account?: string;
     createBy?: number;
     createTime?: string;
+    customer?: Customer;
     customerId?: number;
     customerNumber?: string;
     id?: number;
     modifyBy?: number;
     modifyTime?: string;
     name?: string;
-    proxyCustomer?: ProxyCustomer;
+    proxyCustomer?: Customer;
     role?: 'ADMIN' | 'APPROVER' | 'NORMAL' | 'OFFICER';
   };
 
@@ -583,17 +568,6 @@ declare namespace API {
 
   type RListResourceIdentifiedVO_ = {
     data?: ResourceIdentifiedVO[];
-    errorCode?: string;
-    host?: string;
-    message?: string;
-    redirectUrl?: string;
-    showType?: number;
-    success?: boolean;
-    traceId?: string;
-  };
-
-  type RListSubjectVO_ = {
-    data?: SubjectVO[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -990,12 +964,6 @@ declare namespace API {
     id: number;
   };
 
-  type listSubjectUsingGETParams = {
-    industryId?: number;
-    name?: string;
-    number?: string;
-  };
-
   type treeSubjectUsingGETParams = {
     industryId?: number;
     name?: string;
@@ -1005,16 +973,6 @@ declare namespace API {
   type deleteUserUsingDELETEParams = {
     /** id */
     id: number;
-  };
-
-  type listUserUsingGETParams = {
-    account?: string;
-    current?: number;
-    customerName?: string;
-    customerNumber?: string;
-    name?: string;
-    pageSize?: number;
-    role?: 'ADMIN' | 'APPROVER' | 'NORMAL' | 'OFFICER';
   };
 
   type ownedCustomerUsingGETParams = {

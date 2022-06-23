@@ -22,11 +22,13 @@ public class UserSelfVO {
     private LocalDateTime createTime;
     private Long modifyBy;
     private LocalDateTime modifyTime;
-    private ProxyCustomer proxyCustomer;
+
+    private Customer customer;
+    private Customer proxyCustomer;
 
     @Data
     @Accessors(chain = true)
-    public static class ProxyCustomer {
+    public static class Customer {
         private Long id;
         private String name;
         private String number;

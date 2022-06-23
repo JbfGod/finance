@@ -29,6 +29,7 @@ import org.finance.business.web.vo.UserOwnedMenuVO;
 import org.finance.business.web.vo.UserSelfVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
+import org.finance.infrastructure.config.security.handler.MyPermissionEvaluator;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.util.StringUtils;
@@ -70,19 +71,13 @@ public class UserWeb {
     @javax.annotation.Resource
     private CustomerService customerService;
 
+    @javax.annotation.Resource
+    private MyPermissionEvaluator myPermissionEvaluator;
+
     @GetMapping("/self")
     public R<UserSelfVO> selfInfo() {
-        User user = userService.loadUserById(SecurityUtil.getCurrentUserId());
+        User user = SecurityUtil.getCurrentUser();
         UserSelfVO userSelfVO = UserConvert.INSTANCE.toUserSelfVO(user);
-        User currentUser = SecurityUtil.getCurrentUser();
-        Customer proxyCustomer = currentUser.getProxyCustomer();
-        if (proxyCustomer != null) {
-            UserSelfVO.ProxyCustomer agentCustomer = new UserSelfVO.ProxyCustomer();
-            agentCustomer.setId(proxyCustomer.getId())
-                        .setName(proxyCustomer.getName())
-                        .setNumber(proxyCustomer.getNumber());
-            userSelfVO.setProxyCustomer(agentCustomer);
-        }
         return R.ok(userSelfVO);
     }
 
@@ -126,12 +121,15 @@ public class UserWeb {
         return RPage.build(pages);
     }
 
-    @GetMapping("/list")
-    public R<List<UserListVO>> listUser(QueryUserRequest request) {
-        return R.ok(userService.list(this.buildQueryWrapperByRequest(request))
+    @GetMapping("/listFromSuperCustomer")
+    public R<List<UserListVO>> listUserFromSuperCustomer() {
+        return R.ok(userService.list(Wrappers.<User>lambdaQuery()
+                        .eq(User::getCustomerId, Customer.DEFAULT_ID)
+                )
                 .stream().map(UserConvert.INSTANCE::toUserListVO)
                 .collect(Collectors.toList()));
     }
+
 
     @GetMapping("/searchUserCue")
     public R<List<UserCueVO>> searchUserCue(QueryUserCueRequest request) {
@@ -139,23 +137,21 @@ public class UserWeb {
                 .select(User::getId, User::getAccount, User::getName)
                 .likeRight(StringUtils.hasText(request.getKeyword()), User::getAccount, request.getKeyword())
         ).stream().map(UserConvert.INSTANCE::toUserCueVO).collect(Collectors.toList());
+
         return R.ok(cues);
     }
 
     @GetMapping("/ownedCustomer")
     public R<List<CustomerCueVO>> ownedCustomer(QueryOwnedCustomerRequest request) {
         Long userId = SecurityUtil.getUserId();
+        boolean searchAll = myPermissionEvaluator.hasPermission(SecurityUtil.getAuthentication(),
+                "customer", ResourceOperate.VIEW_ALL.getValue()
+        );
         List<Customer> customers = customerService.list(Wrappers.<Customer>lambdaQuery()
-            .eq(!SecurityUtil.isSuperAdmin(), Customer::getBusinessUserId, userId)
+            .eq(!searchAll, Customer::getBusinessUserId, userId)
             .likeRight(StringUtils.hasText(request.getCustomerName()), Customer::getName, request.getCustomerName())
             .likeRight(StringUtils.hasText(request.getCustomerNumber()), Customer::getNumber, request.getCustomerNumber())
         );
-        if (customers.isEmpty()) {
-            customers = customerService.list(Wrappers.<Customer>lambdaQuery()
-                .likeRight(StringUtils.hasText(request.getCustomerName()), Customer::getName, request.getCustomerName())
-                .likeRight(StringUtils.hasText(request.getCustomerNumber()), Customer::getNumber, request.getCustomerNumber())
-            );
-        }
         return R.ok(
                 customers.stream().map(CustomerConvert.INSTANCE::toCustomerCueVO)
             .collect(Collectors.toList())
@@ -253,4 +249,5 @@ public class UserWeb {
         }
         return condition;
     }
+
 }

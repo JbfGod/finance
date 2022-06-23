@@ -28,10 +28,18 @@ export function useSecurity(permissionPrefix = "") {
   const {initialState} = useModel('@@initialState')
   const access = useAccess()
   const {currentUser = {}} = initialState || {}
-  const {customerNumber, role} = currentUser
+  const {customer = {}, role} = currentUser
+  const isAuth = !! initialState.currentUser
   const isAdmin = role === "ADMIN"
-  const isSuperCustomer = customerNumber === "HX_TOP"
+  const isSuperCustomer = customer.number === "HX_TOP"
   const isSuperAdmin = isSuperCustomer && isAdmin
+
+  const proxyCustomer = currentUser?.proxyCustomer || {
+    id: customer.id,
+    name: customer.name,
+    number: customer.number
+  }
+  const isSuperProxyCustomer = proxyCustomer.number === "HX_TOP"
 
   const canAuditing = isSuperAdmin || access[`${permissionPrefix}:auditing`]
   const canUnAuditing = isSuperAdmin || access[`${permissionPrefix}:unAuditing`]
@@ -41,15 +49,17 @@ export function useSecurity(permissionPrefix = "") {
   const canPrint = isSuperAdmin || access[`${permissionPrefix}:print`]
   const canAddFeign = isSuperAdmin || access[`${permissionPrefix}:addForeign`]
   return {
+    isAuth,
     isSuperCustomer,
-    onlyRead : true,
+    isSuperProxyCustomer,
     canAuditing,
     canUnAuditing,
     canBookkeeping,
     canUnBookkeeping,
     canOperating,
     canPrint,
-    canAddFeign
+    canAddFeign,
+    proxyCustomer
   }
 }
 

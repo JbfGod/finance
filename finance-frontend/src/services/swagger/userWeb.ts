@@ -43,17 +43,10 @@ export async function grantResourcesToUserUsingPOST(
   });
 }
 
-/** listUser GET /api/user/list */
-export async function listUserUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.listUserUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  return request<API.RListUserListVO_>('/api/user/list', {
+/** listUserFromSuperCustomer GET /api/user/listFromSuperCustomer */
+export async function listUserFromSuperCustomerUsingGET(options?: { [key: string]: any }) {
+  return request<API.RListUserListVO_>('/api/user/listFromSuperCustomer', {
     method: 'GET',
-    params: {
-      ...params,
-    },
     ...(options || {}),
   });
 }

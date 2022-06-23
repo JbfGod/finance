@@ -3,7 +3,7 @@ import {Button, Col, Empty, message, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam, useTableExpandable} from "@/utils/hooks";
+import {useModalWithParam, useSecurity, useTableExpandable} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import ExProTable from "@/components/Table/ExtProTable";
@@ -18,9 +18,12 @@ export default () => {
   const [selectedIndustry, setSelectedIndustry] = useState({id: 0, number: "0"})
   const [industryTreeData, setIndustryTreeData] = useState([])
   const [createModal, handleModal, openModal] = useModalWithParam()
+  const security = useSecurity()
 
   const openModalWithCheck = (params) => {
-    if (params.parentId === 0 && (selectedIndustry.hasLeaf || selectedIndustry.id === 0)) {
+    if (security.isSuperProxyCustomer
+      && params.parentId === 0
+      && (selectedIndustry.hasLeaf || selectedIndustry.id === 0)) {
       return message.warn("新增科目只能选择叶子节点的行业！")
     }
     openModal(params)
@@ -33,18 +36,22 @@ export default () => {
   }
   // 初始化行业数据
   useEffect(() => {
-    fetchTreeIndustry()
+    if (security.isSuperProxyCustomer) {
+      fetchTreeIndustry()
+    }
   }, [])
   const actionRef = useRef()
   const columns = [
+    ...(security.isSuperProxyCustomer? [
+      {
+        title: "所属行业", dataIndex: "industry", editable: false, search: false, width: 125
+      }
+    ] : []),
     {
       title: "科目编号", dataIndex: "number", editable: false, width: 255
     },
     {
       title: "级数", dataIndex: "level", editable: false, search: false, width: 50
-    },
-    {
-      title: "所属行业", dataIndex: "industry", editable: false, search: false, width: 125
     },
     {
       title: "科目名称", dataIndex: "name", width: 125
@@ -99,10 +106,20 @@ export default () => {
     }
   })
   const hasIndustry = !!industryTreeData?.[0]?.children?.[0]
+  if (!hasIndustry && security.isSuperProxyCustomer) {
+    return (
+      <ProCard colSpan={24} bordered>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
+               description={<span>暂无行业数据，无法添加科目</span>}>
+          <Button type="primary" onClick={() => history.push("/base/industry")}>前往行业管理添加行业</Button>
+        </Empty>
+      </ProCard>
+    )
+  }
   return (
     <PageContainer>
-      {hasIndustry ? (
-        <ProCard ghost gutter={[8, 0]}>
+      <ProCard ghost gutter={[8, 0]}>
+        {security.isSuperProxyCustomer && (
           <ProCard bordered className={styles.cardCommon} colSpan={5}>
             <Tree showLine={{showLeafIcon: false}} selectedKeys={[selectedIndustry.id]} defaultExpandAll
                   fieldNames={{title: "name", key: "id"}} treeData={industryTreeData}
@@ -114,60 +131,53 @@ export default () => {
                   }}
             />
           </ProCard>
-          <Col span={19}>
-            <ExProTable pagination={false} actionRef={actionRef} columns={columns}
-                        expandable={expandable} onLoad={onLoad}
-                        params={{industryId: selectedIndustry.id||undefined}}
-                        onNew={() => openModalWithCheck({parentId: 0})}
-                        editable={editable}
-                        request={subjectWeb.treeSubjectUsingGET}
+        )}
+        <Col span={security.isSuperProxyCustomer?19:24}>
+          <ExProTable pagination={false} actionRef={actionRef} columns={columns}
+                      expandable={expandable} onLoad={onLoad}
+                      params={{industryId: selectedIndustry.id||undefined}}
+                      onNew={() => openModalWithCheck({parentId: 0})}
+                      editable={editable}
+                      request={subjectWeb.treeSubjectUsingGET}
+          />
+          <ModalForm title="新增科目" width="420px" visible={createModal.visible}
+                     initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
+                     modalProps={{destroyOnClose: true}}
+                     onVisibleChange={handleModal}
+                     layout="inline"
+                     grid={true}
+                     rowProps={{gutter: [0,12]}}
+                     onFinish={async (value) => {
+                       await subjectWeb.addSubjectUsingPOST({
+                         ...value,
+                         industryId: selectedIndustry.id || createModal.industryId,
+                         parentId: createModal.parentId
+                       }).then(() => {
+                         handleModal(false)
+                         actionRef.current?.reload()
+                       })
+                     }}
+          >
+            <ProFormText name="number" label="科目编号"
+                         rules={[
+                           {required: true, message: "科目编号不能为空！"},
+                         ]}
             />
-            <ModalForm title="新增科目" width="420px" visible={createModal.visible}
-                       initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
-                       modalProps={{destroyOnClose: true}}
-                       onVisibleChange={handleModal}
-                       layout="inline"
-                       grid={true}
-                       rowProps={{gutter: [0,12]}}
-                       onFinish={async (value) => {
-                         await subjectWeb.addSubjectUsingPOST({
-                           ...value,
-                           industryId: selectedIndustry.id || createModal.industryId,
-                           parentId: createModal.parentId
-                         }).then(() => {
-                           handleModal(false)
-                           actionRef.current?.reload()
-                         })
-                       }}
-            >
-              <ProFormText name="number" label="科目编号"
-                           rules={[
-                             {required: true, message: "科目编号不能为空！"},
-                           ]}
-              />
-              <ProFormText name="name" label="科目名称"
-                           rules={[
-                             {required: true, message: "科目名称不能为空！"},
-                           ]}
-              />
-              <ProFormSelect name="type"
-                             allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
-              <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
-                             allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
-              <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
-                             options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
-              <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>
-            </ModalForm>
-          </Col>
-        </ProCard>
-      ) : (
-        <ProCard colSpan={24} bordered>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-                 description={<span>暂无行业数据，无法添加科目</span>}>
-            <Button type="primary" onClick={() => history.push("/base/industry")}>前往行业管理添加行业</Button>
-          </Empty>
-        </ProCard>
-      )}
+            <ProFormText name="name" label="科目名称"
+                         rules={[
+                           {required: true, message: "科目名称不能为空！"},
+                         ]}
+            />
+            <ProFormSelect name="type"
+                           allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
+            <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
+                           allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
+            <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
+                           options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
+            <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>
+          </ModalForm>
+        </Col>
+      </ProCard>
     </PageContainer>
   );
 };

@@ -31,21 +31,6 @@ export async function deleteSubjectUsingDELETE(
   });
 }
 
-/** listSubject GET /api/subject/list */
-export async function listSubjectUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.listSubjectUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  return request<API.RListSubjectVO_>('/api/subject/list', {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
 /** treeSubject GET /api/subject/tree */
 export async function treeSubjectUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

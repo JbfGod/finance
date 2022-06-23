@@ -35,6 +35,10 @@ public class SecurityUtil {
         throw new AuthenticationServiceException("找不到当前上下文用户失败");
     }
 
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
     public static User getCurrentUserOfNullable() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -52,17 +56,17 @@ public class SecurityUtil {
         return Customer.DEFAULT_ID.equals(currentUser.getCustomerId()) && currentUser.getRole() == User.Role.ADMIN;
     }
 
-    public static Customer getCurrOperateCustomer() {
+    public static Customer getProxyCustomer() {
         User currentUser = getCurrentUser();
         return Optional.ofNullable(currentUser.getProxyCustomer()).orElse(currentUser.getCustomer());
     }
 
-    public static Long getOperateCustomerId() {
-        return getCurrOperateCustomer().getId();
+    public static Long getProxyCustomerId() {
+        return getProxyCustomer().getId();
     }
 
-    public static String getOperateCustomerNumber() {
-        return getCurrOperateCustomer().getNumber();
+    public static String getProxyCustomerNumber() {
+        return getProxyCustomer().getNumber();
     }
 
     public static Long getUserId() {

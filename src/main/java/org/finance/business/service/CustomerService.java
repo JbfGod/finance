@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.finance.business.convert.IndustryConvert;
 import org.finance.business.convert.SubjectConvert;
 import org.finance.business.entity.Customer;
-import org.finance.business.entity.Industry;
 import org.finance.business.entity.Subject;
 import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.IndustryMapper;
@@ -75,7 +73,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
         // 初始化客户数据
         // CustomerTask.addInitialCustomer(customer);
-        this.initializationData(customer.getId());
+        this.initializationData(customer.getId(), customer.getIndustryId());
     }
 
     /**
@@ -150,71 +148,38 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         return customer.getName();
     }
 
-    private void initializationData(long customerId) {
-        Map<Long, Industry> industryById = industryMapper.selectList(
-                Wrappers.<Industry>lambdaQuery().eq(Industry::getCustomerId, Customer.DEFAULT_ID)
-        ).stream().collect(Collectors.toMap(Industry::getId, i -> i));
-        Map<Long, Subject> subjectById = subjectMapper.selectList(
-                Wrappers.<Subject>lambdaQuery().eq(Subject::getCustomerId, Customer.DEFAULT_ID)
+    private void initializationData(long customerId, long industryId) {
+        Map<Long, Subject> subjectById = subjectMapper.selectList(Wrappers.<Subject>lambdaQuery()
+                .eq(Subject::getCustomerId, Customer.DEFAULT_ID)
+                .eq(Subject::getIndustryId, industryId)
         ).stream().collect(Collectors.toMap(Subject::getId, s -> s));
-
-        // Copy industry data to new customer
-        Map<String, Industry> industryByNumber = new HashMap<>(20);
-        industryById.values().forEach(industry -> {
-            recursionInsertIndustry(customerId, IndustryConvert.INSTANCE.clone(industry), industryById, industryByNumber);
-        });
 
         // Copy subject data to new customer
         Map<String, Subject> subjectByNumber = new HashMap<>(20);
         subjectById.values().forEach(sub -> {
-            recursionInsertSubject(customerId, SubjectConvert.INSTANCE.clone(sub), subjectById, subjectByNumber, industryById, industryByNumber);
+            recursionInsertSubject(customerId, SubjectConvert.INSTANCE.clone(sub), subjectById, subjectByNumber, industryId);
         });
     }
 
     private void recursionInsertSubject(
             long customerId, Subject sub, Map<Long, Subject> subjectById, Map<String, Subject> subjectByNumber,
-            Map<Long, Industry> industryById, Map<String, Industry> industryByNumber
+            long industryId
     ) {
         if (subjectByNumber.get(sub.getNumber()) != null) {
-            return;
-        }
-        Industry industry = industryById.get(sub.getIndustryId());
-        if (industry == null) {
-            return;
-        }
-        industry = industryByNumber.get(industry.getNumber());
-        if (industry == null) {
             return;
         }
         subjectByNumber.put(sub.getNumber(), sub);
         Long parentId = sub.getParentId();
         if (parentId == 0L) {
-            subjectMapper.insert(sub.setId(null).setCustomerId(customerId).setIndustryId(industry.getId()));
+            subjectMapper.insert(sub.setId(null).setCustomerId(customerId).setIndustryId(industryId));
             return;
         }
         Subject pSubject = subjectByNumber.get(sub.getParentNumber());
         if (pSubject == null) {
             pSubject =  SubjectConvert.INSTANCE.clone(subjectById.get(parentId));
-            recursionInsertSubject(customerId, pSubject, subjectById, subjectByNumber, industryById, industryByNumber);
+            recursionInsertSubject(customerId, pSubject, subjectById, subjectByNumber, industryId);
         }
         subjectMapper.insert(sub.setId(null).setCustomerId(customerId).setParentId(pSubject.getParentId()));
     }
 
-    private void recursionInsertIndustry(long customerId, Industry industry, Map<Long, Industry> industryById, Map<String, Industry> industryByNumber) {
-        if (industryByNumber.get(industry.getNumber()) != null) {
-            return;
-        }
-        industryByNumber.put(industry.getNumber(), industry);
-        Long parentId = industry.getParentId();
-        if (parentId == 0L) {
-            industryMapper.insert(industry.setId(null).setCustomerId(customerId));
-            return;
-        }
-        Industry pIndustry = industryByNumber.get(industry.getParentNumber());
-        if (pIndustry == null) {
-            pIndustry =  IndustryConvert.INSTANCE.clone(industryById.get(parentId));
-            recursionInsertIndustry(customerId, pIndustry, industryById, industryByNumber);
-        }
-        industryMapper.insert(industry.setId(null).setCustomerId(customerId).setParentId(pIndustry.getId()));
-    }
 }

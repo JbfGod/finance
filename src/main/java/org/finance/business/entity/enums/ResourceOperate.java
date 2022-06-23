@@ -21,6 +21,7 @@ public enum ResourceOperate {
     BASE("base", "基本操作"),
     PRINT("print", "打印"),
     ADD_FOREIGN("addForeign", "添加外币凭证"),
+    VIEW_RESPONSIBLE("view:responsible", "仅查询业务负责")
     ;
     private String value;
     private String label;

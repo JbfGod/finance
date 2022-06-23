@@ -1,5 +1,6 @@
-import {PageLoading, SettingDrawer} from '@ant-design/pro-layout';
+import {PageLoading} from '@ant-design/pro-layout';
 import {history} from 'umi';
+import {message} from 'antd';
 import RightContent from '@/components/RightContent';
 import defaultSettings from '../config/defaultSettings';
 import * as userWeb from "@/services/swagger/userWeb";
@@ -7,6 +8,7 @@ import * as common from "@/utils/common";
 
 import moment from 'moment';
 import 'moment/locale/zh-cn';
+import Footer from "@/components/Footer";
 
 moment.locale('zh-cn');
 
@@ -61,7 +63,7 @@ export const layout = ({ initialState, setInitialState }) => {
     access: {
       strictMode: true,
     },
-    footerRender: () => null,//<Footer />,
+    footerRender: () => <Footer />,//,
     onPageChange: () => {
       const { location } = history; // 如果没有登录，重定向到 login
       const currentUser = initialState?.currentUser
@@ -69,13 +71,14 @@ export const layout = ({ initialState, setInitialState }) => {
         history.push(loginPath);
         return
       }
-      const {customerNumber, role, proxyCustomer} = currentUser
-      const isAdmin = role === "ADMIN"
-      const isSuperCustomer = customerNumber === "HX_TOP"
-      // 平台单位非管理员必须选择客户单位后才能操作
-      const mustSwitchCustomer = isSuperCustomer && !isAdmin && proxyCustomer == null
-      if (mustSwitchCustomer) {
-        history.push(`/user/switchCustomer`)
+      if (location.pathname.startsWith("/expense")) {
+        message.warn("请先选择客户单位")
+        history.push("/user/switchCustomer")
+        return
+      }
+      if (location.pathname.startsWith("/voucher")) {
+        message.warn("请先选择客户单位")
+        history.push("/user/switchCustomer")
         return
       }
       if (location.pathname === loginPath) {

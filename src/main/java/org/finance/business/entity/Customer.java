@@ -130,6 +130,10 @@ public class Customer implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
 
+    public boolean isSuperCustomer() {
+        return DEFAULT_NUMBER.equals(this.number);
+    }
+
     public enum Status {
         /**
          * 初始化数据中

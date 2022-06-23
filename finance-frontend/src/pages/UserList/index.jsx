@@ -10,7 +10,6 @@ import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import {Badge} from "antd";
 import {USER_ROLE} from "@/constants";
-import {treeResourceWithOperateUsingGET} from "@/services/swagger/customerWeb";
 
 const nameRules = [
   {required: true, message: "用户姓名不能为空！"},
