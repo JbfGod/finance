@@ -59,7 +59,7 @@ export default () => {
     <PageContainer>
       {hasCustomerCategory ? (
         <ProCard ghost gutter={[8, 0]}>
-          <ProCard colSpan={4} bordered className="cardCommon">
+          <ProCard colSpan={5} bordered className="cardCommon">
             <Tree showLine={{showLeafIcon: false}}
                   selectedKeys={[selectedCategoryId]} defaultExpandAll
                   fieldNames={{title: "name", key: "id"}} treeData={customerCategoryTreeData}
@@ -71,7 +71,7 @@ export default () => {
                   }}
             />
           </ProCard>
-          <Col span={selectedCustomerId ? 12 : 20}>
+          <Col span={selectedCustomerId ? 11 : 19}>
             <ExProTable actionRef={actionRef} columns={columns} editable={false} toolBarRender={false}
                         tableAlertRender={false}
                         onRow={(record) => ({
