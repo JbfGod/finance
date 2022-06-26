@@ -263,6 +263,7 @@ declare namespace API {
 
   type TreeResourceWithOperateVO = {
     children?: TreeResourceWithOperateVO[];
+    disabled?: boolean;
     id?: string;
     name?: string;
     parentId?: string;
@@ -973,7 +974,7 @@ declare namespace API {
     /** Authorization */
     Authorization: string;
     /** customerId */
-    customerId: number;
+    customerId?: number;
   };
 
   type resourceIdsOfUserUsingGETParams = {

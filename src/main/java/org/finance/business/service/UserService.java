@@ -2,7 +2,6 @@ package org.finance.business.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.finance.business.convert.ResourceConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
@@ -18,18 +17,14 @@ import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -112,7 +107,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
         baseMapper.insert(user);
     }
 
-    public void proxyCustomer(long userId, long proxyCustomerId, String token) {
+    public void proxyCustomer(long userId, Long proxyCustomerId, String token) {
         User user = baseMapper.selectById(userId);
         AssertUtil.isTrue(Customer.DEFAULT_ID.equals(user.getCustomerId()), "操作失败，只有记账平台单位用户才能切换其他客户单位！");
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);

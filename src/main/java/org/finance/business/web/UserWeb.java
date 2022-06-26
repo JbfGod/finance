@@ -212,8 +212,8 @@ public class UserWeb {
         return R.ok();
     }
 
-    @PutMapping("/switch/proxyCustomer/{customerId}")
-    public R switchProxyCustomer(@PathVariable("customerId") long customerId, @RequestHeader("Authorization") String authorization) {
+    @PutMapping("/switch/proxyCustomer")
+    public R switchProxyCustomer(Long customerId, @RequestHeader("Authorization") String authorization) {
         String token = authorization.substring("Bearer ".length());
         userService.proxyCustomer(SecurityUtil.getUserId(), customerId, token);
         return R.ok();

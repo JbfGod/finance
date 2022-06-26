@@ -135,7 +135,7 @@ export async function selfUpdatePasswordUsingPUT(
   });
 }
 
-/** switchProxyCustomer PUT /api/user/switch/proxyCustomer/${param0} */
+/** switchProxyCustomer PUT /api/user/switch/proxyCustomer */
 export async function switchProxyCustomerUsingPUT(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.switchProxyCustomerUsingPUTParams & {
@@ -145,11 +145,12 @@ export async function switchProxyCustomerUsingPUT(
   },
   options?: { [key: string]: any },
 ) {
-  const { customerId: param0, ...queryParams } = params;
-  return request<API.R>(`/api/user/switch/proxyCustomer/${param0}`, {
+  return request<API.R>('/api/user/switch/proxyCustomer', {
     method: 'PUT',
     headers: {},
-    params: { ...queryParams },
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
