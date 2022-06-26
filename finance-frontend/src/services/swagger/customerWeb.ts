@@ -105,20 +105,6 @@ export async function resourceIdsOfCustomerUsingGET(
   });
 }
 
-/** treeResourceOfCustomer GET /api/customer/${param0}/treeResource */
-export async function treeResourceOfCustomerUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.treeResourceOfCustomerUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { customerId: param0, ...queryParams } = params;
-  return request<API.RListTreeResourceVO_>(`/api/customer/${param0}/treeResource`, {
-    method: 'GET',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
 /** treeResourceWithOperate GET /api/customer/${param0}/treeResourceWithOperate */
 export async function treeResourceWithOperateUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

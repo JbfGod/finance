@@ -94,7 +94,7 @@ public class UserWeb {
     @GetMapping("/{userId}/resources")
     public R<List<String>> resourceIdsOfUser(@PathVariable("userId") long userId) {
         List<String> resourceIds = userResourceService.getResourcesByUserId(userId)
-                .stream() .filter(func -> !func.getHasLeaf())
+                .stream()
                 .flatMap(r -> {
                     Long id = r.getId();
                     String permitCode = r.getPermitCode();
@@ -130,8 +130,6 @@ public class UserWeb {
                 .collect(Collectors.toList()));
     }
 
-
-    @GetMapping("/searchUserCue")
     public R<List<UserCueVO>> searchUserCue(QueryUserCueRequest request) {
         List<UserCueVO> cues = userService.list(Wrappers.<User>lambdaQuery()
                 .select(User::getId, User::getAccount, User::getName)
@@ -152,8 +150,8 @@ public class UserWeb {
             .likeRight(StringUtils.hasText(request.getCustomerName()), Customer::getName, request.getCustomerName())
             .likeRight(StringUtils.hasText(request.getCustomerNumber()), Customer::getNumber, request.getCustomerNumber())
         );
-        return R.ok(
-                customers.stream().map(CustomerConvert.INSTANCE::toCustomerCueVO)
+        return R.ok(customers.stream()
+            .map(CustomerConvert.INSTANCE::toCustomerCueVO)
             .collect(Collectors.toList())
         );
     }

@@ -16,6 +16,7 @@ public class TreeResourceWithOperateVO {
     private String name;
     private String parentId;
     private Integer sortNum;
+    private Boolean disabled;
 
     private List<TreeResourceWithOperateVO> children;
 

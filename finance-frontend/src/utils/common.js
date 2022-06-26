@@ -186,3 +186,22 @@ export function convertCurrency(currencyDigits) {
   }
   return outputCharacters;
 }
+
+export function getHasChildNode(treeData, childrenField = "children") {
+  const hasChildNodes = []
+  const recursion = (tree) => {
+    if (!tree) {
+      return
+    }
+    for (let i = 0; i < tree.length; i++) {
+      const children = tree[i][childrenField]
+      if (!children || children.length === 0) {
+        continue
+      }
+      hasChildNodes.push(tree[i])
+      recursion(children)
+    }
+  }
+  recursion(treeData)
+  return hasChildNodes
+}

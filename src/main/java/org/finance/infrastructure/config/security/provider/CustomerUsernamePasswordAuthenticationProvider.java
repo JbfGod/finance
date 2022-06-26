@@ -6,7 +6,6 @@ import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.config.security.util.JwtTokenUtil;
-import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,14 +15,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
 
 /**
  * @author jiangbangfa
@@ -78,10 +73,15 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         // 生成访问令牌
         String token = JwtTokenUtil.generateTokenByUser(dbUser.getId());
         // 查询权限
-        List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(dbUser.getId());
-        authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));
+        /*List<Resource> resources = this.customerUserService.loadAuthoritiesByUserId(dbUser.getId());
+        List<GrantedAuthority> authorities = resources
+                .stream().flatMap(ResourceConvert.INSTANCE::toAccess)
+                .filter(StringUtils::hasText)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+        authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));*/
         // 构造Authentication
-        JwtAuthenticationToken result = new JwtAuthenticationToken(token, authorities);
+        JwtAuthenticationToken result = new JwtAuthenticationToken(token);
         result.setDetails(authentication.getDetails());
         // 将token写入缓存
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);

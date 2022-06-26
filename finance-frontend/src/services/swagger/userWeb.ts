@@ -96,21 +96,6 @@ export async function resetUserPasswordUsingPUT(
   });
 }
 
-/** searchUserCue GET /api/user/searchUserCue */
-export async function searchUserCueUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.searchUserCueUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  return request<API.RListUserCueVO_>('/api/user/searchUserCue', {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
 /** selfInfo GET /api/user/self */
 export async function selfInfoUsingGET(options?: { [key: string]: any }) {
   return request<API.RUserSelfVO_>('/api/user/self', {

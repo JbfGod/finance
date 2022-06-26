@@ -248,6 +248,7 @@ declare namespace API {
 
   type TreeResourceVO = {
     children?: TreeResourceVO[];
+    disabled?: boolean;
     hasLeaf?: boolean;
     id?: number;
     level?: number;
@@ -340,12 +341,6 @@ declare namespace API {
     serialNumber?: number;
     unit: string;
     voucherDate: string;
-  };
-
-  type UserCueVO = {
-    account?: string;
-    id?: number;
-    name?: string;
   };
 
   type UserListVO = {
@@ -632,17 +627,6 @@ declare namespace API {
     traceId?: string;
   };
 
-  type RListUserCueVO_ = {
-    data?: UserCueVO[];
-    errorCode?: string;
-    host?: string;
-    message?: string;
-    redirectUrl?: string;
-    showType?: number;
-    success?: boolean;
-    traceId?: string;
-  };
-
   type RListUserListVO_ = {
     data?: UserListVO[];
     errorCode?: string;
@@ -827,11 +811,6 @@ declare namespace API {
     customerId: number;
   };
 
-  type treeResourceOfCustomerUsingGETParams = {
-    /** customerId */
-    customerId: number;
-  };
-
   type treeResourceWithOperateUsingGETParams = {
     /** customerId */
     customerId: number;
@@ -988,10 +967,6 @@ declare namespace API {
     name?: string;
     pageSize?: number;
     role?: 'ADMIN' | 'APPROVER' | 'NORMAL' | 'OFFICER';
-  };
-
-  type searchUserCueUsingGETParams = {
-    keyword?: string;
   };
 
   type switchProxyCustomerUsingPUTParams = {

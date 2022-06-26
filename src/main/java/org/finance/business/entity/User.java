@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>
@@ -89,6 +90,10 @@ public class User implements Serializable, UserDetails {
 
     @TableField(exist = false)
     private Customer proxyCustomer;
+
+    @TableField(exist = false)
+    public List<Resource> resources;
+
 
     public enum Role {
         /**

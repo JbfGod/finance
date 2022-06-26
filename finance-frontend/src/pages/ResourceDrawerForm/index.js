@@ -1,21 +1,27 @@
 import {DrawerForm, ProForm, ProFormItem} from "@ant-design/pro-form";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {Tree} from "antd";
 import {useForm} from "antd/es/form/Form";
+import {flatTree, getHasChildNode} from "@/utils/common";
 
-export function TreeInput({value = [], initialValue, onChange, ...props}) {
+export function TreeInput({value = [], initialValue, onChange, fieldNames, treeData, ...props}) {
   const [checkedKeys, setCheckedKeys] = useState(value)
 
   const triggerChange = (keys, {halfCheckedKeys}) => {
     setCheckedKeys(keys)
     onChange([...keys, ...halfCheckedKeys])
   }
+  const hasChildNodeKeys = useMemo(() => getHasChildNode(treeData).map(node => node[fieldNames?.key || "value"]), [treeData])
+  const allNodeKeys = useMemo(() => flatTree(treeData).map(node => node[fieldNames?.key || "value"]), [treeData])
   useEffect(() => {
     initialValue && setCheckedKeys(initialValue)
   }, [initialValue])
 
-  return <Tree checkable {...props} onCheck={triggerChange}
-               checkedKeys={checkedKeys}/>
+  const overCheckedKeys = (value || checkedKeys)
+      .filter(key => !hasChildNodeKeys.includes(key))
+      .filter(key => allNodeKeys.includes(key))
+  return <Tree checkable treeData={treeData} fieldNames={fieldNames} {...props} onCheck={triggerChange}
+               checkedKeys={overCheckedKeys}/>
 }
 
 export function GrantResourceForm({resourceData, resourceIdentifies, ...props}) {
@@ -27,7 +33,6 @@ export function GrantResourceForm({resourceData, resourceIdentifies, ...props}) 
     <ProForm form={form} {...props}>
       <ProFormItem name="resourceIds">
         <TreeInput defaultExpandAll={true}
-                   initialValue={resourceIdentifies.filter(v => !v.hasLeaf).map(v => v.id)}
                    fieldNames={{title: "name", key: "id"}}
                    treeData={resourceData}/>
       </ProFormItem>

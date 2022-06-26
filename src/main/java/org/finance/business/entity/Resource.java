@@ -90,6 +90,8 @@ public class Resource implements Serializable {
      */
     private Integer sortNum;
 
+    private Boolean superCustomer;
+
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
 
@@ -107,6 +109,9 @@ public class Resource implements Serializable {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
+
+    @TableField(exist = false)
+    private Boolean disabled;
 
     public enum Type {
         MENU, PERMIT, DATA_SCOPE

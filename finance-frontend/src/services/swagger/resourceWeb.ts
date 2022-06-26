@@ -2,9 +2,9 @@
 /* eslint-disable */
 import { request } from 'umi';
 
-/** treeResources GET /api/resource/tree */
-export async function treeResourcesUsingGET(options?: { [key: string]: any }) {
-  return request<API.RListTreeResourceVO_>('/api/resource/tree', {
+/** treeNormalCustomerResources GET /api/resource/treeOfNormalCustomer */
+export async function treeNormalCustomerResourcesUsingGET(options?: { [key: string]: any }) {
+  return request<API.RListTreeResourceVO_>('/api/resource/treeOfNormalCustomer', {
     method: 'GET',
     ...(options || {}),
   });

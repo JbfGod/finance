@@ -17,10 +17,10 @@ import org.finance.business.web.request.UpdateCustomerRequest;
 import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
-import org.finance.business.web.vo.TreeResourceVO;
 import org.finance.business.web.vo.TreeResourceWithOperateVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -63,15 +64,21 @@ public class CustomerWeb {
         return R.ok(resourceIds);
     }
 
-    @GetMapping("/{customerId}/treeResource")
-    public R<List<TreeResourceVO>> treeResourceOfCustomer(@PathVariable("customerId") long customerId) {
-        List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId);
-        return R.ok(ResourceConvert.INSTANCE.toTreeResourceVO(resources));
-    }
-
     @GetMapping("/{customerId}/treeResourceWithOperate")
     public R<List<TreeResourceWithOperateVO>> treeResourceWithOperate(@PathVariable("customerId") long customerId) {
-        List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId);
+        List<Long> canGrantResourceIds = SecurityUtil.getCurrentUser().getResources().stream()
+                .map(org.finance.business.entity.Resource::getId)
+                .collect(Collectors.toList());
+        List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId)
+                .stream().filter(r -> {
+            if (Customer.DEFAULT_ID.equals(customerId) && r.getSuperCustomer()) {
+                return false;
+            }
+            if (!canGrantResourceIds.contains(r.getId())) {
+                r.setDisabled(true);
+            }
+            return true;
+        }).collect(Collectors.toList());
         return R.ok(ResourceConvert.INSTANCE.toTreeResourceWithOperateVO(resources));
     }
 
@@ -139,4 +146,15 @@ public class CustomerWeb {
         return R.ok();
     }
 
+    /**
+     * 提取出当能用户能够不能分配的权限
+     * @param resources
+     */
+    private List<Resource> getDisabledResourceIds(List<Resource> resources) {
+        Map<Long, Resource> ownedResources = SecurityUtil.getCurrentUser().getResources()
+                .stream().collect(Collectors.toMap(Resource::getId, r -> r));
+        return resources.stream().filter(r -> !ownedResources.containsKey(r.getId()))
+                .map(r -> ownedResources.get(r.getId()))
+                .collect(Collectors.toList());
+    }
 }

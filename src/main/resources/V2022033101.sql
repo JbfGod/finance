@@ -331,22 +331,22 @@ CREATE TABLE if not exists `sequence` (
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='序列表';
 
 truncate table resource;
-replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, business_code,permit_code, sort_num)values
-(1, '1', '系统管理', 0, '', true, 1, 'MENU', '/system', 'icon-xitongguanli1', '', '', 40),
-(2, '2', '用户管理', 1, '1', false, 2, 'MENU', '/system/user', '', '', '', 1000),
-(6, '6', '客户授权管理', 1, '1', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', '', '', 1000),
-(50, '50', '基础数据管理', 0, '', true, 1, 'MENU', '/base', 'icon-jichushuju_icox', '', '', 30),
-(51, '51', '行业管理', 50, '50', false, 2, 'MENU', '/base/industry', '', '', '', 300),
-(60, '60', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', '', '', 400),
-(70, '70', '客户分类管理', 50, '50', false, 2, 'MENU', '/base/customerCategory', '', '', '', 200),
-(80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', 'customer', 'view:all', 100),
-(100, '100', '费用报销管理', 0, '', false, 1, 'MENU', '/expense/bill', 'icon-baoxiaoshenqing-feiyongbaoxiaoshenqing-06', 'expenseBill', 'view:all,base,auditing,unAuditing,print', 10),
-(120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', 'icon-ico_hushigongzuozhan_jizhangguanli', '', '', 20),
-(121, '121', '凭证管理', 120, '120', false, 2, 'MENU', '/voucher/list', '', 'voucher', 'view:all,base,auditing,unAuditing,bookkeeping,unBookkeeping,print', 100),
-(130, '130', '批量审核', 120, '120', false, 2, 'MENU', '/voucher/batchAuditing', '', 'voucher:batch', 'auditing,unAuditing', 300),
-(140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'voucher:batch', 'bookkeeping,unBookkeeping', 400),
-(150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', '', '', 200),
-(160, '160', '汇率管理', 120, '120', false, 2, 'MENU', '/voucher/currency', '', 'currency', 'base,auditing,unAuditing', 500)
+replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, business_code,permit_code, sort_num, super_customer)values
+(1, '1', '系统管理', 0, '', true, 1, 'MENU', '/system', 'icon-xitongguanli1', '', '', 40, false),
+(2, '2', '用户管理', 1, '1', false, 2, 'MENU', '/system/user', '', '', '', 1000, false),
+(6, '6', '客户授权管理', 1, '1', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', '', '', 1000, true),
+(50, '50', '基础数据管理', 0, '', true, 1, 'MENU', '/base', 'icon-jichushuju_icox', '', '', 30, false),
+(51, '51', '行业管理', 50, '50', false, 2, 'MENU', '/base/industry', '', '', '', 300, true),
+(60, '60', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', '', '', 400, false),
+(70, '70', '客户分类管理', 50, '50', false, 2, 'MENU', '/base/customerCategory', '', '', '', 200, false),
+(80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', 'customer', 'view:all', 100, false),
+(100, '100', '费用报销管理', 0, '', false, 1, 'MENU', '/expense/bill', 'icon-baoxiaoshenqing-feiyongbaoxiaoshenqing-06', 'expenseBill', 'view:all,base,auditing,unAuditing,print', 10, false),
+(120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', 'icon-ico_hushigongzuozhan_jizhangguanli', '', '', 20, false),
+(121, '121', '凭证管理', 120, '120', false, 2, 'MENU', '/voucher/list', '', 'voucher', 'view:all,base,auditing,unAuditing,bookkeeping,unBookkeeping,print', 100, false),
+(130, '130', '批量审核', 120, '120', false, 2, 'MENU', '/voucher/batchAuditing', '', 'voucher:batch', 'auditing,unAuditing', 300, false),
+(140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'voucher:batch', 'bookkeeping,unBookkeeping', 400, false),
+(150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', '', '', 200, false),
+(160, '160', '汇率管理', 120, '120', false, 2, 'MENU', '/voucher/currency', '', 'currency', 'base,auditing,unAuditing', 500, false)
 ;
 
 delete from `user_resource` where user_id = 1;

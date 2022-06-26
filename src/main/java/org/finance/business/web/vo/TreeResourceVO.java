@@ -31,6 +31,8 @@ public class TreeResourceVO {
 
     private Integer sortNum;
 
+    private Boolean disabled;
+
     private List<TreeResourceVO> children;
 
 }

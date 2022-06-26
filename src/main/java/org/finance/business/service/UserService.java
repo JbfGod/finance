@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.convert.ResourceConvert;
 import org.finance.business.entity.Customer;
+import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.UserMapper;
@@ -89,12 +90,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
     }
 
     @Override
-    public List<GrantedAuthority> loadAuthoritiesByUserId(Long userId) {
-        return userResourceMapper.listResourceByUserId(userId)
-                .stream().flatMap(ResourceConvert.INSTANCE::toAccess)
-                .filter(StringUtils::hasText)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+    public List<Resource> loadAuthoritiesByUserId(Long userId) {
+        return userResourceMapper.listResourceByUserId(userId);
     }
 
     @Override

@@ -25,7 +25,7 @@ export default () => {
   }
   // 加载所有功能权限
   const fetchTreeResource = async () => {
-    const {data} = await resourceWeb.treeResourcesUsingGET()
+    const {data} = await resourceWeb.treeNormalCustomerResourcesUsingGET()
     setResourcesData(data)
   }
   // 加载选中客户拥有的功能权限

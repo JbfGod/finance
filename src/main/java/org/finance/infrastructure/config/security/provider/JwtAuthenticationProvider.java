@@ -1,7 +1,9 @@
 package org.finance.infrastructure.config.security.provider;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.finance.business.convert.ResourceConvert;
 import org.finance.business.entity.Customer;
+import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
@@ -18,12 +20,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.StringUtils;
 
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author jiangbangfa
@@ -78,7 +82,13 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      * 授权
      */
     private List<GrantedAuthority> grantedAuthorities(User user) {
-        List<GrantedAuthority> authorities = this.customerUserService.loadAuthoritiesByUserId(user.getId());
+        List<Resource> resources = this.customerUserService.loadAuthoritiesByUserId(user.getId());
+        user.setResources(resources);
+        List<GrantedAuthority> authorities = resources.stream()
+                .flatMap(ResourceConvert.INSTANCE::toAccess)
+                .filter(StringUtils::hasText)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
         authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, user.getRole())));
         // 获取当前操作员记账的客户单位
         Customer customer = Optional.ofNullable(user.getProxyCustomer()).orElse(user.getCustomer());
