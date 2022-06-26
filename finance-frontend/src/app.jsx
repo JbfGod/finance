@@ -71,12 +71,13 @@ export const layout = ({ initialState, setInitialState }) => {
         history.push(loginPath);
         return
       }
-      if (location.pathname.startsWith("/expense")) {
+      const {proxyCustomer} = currentUser
+      if (location.pathname.startsWith("/expense") && !proxyCustomer?.id > 0) {
         message.warn("请先选择客户单位")
         history.push("/user/switchCustomer")
         return
       }
-      if (location.pathname.startsWith("/voucher")) {
+      if (location.pathname.startsWith("/voucher") && !proxyCustomer?.id > 0) {
         message.warn("请先选择客户单位")
         history.push("/user/switchCustomer")
         return
