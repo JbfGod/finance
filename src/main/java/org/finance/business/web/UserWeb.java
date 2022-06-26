@@ -17,13 +17,11 @@ import org.finance.business.service.UserService;
 import org.finance.business.web.request.AddUserRequest;
 import org.finance.business.web.request.GrantResourcesToUserRequest;
 import org.finance.business.web.request.QueryOwnedCustomerRequest;
-import org.finance.business.web.request.QueryUserCueRequest;
 import org.finance.business.web.request.QueryUserRequest;
 import org.finance.business.web.request.UpdateSelfPasswordRequest;
 import org.finance.business.web.request.UpdateUserPasswordRequest;
 import org.finance.business.web.request.UpdateUserRequest;
 import org.finance.business.web.vo.CustomerCueVO;
-import org.finance.business.web.vo.UserCueVO;
 import org.finance.business.web.vo.UserListVO;
 import org.finance.business.web.vo.UserOwnedMenuVO;
 import org.finance.business.web.vo.UserSelfVO;
@@ -127,15 +125,6 @@ public class UserWeb {
                 )
                 .stream().map(UserConvert.INSTANCE::toUserListVO)
                 .collect(Collectors.toList()));
-    }
-
-    public R<List<UserCueVO>> searchUserCue(QueryUserCueRequest request) {
-        List<UserCueVO> cues = userService.list(Wrappers.<User>lambdaQuery()
-                .select(User::getId, User::getAccount, User::getName)
-                .likeRight(StringUtils.hasText(request.getKeyword()), User::getAccount, request.getKeyword())
-        ).stream().map(UserConvert.INSTANCE::toUserCueVO).collect(Collectors.toList());
-
-        return R.ok(cues);
     }
 
     @GetMapping("/ownedCustomer")

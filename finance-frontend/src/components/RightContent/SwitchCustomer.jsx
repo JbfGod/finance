@@ -18,7 +18,7 @@ const SwitchCustomer = (props) => {
       setCustomers([])
       return
     }
-    searchCustomerCueUsingGET({keyword: searchText}).then(({data}) => {
+    searchCustomerCueUsingGET({keyword: searchText, num: 3}).then(({data}) => {
       setCustomers(data)
     })
   }, 200), [])

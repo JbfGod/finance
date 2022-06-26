@@ -71,7 +71,7 @@ public class CustomerWeb {
                 .collect(Collectors.toList());
         List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId)
                 .stream().filter(r -> {
-            if (Customer.DEFAULT_ID.equals(customerId) && r.getSuperCustomer()) {
+            if (!Customer.DEFAULT_ID.equals(customerId) && r.getSuperCustomer()) {
                 return false;
             }
             if (!canGrantResourceIds.contains(r.getId())) {
@@ -115,8 +115,9 @@ public class CustomerWeb {
     public R<List<CustomerCueVO>> searchCustomerCue(QueryCustomerCueRequest request) {
         List<CustomerCueVO> cues = customerService.list(Wrappers.<Customer>lambdaQuery()
                 .select(Customer::getId, Customer::getNumber, Customer::getName)
-                .likeRight(Customer::getNumber, request.getKeyword())
-                .last(String.format("limit %d", request.getNum()))
+                .gt(Customer::getId, 0)
+                .likeRight(StringUtils.hasText(request.getKeyword()), Customer::getNumber, request.getKeyword())
+                .last(request.getNum() != null, String.format("limit %d", request.getNum()))
         ).stream().map(CustomerConvert.INSTANCE::toCustomerCueVO).collect(Collectors.toList());
         return R.ok(cues);
     }

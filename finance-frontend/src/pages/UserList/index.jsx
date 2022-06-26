@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import PageContainer from "@/components/PageContainer";
 import * as userWeb from "@/services/swagger/userWeb";
 import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "@ant-design/pro-form";
@@ -10,6 +10,8 @@ import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import {Badge} from "antd";
 import {USER_ROLE} from "@/constants";
+import {listUserFromSuperCustomerUsingGET} from "@/services/swagger/userWeb";
+import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
 
 const nameRules = [
   {required: true, message: "用户姓名不能为空！"},
@@ -35,6 +37,16 @@ export default () => {
     functionData: [], selectedResourceIds: [], user: null
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
+  const [customers, setCustomers] = useState([])
+  const customerOptions = customers.map(c => ({label: `${c.name}-(${c.number})`, value: c.id}))
+  const loadCustomers = () => {
+    searchCustomerCueUsingGET().then(({data}) => {
+      setCustomers(data)
+    })
+  }
+  useEffect(() => {
+    loadCustomers()
+  }, [])
   const actionRef = useRef()
   const security = useSecurity("user")
   const columns = [
@@ -128,7 +140,7 @@ export default () => {
                    })
                  }}
       >
-        <ProFormText name="customerNumber" label="客户编号"/>
+        <ProFormSelect name="customerNumber" label="客户编号" showSearch options={customerOptions}/>
         <ProFormSelect name="role" allowClear={false} label="用户类型" options={Object.values(USER_ROLE)}/>
         <ProFormText name="name" label="用户姓名" rules={nameRules}/>
         <ProFormText name="account" label="登录账号"
