@@ -33,7 +33,6 @@ import org.finance.infrastructure.config.security.handler.MyPermissionEvaluator;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -147,6 +146,7 @@ public class UserWeb {
         );
         List<Customer> customers = customerService.list(Wrappers.<Customer>lambdaQuery()
             .eq(!searchAll, Customer::getBusinessUserId, userId)
+            .gt(Customer::getId, 0)
             .likeRight(StringUtils.hasText(request.getCustomerName()), Customer::getName, request.getCustomerName())
             .likeRight(StringUtils.hasText(request.getCustomerNumber()), Customer::getNumber, request.getCustomerNumber())
         );
@@ -205,7 +205,6 @@ public class UserWeb {
         return R.ok();
     }
 
-    @DeleteMapping("/delete/{id}")
     public R deleteUser(@PathVariable("id") long id) {
         AssertUtil.isFalse(SecurityUtil.getCurrentUserId() == id, "不能删除当前操作用户！");
         userService.removeById(id);
