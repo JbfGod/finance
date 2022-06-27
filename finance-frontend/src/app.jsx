@@ -71,16 +71,14 @@ export const layout = ({ initialState, setInitialState }) => {
         history.push(loginPath);
         return
       }
-      const {proxyCustomer} = currentUser
-      if (location.pathname.startsWith("/expense") && !proxyCustomer?.id > 0) {
-        message.warn("请先选择客户单位")
-        history.push("/user/switchCustomer")
-        return
-      }
-      if (location.pathname.startsWith("/voucher") && !proxyCustomer?.id > 0) {
-        message.warn("请先选择客户单位")
-        history.push("/user/switchCustomer")
-        return
+      const {customer, proxyCustomer} = currentUser
+      const isSuperCustomer = customer.number === "HX_TOP"
+      if (isSuperCustomer && proxyCustomer == null) {
+        if (location.pathname.startsWith("/expense") || location.pathname.startsWith("/voucher")) {
+          message.warn("请先选择客户单位！")
+          history.push("/user/switchCustomer")
+         return
+        }
       }
       if (location.pathname === loginPath) {
         history.push("/welcome");

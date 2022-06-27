@@ -66,15 +66,17 @@ public class VoucherWeb {
     private final String RESOURCE_TARGET = "voucher";
 
     @GetMapping("/page")
-    public RPage<VoucherVO> pageVoucher(@Valid QueryVoucherRequest request) {
+    public RPage<VoucherVO> pageVoucher(QueryVoucherRequest request) {
         boolean canSearchAll = SecurityUtil.canViewAll(RESOURCE_TARGET);
         User currentUser = SecurityUtil.getCurrentUser();
         boolean isLocalCurrency = request.getCurrencyType() == QueryVoucherRequest.CurrencyType.LOCAL;
         IPage<VoucherVO> page = baseService.page(request.extractPage(), Wrappers.<Voucher>lambdaQuery()
                 .eq(isLocalCurrency, Voucher::getCurrencyId, Currency.LOCAL_CURRENCY.getId())
                 .gt(!isLocalCurrency, Voucher::getCurrencyId, Currency.LOCAL_CURRENCY.getId())
-                .eq(request.getYearMonthNum() != null, Voucher::getYearMonthNum, request.getYearMonthNum())
+                .eq(request.getSerialNumber() != null, Voucher::getSerialNumber, request.getSerialNumber())
+                .between(request.getStartDate() != null && request.getEndDate() != null, Voucher::getVoucherTime, request.getStartDate(), request.getEndDate())
                 .eq(!canSearchAll, Voucher::getCreateBy, currentUser.getId())
+                .orderByDesc(Voucher::getVoucherTime)
         ).convert(VoucherConvert.INSTANCE::toVoucherVO);
         return RPage.build(page);
     }

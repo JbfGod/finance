@@ -11,7 +11,6 @@ import org.finance.business.mapper.UserResourceMapper;
 import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
-import org.finance.infrastructure.exception.HxException;
 import org.finance.infrastructure.util.AssertUtil;
 import org.finance.infrastructure.util.CacheAttr;
 import org.finance.infrastructure.util.CacheKeyUtil;
@@ -65,10 +64,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
             }
             if (!customer.getEnabled()) {
                 throw new DisabledException("客户已被禁用！");
-            }
-            Customer.Status status = customer.getStatus();
-            if (status == Customer.Status.INITIALIZING) {
-                throw new HxException("客户数据初始化中，请稍后尝试...");
             }
             user.setCustomer(customer);
         }

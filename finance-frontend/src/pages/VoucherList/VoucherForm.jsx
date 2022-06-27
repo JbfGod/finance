@@ -39,6 +39,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
   const isViewMode = mode === "view"
   const isEditMode = mode === "edit"
   const isForeignCurrency = currencyType === CURRENCY_TYPE.FOREIGN
+  const isLocalCurrency = currencyType === CURRENCY_TYPE.LOCAL
   const [formRef] = Form.useForm()
   const actionRef = useRef()
   const [editableKeys, setEditableKeys] = useState([])
@@ -166,7 +167,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     if (isAddMode) {
       const newItems = []
       for (let i = 0; i < CAPACITY; i++) {
-        newItems.push({index: `${i}`})
+        newItems.push({index: i})
       }
       formRef.setFieldsValue({items: newItems})
       loadUsableSerialNumber()
@@ -212,7 +213,7 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
                  })
                }}
                onValuesChange={(changedValues, allValues) => {
-                 // items : {index:item,...}
+                 // 监控items变化，对立借贷只能相对存在
                  const changedItems = changedValues.items
                  if (!changedItems) {
                    return
@@ -248,10 +249,13 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
                visible={visible}
                layout="horizontal"
                modalProps={{
-
                  destroyOnClose: true,
                  className: styles.voucherContainer,
                  placement: "right"
+               }}
+               initialValues={{
+                 ...(isLocalCurrency?{unit: "元"}:{}),
+                 voucherDate: moment().format("YYYY-MM-DD")
                }}
                {...props}
     >
@@ -300,6 +304,25 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
                           onClick: (e) => {
                             e.stopPropagation()
                             editableKeys.includes(index) || setEditableKeys([index])
+                            // 优化用户体验，自动同步上一行的摘要
+                            if (index === 0) {
+                              return
+                            }
+                            const items = formRef.getFieldValue(["items"])
+                            if (items[index].summary) {
+                              return
+                            }
+                            for (let i = index - 1; i >= 0; i--) {
+                              if (items[i].summary) {
+                                formRef.setFieldsValue({items: items.map(item => {
+                                    if (item.index === index) {
+                                      return {...item, summary: items[i].summary}
+                                    }
+                                    return item
+                                })})
+                                return
+                              }
+                            }
                           }
                         })}
                         editable={isViewMode ? false : {editableKeys}} controlled

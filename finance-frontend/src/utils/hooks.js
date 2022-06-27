@@ -16,10 +16,10 @@ export function useBoolean(initialValue = false) {
 export function useModalWithParam(visible = false, params = {}) {
   const [modal, setModal] = useState({visible, ...params})
   const handleModalVisible = (v) => {
-    setModal({...modal, visible: v})
+    setModal({...modal, visible: v, handleVisible: handleModalVisible})
   }
   const openModal = (params) => {
-    setModal({visible: true, ...params})
+    setModal({visible: true, handleVisible: handleModalVisible, ...params})
   }
   return [modal, handleModalVisible, openModal]
 }

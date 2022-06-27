@@ -17,6 +17,7 @@ import java.util.List;
 public class VoucherDetailVO {
 
     private Long id;
+    private Integer serialNumber;
     private Long currencyId;
     private String currencyName;
     private BigDecimal rate;

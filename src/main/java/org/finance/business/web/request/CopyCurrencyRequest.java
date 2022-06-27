@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
  * @author jiangbangfa
  */
 @Data
-public class CopyCurrencyRequest extends AbstractPageRequest {
+public class CopyCurrencyRequest {
 
     private final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
     private Integer targetYearMonth;

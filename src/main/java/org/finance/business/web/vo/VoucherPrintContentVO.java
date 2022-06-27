@@ -18,6 +18,7 @@ public class VoucherPrintContentVO {
     private final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
 
     private Long id;
+    private Integer serialNumber;
     private String customerName;
     private Long currencyId;
     private String currencyName;
@@ -27,7 +28,6 @@ public class VoucherPrintContentVO {
     private Integer attachmentNum;
     private BigDecimal totalCurrencyAmount;
     private BigDecimal totalLocalCurrencyAmount;
-    private Integer serialNumber;
     private List<Item> items;
 
     @Data

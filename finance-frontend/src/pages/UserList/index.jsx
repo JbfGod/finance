@@ -8,10 +8,9 @@ import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
+import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
 import {Badge} from "antd";
 import {USER_ROLE} from "@/constants";
-import {listUserFromSuperCustomerUsingGET} from "@/services/swagger/userWeb";
-import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
 
 const nameRules = [
   {required: true, message: "用户姓名不能为空！"},
@@ -19,14 +18,14 @@ const nameRules = [
 ]
 const renderBadge = (active = false) => {
   return (
-    <Badge
-      style={{
-        marginTop: -2,
-        marginLeft: 4,
-        color: active ? '#1890FF' : '#999',
-        backgroundColor: active ? '#E6F7FF' : '#eee',
-      }}
-    />
+      <Badge
+          style={{
+            marginTop: -2,
+            marginLeft: 4,
+            color: active ? '#1890FF' : '#999',
+            backgroundColor: active ? '#E6F7FF' : '#eee',
+          }}
+      />
   );
 };
 
@@ -120,109 +119,111 @@ export default () => {
     }
   }
   return (
-    <PageContainer>
-      <ExProTable actionRef={actionRef} columns={columns}
-                  toolbar={toolbar}
-                  params={{role: activeTabKey}}
-                  request={userWeb.pageUserUsingGET}
-                  onNew={() => handleModalVisible(true)}
-                  editable={editable}
-      />
-      <ModalForm title="新增用户" width="400px"
-                 initialValues={{role: "NORMAL"}}
-                 visible={createModalVisible} modalProps={{destroyOnClose: true}}
-                 onVisibleChange={handleModalVisible}
-                 onFinish={async (value) => {
-                   const password = value.password || "123456"
-                   userWeb.addUserUsingPOST({...value, password}).then(() => {
-                     handleModalVisible(false)
-                     actionRef.current?.reload()
-                   })
-                 }}
-      >
-        <ProFormSelect name="customerNumber" label="客户编号" showSearch options={customerOptions}/>
-        <ProFormSelect name="role" allowClear={false} label="用户类型" options={Object.values(USER_ROLE)}/>
-        <ProFormText name="name" label="用户姓名" rules={nameRules}/>
-        <ProFormText name="account" label="登录账号"
-                     rules={[
-                       {required: true, message: "用户账号不能为空！"},
-                       {min: 5, max: 25, message: "登录账号只允许有5-25个字符！"},
-                       {pattern: /[\da-zA-Z]{5,25}/, message: "登录账号只允许包含数字和字母！"}
-                     ]}
+      <PageContainer>
+        <ExProTable actionRef={actionRef} columns={columns}
+                    toolbar={toolbar}
+                    params={{role: activeTabKey}}
+                    request={userWeb.pageUserUsingGET}
+                    onNew={() => handleModalVisible(true)}
+                    editable={editable}
         />
-        <ProFormRadio.Group name="pwdType" label="登录密码" initialValue="默认" tooltip="默认密码：123456"
-                            options={["默认", "自定义"]}/>
-        <ProFormItem noStyle shouldUpdate={(prev, curr) => prev.pwdType !== curr.pwdType}>
-          {({getFieldValue}) =>
-            getFieldValue("pwdType") === "自定义" ? (
-              <ProFormText.Password name="pwd" label="登录密码"
-                                    rules={[
-                                      {required: true, message: "密码不能为空！"},
-                                      {min: 6, max: 20, message: "密码只允许有6-20个字符！"}
-                                    ]}
-              />
-            ) : null
-          }
-        </ProFormItem>
-        <ProFormItem noStyle shouldUpdate={(prev, curr) => prev.pwdType !== curr.pwdType}>
-          {({getFieldValue}) =>
-            getFieldValue("pwdType") === "自定义" ? (
-              <ProFormText.Password name="password" label="确认密码"
-                                    rules={[{
-                                      validator: async (_, v) => {
-                                        if (v !== getFieldValue("pwd")) {
-                                          return Promise.reject("两次密码不一致！")
+        <ModalForm title="新增用户" width="400px"
+                   initialValues={{role: "NORMAL"}}
+                   visible={createModalVisible} modalProps={{destroyOnClose: true}}
+                   onVisibleChange={handleModalVisible}
+                   onFinish={async (value) => {
+                     const password = value.password || "123456"
+                     userWeb.addUserUsingPOST({...value, password}).then(() => {
+                       handleModalVisible(false)
+                       actionRef.current?.reload()
+                     })
+                   }}
+        >
+          {security.isSuperCustomer && (
+              <ProFormSelect name="customerNumber" label="客户编号" showSearch options={customerOptions}/>
+          )}
+          <ProFormSelect name="role" allowClear={false} label="用户类型" options={Object.values(USER_ROLE)}/>
+          <ProFormText name="name" label="用户姓名" rules={nameRules}/>
+          <ProFormText name="account" label="登录账号"
+                       rules={[
+                         {required: true, message: "用户账号不能为空！"},
+                         {min: 5, max: 25, message: "登录账号只允许有5-25个字符！"},
+                         {pattern: /[\da-zA-Z]{5,25}/, message: "登录账号只允许包含数字和字母！"}
+                       ]}
+          />
+          <ProFormRadio.Group name="pwdType" label="登录密码" initialValue="默认" tooltip="默认密码：123456"
+                              options={["默认", "自定义"]}/>
+          <ProFormItem noStyle shouldUpdate={(prev, curr) => prev.pwdType !== curr.pwdType}>
+            {({getFieldValue}) =>
+                getFieldValue("pwdType") === "自定义" ? (
+                    <ProFormText.Password name="pwd" label="登录密码"
+                                          rules={[
+                                            {required: true, message: "密码不能为空！"},
+                                            {min: 6, max: 20, message: "密码只允许有6-20个字符！"}
+                                          ]}
+                    />
+                ) : null
+            }
+          </ProFormItem>
+          <ProFormItem noStyle shouldUpdate={(prev, curr) => prev.pwdType !== curr.pwdType}>
+            {({getFieldValue}) =>
+                getFieldValue("pwdType") === "自定义" ? (
+                    <ProFormText.Password name="password" label="确认密码"
+                                          rules={[{
+                                            validator: async (_, v) => {
+                                              if (v !== getFieldValue("pwd")) {
+                                                return Promise.reject("两次密码不一致！")
+                                              }
+                                            }
+                                          }]}
+                    />
+                ) : null
+            }
+          </ProFormItem>
+        </ModalForm>
+        <ModalForm title="修改密码" width="400px"
+                   visible={updateModalVisible} modalProps={{destroyOnClose: true}}
+                   onVisibleChange={handleUpdateModalVisible}
+                   onFinish={async (value) => {
+                     return userWeb.resetUserPasswordUsingPUT({
+                       id: tmpOperateUser.id,
+                       password: value.password
+                     }).then(() => {
+                       handleUpdateModalVisible(false)
+                       actionRef.current?.reload()
+                     })
+                   }}
+        >
+          <ProFormText.Password name="pwd" label="新密码"
+                                rules={[
+                                  {required: true, message: "密码不能为空！"},
+                                  {min: 6, max: 20, message: "密码只允许有6-20个字符！"}
+                                ]}
+          />
+          <ProFormItem noStyle shouldUpdate={() => false}>
+            {({getFieldValue}) =>
+                <ProFormText.Password name="password" label="确认密码"
+                                      rules={[{
+                                        validator: async (_, v) => {
+                                          if (v !== getFieldValue("pwd")) {
+                                            return Promise.reject("两次密码不一致！")
+                                          }
                                         }
-                                      }
-                                    }]}
-              />
-            ) : null
-          }
-        </ProFormItem>
-      </ModalForm>
-      <ModalForm title="修改密码" width="400px"
-                 visible={updateModalVisible} modalProps={{destroyOnClose: true}}
-                 onVisibleChange={handleUpdateModalVisible}
-                 onFinish={async (value) => {
-                   return userWeb.resetUserPasswordUsingPUT({
-                     id: tmpOperateUser.id,
-                     password: value.password
-                   }).then(() => {
-                     handleUpdateModalVisible(false)
-                     actionRef.current?.reload()
-                   })
-                 }}
-      >
-        <ProFormText.Password name="pwd" label="新密码"
-                              rules={[
-                                {required: true, message: "密码不能为空！"},
-                                {min: 6, max: 20, message: "密码只允许有6-20个字符！"}
-                              ]}
-        />
-        <ProFormItem noStyle shouldUpdate={() => false}>
-          {({getFieldValue}) =>
-            <ProFormText.Password name="password" label="确认密码"
-                                  rules={[{
-                                    validator: async (_, v) => {
-                                      if (v !== getFieldValue("pwd")) {
-                                        return Promise.reject("两次密码不一致！")
-                                      }
-                                    }
-                                  }]}
-            />
-          }
-        </ProFormItem>
-      </ModalForm>
-      {grantDrawer.visible?
-        <ResourceDrawerForm title="功能授权" width="500px" visible={true}
-                            drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.functionData}
-                            initialValues={{resourceWithOperateIds: grantDrawer.selectedResourceIds}}
-                            onVisibleChange={handleGrantDrawerVisible}
-                            onFinish={async (v) => {
-                              return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.user.id})
-                            }}
-        /> : null
-      }
-    </PageContainer>
+                                      }]}
+                />
+            }
+          </ProFormItem>
+        </ModalForm>
+        {grantDrawer.visible?
+            <ResourceDrawerForm title="功能授权" width="500px" visible={true}
+                                drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.functionData}
+                                initialValues={{resourceWithOperateIds: grantDrawer.selectedResourceIds}}
+                                onVisibleChange={handleGrantDrawerVisible}
+                                onFinish={async (v) => {
+                                  return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.user.id})
+                                }}
+            /> : null
+        }
+      </PageContainer>
   )
 }

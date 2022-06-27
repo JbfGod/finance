@@ -21,8 +21,6 @@ public class QueryCustomerRequest extends AbstractPageRequest {
 
     private Customer.Type type;
 
-    private Customer.Status status;
-
     private String telephone;
 
     private String bankAccount;

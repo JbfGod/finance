@@ -96,7 +96,6 @@ public class CustomerWeb {
                 .eq(request.getIndustryId() != null, Customer::getIndustryId, request.getIndustryId())
                 .in(request.getCategoryId() != null, Customer::getCategoryId, categoryIds)
                 .likeRight(request.getType() !=null, Customer::getType, request.getType())
-                .likeRight(request.getStatus() != null, Customer::getStatus, request.getStatus())
                 .likeRight(StringUtils.hasText(request.getTelephone()), Customer::getTelephone, request.getTelephone())
                 .likeRight(StringUtils.hasText(request.getBankAccount()), Customer::getBankAccount, request.getBankAccount())
                 .likeRight(StringUtils.hasText(request.getBankAccountName()), Customer::getBankAccountName, request.getBankAccountName())

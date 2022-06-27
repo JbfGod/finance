@@ -21,7 +21,7 @@ import {CUSTOMER_TYPE} from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
 import * as industryWeb from "@/services/swagger/industryWeb";
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
-import {listUserFromSuperCustomerUsingGET, listUserUsingGET} from "@/services/swagger/userWeb";
+import {listUserFromSuperCustomerUsingGET} from "@/services/swagger/userWeb";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
@@ -173,9 +173,9 @@ function AddOrUpdateFormModal({modal, categoryId, onSuccess, industryTreeData, .
                  const {dateRange} = values;
                  const formValue = {
                    ...values,
-                   categoryId: categoryId,
-                   effectTime: dateRange[0],
-                   expireTime: dateRange[1],
+                   categoryId,
+                   effectTime: dateRange?.[0],
+                   expireTime: dateRange?.[1],
                  }
                  if (isAddMode) {
                    return customerWeb.addCustomerUsingPOST(formValue).then(() => {

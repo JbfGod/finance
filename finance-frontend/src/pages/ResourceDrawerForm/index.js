@@ -7,20 +7,16 @@ import {flatTree, getHasChildNode} from "@/utils/common";
 export function TreeInput({value = [], initialValue, onChange, fieldNames, treeData, ...props}) {
   const [checkedKeys, setCheckedKeys] = useState(value)
 
-  const triggerChange = (keys, {halfCheckedKeys}) => {
-    setCheckedKeys(keys)
-    onChange([...keys, ...halfCheckedKeys])
+  const triggerChange = ({checked}) => {
+    setCheckedKeys(checked)
+    onChange(checked)
   }
-  const hasChildNodeKeys = useMemo(() => getHasChildNode(treeData).map(node => node[fieldNames?.key || "value"]), [treeData])
-  const allNodeKeys = useMemo(() => flatTree(treeData).map(node => node[fieldNames?.key || "value"]), [treeData])
   useEffect(() => {
     initialValue && setCheckedKeys(initialValue)
   }, [initialValue])
 
-  const overCheckedKeys = (value || checkedKeys)
-      .filter(key => !hasChildNodeKeys.includes(key))
-      .filter(key => allNodeKeys.includes(key))
-  return <Tree checkable treeData={treeData} fieldNames={fieldNames} {...props} onCheck={triggerChange}
+  const overCheckedKeys = value || checkedKeys
+  return <Tree checkable checkStrictly treeData={treeData} fieldNames={fieldNames} {...props} onCheck={triggerChange}
                checkedKeys={overCheckedKeys}/>
 }
 

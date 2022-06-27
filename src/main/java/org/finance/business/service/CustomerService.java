@@ -3,24 +3,16 @@ package org.finance.business.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import org.finance.business.convert.SubjectConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Subject;
 import org.finance.business.mapper.CustomerMapper;
-import org.finance.business.mapper.IndustryMapper;
-import org.finance.business.mapper.SequenceMapper;
 import org.finance.business.mapper.SubjectMapper;
-import org.finance.business.task.CustomerTask;
-import org.finance.infrastructure.exception.HxException;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +31,7 @@ import java.util.stream.Collectors;
 public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
     @Resource
-    private SequenceMapper sequenceMapper;
-    @Resource
     private SubjectMapper subjectMapper;
-    @Resource
-    private IndustryMapper industryMapper;
 
     private final Configuration CUSTOMER_FTL_CONFIG;
 
@@ -55,9 +43,7 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(long id) {
-        // Customer customer = baseMapper.selectById(id);
         baseMapper.deleteById(id);
-        // baseMapper.dropRelatedTblByTableIdentified(customer.getTableIdentified());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -67,39 +53,9 @@ public class CustomerService extends ServiceImpl<CustomerMapper, Customer> {
         );
         AssertUtil.isFalse(existsCustomer, "客户编号已存在！");
 
-        // TODO 数据初始化成功,以后如果出现分表的情况，需要等表初始化才设置为success
-        customer.setStatus(Customer.Status.SUCCESS);
         baseMapper.insert(customer);
 
-        // 初始化客户数据
-        // CustomerTask.addInitialCustomer(customer);
         this.initializationData(customer.getId(), customer.getIndustryId());
-    }
-
-    /**
-     * 加载未初始化的客户
-     */
-    public void loadInitializationCustomer() {
-        baseMapper.selectList(Wrappers.<Customer>lambdaQuery().eq(Customer::getStatus, Customer.Status.INITIALIZING))
-                .forEach(CustomerTask::addInitialCustomer);
-    }
-
-    /**
-     * 初始化客户相关表
-     * @param tableId
-     */
-    public void initializationRelatedTable(String tableId) {
-        Map<String, String> map = new HashMap<>(1);
-        map.put("tableId", tableId);
-
-        Template template = null;
-        try {
-            template = CUSTOMER_FTL_CONFIG.getTemplate("customerRelatedTable.sql.ftl");
-            String sql = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
-            baseMapper.executeSql(sql);
-        } catch (IOException | TemplateException e) {
-            throw new HxException(e.getMessage(), e);
-        }
     }
 
     public boolean existsByIndustryId(long industryId) {

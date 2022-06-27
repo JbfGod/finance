@@ -68,11 +68,6 @@ public class Customer implements Serializable {
     private Boolean enabled;
 
     /**
-     * 客户状态
-     */
-    private Status status;
-
-    /**
      * 租赁生效时间
      */
     private LocalDateTime effectTime;
@@ -132,18 +127,6 @@ public class Customer implements Serializable {
 
     public boolean isSuperCustomer() {
         return DEFAULT_NUMBER.equals(this.number);
-    }
-
-    public enum Status {
-        /**
-         * 初始化数据中
-         */
-        INITIALIZING,
-        /**
-         * 初始化完毕
-         */
-        SUCCESS,
-        ;
     }
 
     public enum Type {

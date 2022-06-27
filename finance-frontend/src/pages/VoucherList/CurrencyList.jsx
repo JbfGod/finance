@@ -14,7 +14,7 @@ import {
   updateCurrencyUsingPUT
 } from "@/services/swagger/currencyWeb";
 import {useModalWithParam, useSecurity} from "@/utils/hooks";
-import {ModalForm, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
+import {ModalForm, ProFormDatePicker, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import moment from "moment";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
 import {AuditStatus} from "@/constants";
@@ -27,6 +27,7 @@ export default function CurrencyList() {
   const actionRef = useRef()
   const security = useSecurity("currency")
   const [formModal, handleFormModal, openFormModal] = useModalWithParam()
+  const [syncModal, _, openSyncModal] = useModalWithParam()
   const onSuccess = () => {
     actionRef.current?.reload()
   }
@@ -62,52 +63,74 @@ export default function CurrencyList() {
           </Popconfirm>
         ] : [],
         security.canAuditing && (
-          row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
-            security.canAuditing && (
-              <Popconfirm key="auditing" title="确认审核该凭证？"
-                          onConfirm={() => auditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
-                <a>审核</a>
-              </Popconfirm>
+            row.auditStatus === AuditStatus.TO_BE_AUDITED ? (
+                security.canAuditing && (
+                    <Popconfirm key="auditing" title="确认审核该凭证？"
+                                onConfirm={() => auditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                      <a>审核</a>
+                    </Popconfirm>
+                )
+            ) : (
+                security.canUnAuditing && (
+                    <Popconfirm key="unAuditing" title="确认弃审该凭证？"
+                                onConfirm={() => unAuditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
+                      <a>弃审</a>
+                    </Popconfirm>
+                )
             )
-          ) : (
-            security.canUnAuditing && (
-              <Popconfirm key="unAuditing" title="确认弃审该凭证？"
-                          onConfirm={() => unAuditingCurrencyUsingPUT({id: row.id}).then(actionRef.current?.reload)}>
-                <a>弃审</a>
-              </Popconfirm>
-            )
-          )
         ),
       ]
     }] : [])
   ]
   return (
-    <PageContainer>
-      <ExProTable actionRef={actionRef} columns={columns}
-                  request={(params) => {
-                    const {yearMonthNum = moment().format("YYYYMM")} = params
-                    return pageCurrencyUsingGET({
-                      ...params, yearMonthNum
-                    })
-                  }}
-                  toolBarRender={() => security.canOperating && (
-                    <>
-                      <Button type="primary" onClick={openFormModal}>
-                        <PlusOutlined/>
-                        新增外币
-                      </Button>
-                      <Button type="primary" onClick={() => copyCurrencyByMonthUsingPOST({}).then(actionRef.current?.reload)}>
-                        <FileSyncOutlined />
-                        同步上月汇率
-                      </Button>
-                    </>
-                  )}
-                  editable={false}
-      />
-      <AddOrUpdateModal onVisibleChange={handleFormModal}
-                        modal={formModal} onSuccess={onSuccess}
-      />
-    </PageContainer>
+      <PageContainer>
+        <ExProTable actionRef={actionRef} columns={columns}
+                    request={(params) => {
+                      const {yearMonthNum = moment().format("YYYYMM")} = params
+                      return pageCurrencyUsingGET({
+                        ...params, yearMonthNum
+                      })
+                    }}
+                    toolBarRender={() => security.canOperating && (
+                        <>
+                          <Button type="primary" onClick={openFormModal}>
+                            <PlusOutlined/>
+                            新增外币
+                          </Button>
+                          <Button type="primary" onClick={openSyncModal}>
+                            <FileSyncOutlined />
+                            同步汇率
+                          </Button>
+                        </>
+                    )}
+                    editable={false}
+        />
+        <AddOrUpdateModal onVisibleChange={handleFormModal}
+                          modal={formModal} onSuccess={onSuccess}
+        />
+        <SyncModal modal={syncModal} onSuccess={onSuccess}/>
+      </PageContainer>
+  )
+}
+
+function SyncModal({modal, onSuccess}) {
+  const {visible, handleVisible} = modal
+  return (
+      <ModalForm title="同步汇率" width={350} visible={visible} onVisibleChange={handleVisible}
+                 layout="horizontal"  modalProps={{destroyOnClose: true}}
+                 onFinish={async (values) => {
+                   console.log(values)
+                   await copyCurrencyByMonthUsingPOST(values).then(() => onSuccess && onSuccess())
+                   return true
+                 }}
+                 initialValues={{
+                   targetYearMonth: moment().subtract(1, "months").format("YYYY-MM"),
+                   sourceYearMonth: moment().format("YYYY-MM")
+                 }}
+      >
+        <ProFormDatePickerMonth label="目标月份" name="targetYearMonth" transform={v => ({targetYearMonth: v.replace("-", "")})}/>
+        <ProFormDatePickerMonth label="复制到的月份" name="sourceYearMonth" transform={v => ({sourceYearMonth: v.replace("-", "")})}/>
+      </ModalForm>
   )
 }
 
@@ -125,27 +148,30 @@ function AddOrUpdateModal({modal, onSuccess, ...props}) {
     }
   }, [])
   return (
-    <ModalForm title={title} width="500px" initialValues={{role: "NORMAL"}}
-               layout={"horizontal"} form={form}
-               visible={visible} modalProps={{destroyOnClose: true}}
-               onFinish={async (values) => {
-                 if (isAddMode) {
-                   addCurrencyUsingPOST(values).then(_ => onSuccess && onSuccess())
-                   return true
-                 }
-                 updateCurrencyUsingPUT({...values, id}).then(_ => onSuccess && onSuccess())
-               }} {...props}
-    >
-      <ProFormDatePickerMonth name="yearMonthNum" label="年-月" format="yyyy-MM"
-                              rules={[{required: true, message: "请选择月份！"}]}
-                              transform={yearMonthNumTransform}
-      />
-      <ProFormText name="number" label="编号" rules={[{required: true, message: "请填写编号！"}]}/>
-      <ProFormText name="name" label="名称" rules={[{required: true, message: "请填写名称！"}]}/>
-      <ProFormItem name="rate" label="费率" rules={[{required: true, message: "请填写费率！"}]}>
-        <InputNumber placeholder="费率" min={0} width={200}/>
-      </ProFormItem>
-      <ProFormTextArea name="remark" label="备注" fieldProps={{showCount: true, maxLength: 255}}/>
-    </ModalForm>
+      <ModalForm title={title} width="500px"
+                 initialValues={{
+                   yearMonthNum: moment().format("YYYY-MM")
+                 }}
+                 layout={"horizontal"} form={form}
+                 visible={visible} modalProps={{destroyOnClose: true}}
+                 onFinish={async (values) => {
+                   if (isAddMode) {
+                     addCurrencyUsingPOST(values).then(_ => onSuccess && onSuccess())
+                     return true
+                   }
+                   updateCurrencyUsingPUT({...values, id}).then(_ => onSuccess && onSuccess())
+                 }} {...props}
+      >
+        <ProFormDatePickerMonth name="yearMonthNum" label="年-月" format="yyyy-MM"
+                                rules={[{required: true, message: "请选择月份！"}]}
+                                transform={yearMonthNumTransform}
+        />
+        <ProFormText name="number" label="编号" rules={[{required: true, message: "请填写编号！"}]}/>
+        <ProFormText name="name" label="名称" rules={[{required: true, message: "请填写名称！"}]}/>
+        <ProFormItem name="rate" label="费率" rules={[{required: true, message: "请填写费率！"}]}>
+          <InputNumber placeholder="费率" min={0} width={200}/>
+        </ProFormItem>
+        <ProFormTextArea name="remark" label="备注" fieldProps={{showCount: true, maxLength: 255}}/>
+      </ModalForm>
   )
 }
