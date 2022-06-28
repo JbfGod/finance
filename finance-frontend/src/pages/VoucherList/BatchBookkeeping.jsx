@@ -1,4 +1,3 @@
-import {PageContainer} from "@ant-design/pro-layout";
 import {Button, Card, Form, InputNumber, Popconfirm, Space} from "antd";
 import {ProForm, ProFormItem} from "@ant-design/pro-form";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
@@ -6,6 +5,7 @@ import {batchBookkeepingVoucherUsingPUT, batchUnBookkeepingVoucherUsingPUT} from
 import moment from "moment";
 import {useSecurity} from "@/utils/hooks";
 import React from "react";
+import GlobalPageContainer from "@/components/PageContainer";
 
 export default function BatchBookkeeping() {
   const [form] = Form.useForm()
@@ -45,7 +45,7 @@ export default function BatchBookkeeping() {
     ]
   }
   return (
-    <PageContainer>
+    <GlobalPageContainer>
       <Card>
         <ProForm submitter={submitter} form={form} initialValues={{yearMonth: moment()}}>
           <ProFormDatePickerMonth label="记账月份" name="yearMonth"
@@ -63,6 +63,6 @@ export default function BatchBookkeeping() {
           </ProForm.Group>
         </ProForm>
       </Card>
-    </PageContainer>
+    </GlobalPageContainer>
   )
 }

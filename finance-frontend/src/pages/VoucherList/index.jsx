@@ -33,10 +33,6 @@ const renderBadge = (active = false) => {
     )
 }
 
-const yearMonthNumTransform = v => ({
-    yearMonthNum: moment(v).format("YYYYMM")
-})
-
 export default () => {
     const actionRef = useRef()
     const security = useSecurity("voucher")
@@ -184,7 +180,7 @@ export default () => {
             />
             <VoucherPrint print={print}/>
             <VoucherForm modal={formModal} onSuccess={actionRef.current?.reload}
-                         subjects={subjects} subjectById={subjectById}
+                         subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}
                          onVisibleChange={handleFormModal}/>
         </PageContainer>
     )

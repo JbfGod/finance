@@ -1,23 +1,23 @@
 import React, {useEffect, useRef} from 'react'
-import {PageContainer} from "@ant-design/pro-layout";
 import {Button, Form, InputNumber, Popconfirm} from "antd";
 import {FileSyncOutlined, PlusOutlined} from "@ant-design/icons";
 import ExProTable from "@/components/Table/ExtProTable";
 import {
-  addCurrencyUsingPOST,
-  auditingCurrencyUsingPUT,
-  copyCurrencyByMonthUsingPOST,
-  currencyByIdUsingGET,
-  deleteCurrencyUsingDELETE,
-  pageCurrencyUsingGET,
-  unAuditingCurrencyUsingPUT,
-  updateCurrencyUsingPUT
+    addCurrencyUsingPOST,
+    auditingCurrencyUsingPUT,
+    copyCurrencyByMonthUsingPOST,
+    currencyByIdUsingGET,
+    deleteCurrencyUsingDELETE,
+    pageCurrencyUsingGET,
+    unAuditingCurrencyUsingPUT,
+    updateCurrencyUsingPUT
 } from "@/services/swagger/currencyWeb";
 import {useModalWithParam, useSecurity} from "@/utils/hooks";
-import {ModalForm, ProFormDatePicker, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
+import {ModalForm, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
 import moment from "moment";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
 import {AuditStatus} from "@/constants";
+import GlobalPageContainer from "@/components/PageContainer";
 
 const yearMonthNumTransform = v => ({
   yearMonthNum: moment(v).format("YYYYMM")
@@ -83,7 +83,7 @@ export default function CurrencyList() {
     }] : [])
   ]
   return (
-      <PageContainer>
+      <GlobalPageContainer>
         <ExProTable actionRef={actionRef} columns={columns}
                     request={(params) => {
                       const {yearMonthNum = moment().format("YYYYMM")} = params
@@ -109,7 +109,7 @@ export default function CurrencyList() {
                           modal={formModal} onSuccess={onSuccess}
         />
         <SyncModal modal={syncModal} onSuccess={onSuccess}/>
-      </PageContainer>
+      </GlobalPageContainer>
   )
 }
 

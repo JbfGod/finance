@@ -9,7 +9,7 @@ import {
 } from "@ant-design/pro-form";
 import {Button, Empty, Form, InputNumber} from "antd";
 import styles from "./index.less"
-import {CURRENCY_TYPE, LENDING_DIRECTION} from "@/constants";
+import {CURRENCY_TYPE, LENDING_DIRECTION, SUBJECT_TYPE} from "@/constants";
 import {
   addVoucherUsingPOST,
   updateVoucherUsingPUT,
@@ -23,11 +23,11 @@ import ProCard from "@ant-design/pro-card";
 import {EditableProTable} from "@ant-design/pro-table";
 import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
 import {searchExpenseItemCueUsingGET} from "@/services/swagger/expenseBillWeb";
-import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
 import moment from "moment";
+import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 
 const CAPACITY = 5
-export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
+export default ({modal, onSuccess, subjects, setSubjects, subjectById, ...props}) => {
   const {
     mode = "add", currencyType = CURRENCY_TYPE.LOCAL,
     voucherId, visible
@@ -92,10 +92,14 @@ export default ({modal, onSuccess, subjects, subjectById, ...props}) => {
     {
       title: "会计科目", dataIndex: "subjectId", width: 250,
       renderFormItem: () => (
-        <ExtTreeSelect options={subjects} placeholder="只能选择费用类科目"
-                       fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
-                       onlySelectedLeaf={true} disabled={isViewMode}
-                       style={{width: '100%'}} />
+        <AdvancedSubjectSelect subjects={subjects} placeholder="只能选择费用类科目"
+               fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
+               disableFilter={(subject) => {
+                 return subject.hasLeaf || subject.type === SUBJECT_TYPE.SUBJECT.value
+               }}
+               setSubjects={setSubjects}
+               onlySelectedLeaf={true} disabled={isViewMode}
+               style={{width: '100%'}} />
       ),
       render: (_, row) => {
         const v = subjectById[row.subjectId]

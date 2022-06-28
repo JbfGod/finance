@@ -1,15 +1,11 @@
-import {PageContainer} from "@ant-design/pro-layout";
 import {Button, Card, Form, InputNumber, Popconfirm, Space} from "antd";
 import {ProForm, ProFormItem} from "@ant-design/pro-form";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
-import {
-  auditingVoucherUsingPUT,
-  batchAuditingVoucherUsingPUT,
-  batchUnAuditingVoucherUsingPUT
-} from "@/services/swagger/voucherWeb";
+import {batchAuditingVoucherUsingPUT, batchUnAuditingVoucherUsingPUT} from "@/services/swagger/voucherWeb";
 import moment from "moment";
 import {useSecurity} from "@/utils/hooks";
 import React from "react";
+import GlobalPageContainer from "@/components/PageContainer";
 
 export default function BatchAuditing() {
   const [form] = Form.useForm()
@@ -49,7 +45,7 @@ export default function BatchAuditing() {
     ]
   }
   return (
-    <PageContainer>
+    <GlobalPageContainer>
       <Card>
         <ProForm submitter={submitter} form={form} initialValues={{yearMonth: moment()}}>
           <ProFormDatePickerMonth label="记账月份" name="yearMonth"
@@ -67,6 +63,6 @@ export default function BatchAuditing() {
           </ProForm.Group>
         </ProForm>
       </Card>
-    </PageContainer>
+    </GlobalPageContainer>
   )
 }
