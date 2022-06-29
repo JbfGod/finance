@@ -37,7 +37,8 @@ export default () => {
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
   const [customers, setCustomers] = useState([])
-  const customerOptions = customers.map(c => ({label: `${c.name}-(${c.number})`, value: c.number}))
+  const customerOptions = [{name:"记账平台", number:"HX_TOP"}, ...customers]
+    .map(c => ({label: `${c.name}-(${c.number})`, value: c.number}))
   const loadCustomers = () => {
     searchCustomerCueUsingGET().then(({data}) => {
       setCustomers(data)
