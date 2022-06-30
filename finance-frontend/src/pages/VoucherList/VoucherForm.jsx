@@ -95,7 +95,7 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, ...props}
         <AdvancedSubjectSelect subjects={subjects} placeholder="只能选择费用类科目"
                fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
                disableFilter={(subject) => {
-                 return subject.hasLeaf || subject.type === SUBJECT_TYPE.SUBJECT.value
+                 return subject.hasLeaf
                }}
                setSubjects={setSubjects}
                onlySelectedLeaf={true} disabled={isViewMode}
