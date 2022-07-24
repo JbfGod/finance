@@ -32,35 +32,35 @@ services:
     restart: always
     networks:
       - internal_network
-#  mysql:
-#    image: mysql:5.7.18
-#    volumes:
-#      - /d/workspace/data/mysql/:/var/lib/mysql/
-#    environment:
-#      - MYSQL_USER=root
-#      - MYSQL_ROOT_PASSWORD=root1997
-#      - MYSQL_DATABASE=finance
-#    ports:
-#      - "3306:3306"
-#    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8 --explicit_defaults_for_timestamp
-#    restart: always
-#    networks:
-#      - internal_network
-#  minio:
-#    image: "minio/minio"
-#    command: [ server, "/data", "--console-address", ":9001" ]
-#    ports:
-#      - "9000:9000"
-#      - "9001:9001"
-#    restart: always
-#    environment:
-#      - "TZ=Asia/Shanghai"
-#      - "MINIO_ROOT_USER=jiangbangfa"
-#      - "MINIO_ROOT_PASSWORD=jiangbangfa"
-#    volumes:
-#      - /d/workspace/data/minio:/data
-#    networks:
-#      - internal_network
+  mysql:
+    image: mysql:5.7.18
+    volumes:
+      - /d/workspace/data/mysql/:/var/lib/mysql/
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=root1997
+      - MYSQL_DATABASE=finance
+    ports:
+      - "3306:3306"
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8 --explicit_defaults_for_timestamp
+    restart: always
+    networks:
+      - internal_network
+  minio:
+    image: "minio/minio"
+    command: [ server, "/data", "--console-address", ":9001" ]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: always
+    environment:
+      - "TZ=Asia/Shanghai"
+      - "MINIO_ROOT_USER=jiangbangfa"
+      - "MINIO_ROOT_PASSWORD=jiangbangfa"
+    volumes:
+      - /d/workspace/data/minio:/data
+    networks:
+      - internal_network
 networks:
   internal_network:
     name: internal_network
