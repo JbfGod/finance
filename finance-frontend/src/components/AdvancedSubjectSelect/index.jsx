@@ -1,6 +1,6 @@
 import ExtTreeSelect from "@/components/Common/ExtTreeSelect";
 import React, {useState} from "react";
-import {Modal} from "antd";
+import {Button, Modal} from "antd";
 import SubjectList from "@/pages/SubjectList";
 import {useModalWithParam} from "@/utils/hooks";
 import {SearchOutlined} from "@ant-design/icons";
@@ -21,7 +21,12 @@ export function AdvancedSubjectSelect({subjects, setSubjects, disableFilter, onC
                            disableFilter={disableFilter} onChange={triggerChange}
                            fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
                            onlySelectedLeaf={true}
-                           suffixIcon={<SearchOutlined onClick={openModal} style={{paddingRight: 18}}/>}
+                           dropdownRender={(menu) => (
+                             <>
+                               {menu}
+                               <Button type="primary" size="small" block onClick={openModal}>添加科目</Button>
+                             </>
+                           )}
                            style={{width: '100%'}} {...props}/>
             <SubjectModal modal={modal} disableFilter={disableFilter} onOk={triggerChange}
                           onDataSourceChange={setSubjects}

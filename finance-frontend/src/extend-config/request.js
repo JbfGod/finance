@@ -39,9 +39,7 @@ const responseInterceptor = async (response, options) => {
       case "post":
       case "delete":
       case "put":
-        if (data.showType === ErrorShowType.NOTIFICATION) {
-          message.success({content: data.message || "操作成功", key: options.loadingKey})
-        }
+        message.success({content: data.message || "操作成功", key: options.loadingKey})
     }
     return response
   }

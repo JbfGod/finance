@@ -329,8 +329,66 @@ CREATE TABLE if not exists `sequence` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='序列表';
 
+create table if not exists `initial_balance` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
+    `bookkeeping` bit not null default false comment '记账状态',
+    `bookkeeping_by` bigint(20) not null default 0 comment '记账人',
+    `bookkeeper_name` varchar(50) not null default '' comment '记账人',
+    `audit_by` bigint(20) not null default 0 comment '审核人',
+    `auditor_name` varchar(50) not null default '' comment '审核人',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='初始余额';
+
+create table if not exists `initial_balance_item` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `initial_balance_id` bigint(20) not null,
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `subject_id` bigint(20) not null comment '科目ID',
+    `subject_number` varchar(50) not null comment '科目编号',
+    `subject_name` varchar(255) not null comment '科目名称',
+    `lending_direction` enum('BORROW', 'LOAN') not null comment '科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷',
+    `currency_name` varchar(255) not null comment '原币名称',
+    `amount` decimal(10, 5) not null comment '金额',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='初始余额条目';
+
+create table if not exists `account_close_list` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `begin_date` date not null comment '关账开始日期',
+    `end_date` date not null comment '关账结束日期',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='关账列表';
+
 truncate table resource;
-replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level, type, url, icon, business_code,permit_code, sort_num, super_customer)values
+replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level,
+                         type, url, icon, business_code,permit_code, sort_num, super_customer)values
 (1, '1', '系统管理', 0, '', true, 1, 'MENU', '/system', 'icon-xitongguanli1', '', '', 40, false),
 (2, '2', '用户管理', 1, '1', false, 2, 'MENU', '/system/user', '', '', '', 1000, false),
 (6, '6', '客户授权管理', 1, '1', false, 2, 'MENU', '/system/customerGrantPermissionPage', '', '', '', 1000, true),
@@ -339,13 +397,15 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (60, '60', '科目管理', 50, '50', false, 2, 'MENU', '/base/subject', '', '', '', 400, false),
 (70, '70', '客户分类管理', 50, '50', false, 2, 'MENU', '/base/customerCategory', '', '', '', 200, true),
 (80, '80', '客户档案', 50, '50', false, 2, 'MENU', '/base/customer', '', 'customer', 'view:all', 100, true),
+(90, '90', '初始余额', 50, '50', false, 2, 'MENU', '/base/initialBalance', '', 'initialBalance', 'base,auditing,unAuditing,bookkeeping,unBookkeeping', 60, false),
 (100, '100', '费用报销管理', 0, '', false, 1, 'MENU', '/expense/bill', 'icon-baoxiaoshenqing-feiyongbaoxiaoshenqing-06', 'expenseBill', 'view:all,base,auditing,unAuditing,print', 10, false),
 (120, '120', '记账管理', 0, '', true, 1, 'MENU', '/voucher', 'icon-ico_hushigongzuozhan_jizhangguanli', '', '', 20, false),
 (121, '121', '凭证管理', 120, '120', false, 2, 'MENU', '/voucher/list', '', 'voucher', 'view:all,base,auditing,unAuditing,bookkeeping,unBookkeeping,print', 100, false),
 (130, '130', '批量审核', 120, '120', false, 2, 'MENU', '/voucher/batchAuditing', '', 'voucher:batch', 'auditing,unAuditing', 300, false),
 (140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'voucher:batch', 'bookkeeping,unBookkeeping', 400, false),
 (150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', '', '', 200, false),
-(160, '160', '汇率管理', 120, '120', false, 2, 'MENU', '/voucher/currency', '', 'currency', 'base,auditing,unAuditing', 500, false)
+(160, '160', '汇率管理', 120, '120', false, 2, 'MENU', '/voucher/currency', '', 'currency', 'base,auditing,unAuditing', 500, false),
+(170, '170', '月度关账', 120, '120', false, 2, 'MENU', '/voucher/accountClose', '', 'accountClose', '', 50, false)
 ;
 
 delete from `user_resource` where user_id = 1;

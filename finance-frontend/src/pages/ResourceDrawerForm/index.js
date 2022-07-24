@@ -1,8 +1,7 @@
 import {DrawerForm, ProForm, ProFormItem} from "@ant-design/pro-form";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Tree} from "antd";
 import {useForm} from "antd/es/form/Form";
-import {flatTree, getHasChildNode} from "@/utils/common";
 
 export function TreeInput({value = [], initialValue, onChange, fieldNames, treeData, ...props}) {
   const [checkedKeys, setCheckedKeys] = useState(value)

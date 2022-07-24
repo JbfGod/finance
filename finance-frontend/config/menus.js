@@ -69,6 +69,12 @@ const menus = [
         name: '批量记账',
         access: "MENU:/voucher/batchBookkeeping",
         component: './VoucherList/BatchBookkeeping',
+      },
+      {
+        path: "/voucher/accountClose",
+        name: '月度关账',
+        access: "MENU:/voucher/accountClose",
+        component: './VoucherList/AccountClose',
       }
     ]
   },
@@ -129,6 +135,12 @@ const menus = [
         icon: 'smile',
         access: 'MENU:/base/subject',
         component: './SubjectList',
+      },
+      {
+        path: "/base/initialBalance",
+        name: '初始余额',
+        access: "MENU:/base/initialBalance",
+        component: './InitialBalance',
       },
       {
         component: './404',

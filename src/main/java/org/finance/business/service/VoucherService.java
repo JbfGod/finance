@@ -123,7 +123,6 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     public void unBookkeepingById(long voucherId) {
         boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getBookkeeping, false)
-                .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
                 .eq(Voucher::getId, voucherId)
                 .eq(Voucher::getBookkeeping, true)
                 .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)

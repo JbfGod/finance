@@ -43,11 +43,19 @@ public class MybatisGeneratorMain {
                             new Column("modify_name", FieldFill.INSERT_UPDATE),
                             new Column("modify_time", FieldFill.INSERT_UPDATE),
                             new Column("customer_id", FieldFill.INSERT),
-                            new Column("customer_number", FieldFill.INSERT)
+                            new Column("customer_number", FieldFill.INSERT),
+                            new Column("bookkeeper_name", FieldFill.UPDATE),
+                            new Column("bookkeeping_by", FieldFill.UPDATE),
+                            new Column("audit_by", FieldFill.UPDATE),
+                            new Column("auditor_name", FieldFill.UPDATE)
                     )).logicDeleteColumnName("deleted");
                     builder.addExclude(
                         "flyway_schema_history",
-                            "^act.+"
+                        "expense_item_attachment",
+                        "expense_item_subsidy",
+                        "customer_resource",
+                        "user_resource",
+                        "^act.+"
                     );
                 })
                 .templateConfig(builder -> {

@@ -75,6 +75,14 @@ export async function bookkeepingVoucherUsingPUT(
   });
 }
 
+/** defaultVoucherDate GET /api/voucher/defaultVoucherDate */
+export async function defaultVoucherDateUsingGET(options?: { [key: string]: any }) {
+  return request<API.RLocalDate_>('/api/voucher/defaultVoucherDate', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 /** deleteVoucher DELETE /api/voucher/delete/${param0} */
 export async function deleteVoucherUsingDELETE(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

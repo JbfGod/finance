@@ -3,12 +3,16 @@ package org.finance.business.web;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.VoucherConvert;
+import org.finance.business.entity.AccountCloseList;
 import org.finance.business.entity.Currency;
+import org.finance.business.entity.InitialBalance;
 import org.finance.business.entity.User;
 import org.finance.business.entity.Voucher;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.entity.enums.AuditStatus;
+import org.finance.business.service.AccountCloseListService;
 import org.finance.business.service.CustomerService;
+import org.finance.business.service.InitialBalanceService;
 import org.finance.business.service.VoucherItemService;
 import org.finance.business.service.VoucherService;
 import org.finance.business.web.request.AddVoucherRequest;
@@ -41,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +68,11 @@ public class VoucherWeb {
     private VoucherService baseService;
     @Resource
     private VoucherItemService itemService;
+    @Resource
+    private AccountCloseListService accountCloseListService;
+    @Resource
+    private InitialBalanceService initialBalanceService;
+    private final static DateTimeFormatter yyyyMMFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
     private final String RESOURCE_TARGET = "voucher";
 
     @GetMapping("/page")
@@ -124,9 +134,44 @@ public class VoucherWeb {
         return R.ok(baseService.getMaxSerialNumberByYearMonth(yearMonthNum));
     }
 
+    @GetMapping("/defaultVoucherDate")
+    public R<LocalDate> defaultVoucherDate() {
+        LocalDate defaultVoucherDate;
+        AccountCloseList lastClosedAccount = accountCloseListService.getOne(
+            Wrappers.<AccountCloseList>lambdaQuery()
+                .orderByDesc(AccountCloseList::getYearMonthNum)
+                .last("limit 1")
+        );
+        // 从关账列表取日期
+        if (lastClosedAccount == null) {
+            defaultVoucherDate = lastClosedAccount.getBeginDate();
+        } else {
+            // 从凭证列表取日期
+            Voucher lastVoucher = baseService.getOne(Wrappers.<Voucher>lambdaQuery()
+                    .orderByDesc(Voucher::getVoucherTime)
+                    .last("limit 1")
+            );
+            defaultVoucherDate = Optional.ofNullable(lastVoucher)
+                    .map(v -> v.getVoucherTime().toLocalDate())
+                    .orElseGet(() -> {
+                        // 从初始余额取日期
+                        InitialBalance initialBalance = initialBalanceService.getOne(
+                                Wrappers.<InitialBalance>lambdaQuery().last("limit 1")
+                        );
+                        if (initialBalance == null) {
+                            return LocalDate.now().minusMonths(1);
+                        }
+                        return LocalDate.of(initialBalance.getYear(), initialBalance.getYearMonthNum() % 100, 1);
+                    });
+        }
+        defaultVoucherDate.plusMonths(1);
+        return R.ok(defaultVoucherDate);
+    }
+
     @PostMapping("/add")
     @PreAuthorize("hasPermission('voucher', 'base')")
     public R addVoucher(@Valid @RequestBody AddVoucherRequest request) {
+        assertUnCloseAccount(request.getVoucherDate());
         if (request.getSerialNumber() != null) {
             assertSerialNumberNotExists(request.getYearMonthNum(), request.getSerialNumber());
         }
@@ -202,6 +247,8 @@ public class VoucherWeb {
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasPermission('voucher', 'base')")
     public R deleteVoucher(@PathVariable("id") long id) {
+        Voucher voucher = baseService.getById(id);
+        assertUnCloseAccount(voucher.getVoucherTime().toLocalDate());
         assertUnAudited(id);
         baseService.deleteById(id);
         return R.ok();
@@ -210,6 +257,7 @@ public class VoucherWeb {
     @PutMapping("/update")
     @PreAuthorize("hasPermission('voucher', 'base')")
     public R updateVoucher(@Valid @RequestBody UpdateVoucherRequest request) {
+        assertUnCloseAccount(request.getVoucherDate());
         assertUnAudited(request.getId());
         if (request.getSerialNumber() != null) {
             Voucher dbVoucher = baseService.getById(request.getId());
@@ -222,6 +270,15 @@ public class VoucherWeb {
             itemService.removeByIds(request.getDeletedItemIds());
         });
         return R.ok();
+    }
+
+    private void assertUnCloseAccount(LocalDate voucherDate) {
+        boolean existsCloseAccountRecord = accountCloseListService.count(
+                Wrappers.<AccountCloseList>lambdaQuery()
+                        .eq(AccountCloseList::getYearMonthNum, voucherDate.getYear() * 100 + voucherDate.getMonthValue())
+                        .last("limit 1")
+        ) > 0;
+        AssertUtil.isFalse(existsCloseAccountRecord, String.format("操作失败，月份：%s已经关账！", voucherDate.format(yyyyMMFormatter)));
     }
 
     private void assertUnAudited(long voucherId) {

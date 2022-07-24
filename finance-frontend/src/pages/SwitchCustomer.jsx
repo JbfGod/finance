@@ -2,7 +2,6 @@ import {Button, Card, Col, Input, message, Row, Space} from "antd";
 import ExProTable from "@/components/Table/ExtProTable";
 import React, {useRef, useState} from "react";
 import {ownedCustomerUsingGET, switchProxyCustomerUsingPUT} from "@/services/swagger/userWeb";
-import {useModel} from "umi"
 import GlobalPageContainer from "@/components/PageContainer";
 
 

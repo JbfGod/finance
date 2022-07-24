@@ -1,7 +1,6 @@
 import React from 'react';
 import PageContainer from "@/components/PageContainer";
-import {Alert, Card, Typography} from 'antd';
-import styles from './Welcome.less';
+import {Alert, Card} from 'antd';
 
 const Welcome = () => {
   return (

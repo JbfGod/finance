@@ -21,6 +21,16 @@ declare namespace API {
     remark?: string;
   };
 
+  type AddInitialBalanceRequest = {
+    amount: number;
+    currencyName: string;
+    lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
+    subjectId: number;
+    subjectName: string;
+    subjectNumber: string;
+    yearMonthDate: string;
+  };
+
   type AddSubjectRequest = {
     assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
     industryId?: number;
@@ -52,9 +62,7 @@ declare namespace API {
   };
 
   type CopyCurrencyRequest = {
-    current?: number;
     isOverride?: boolean;
-    pageSize?: number;
     sourceYearMonth?: number;
     targetYearMonth?: number;
   };
@@ -168,6 +176,27 @@ declare namespace API {
     parentId?: number;
     parentNumber?: string;
     remark?: string;
+  };
+
+  type InitialBalanceItemVO = {
+    amount?: number;
+    currencyName?: string;
+    id?: number;
+    initialBalanceId?: number;
+    lendingDirection?: string;
+    subjectId?: number;
+    subjectName?: string;
+    subjectNumber?: string;
+    year?: number;
+    yearMonthNum?: number;
+  };
+
+  type InitialBalanceVO = {
+    auditStatus?: 'AUDITED' | 'TO_BE_AUDITED';
+    bookkeeping?: boolean;
+    creatorName?: string;
+    id?: number;
+    yearMonthNum?: string;
   };
 
   type Item = {
@@ -307,6 +336,18 @@ declare namespace API {
     remark?: string;
   };
 
+  type UpdateInitialBalanceRequest = {
+    amount: number;
+    currencyId: number;
+    currencyName: string;
+    id: number;
+    lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
+    rate: number;
+    subjectId: number;
+    subjectName: string;
+    subjectNumber: string;
+  };
+
   type UpdateSelfPasswordRequest = {
     newPassword: string;
     oldPassword: string;
@@ -402,6 +443,7 @@ declare namespace API {
     id?: number;
     items?: Item0[];
     rate?: number;
+    serialNumber?: number;
     unit?: string;
     voucherDate?: string;
   };
@@ -461,6 +503,14 @@ declare namespace API {
     total?: number;
   };
 
+  type RPageInitialBalanceItemVO_ = {
+    current?: number;
+    data?: InitialBalanceItemVO[];
+    pageSize?: number;
+    success?: boolean;
+    total?: number;
+  };
+
   type RPageUserListVO_ = {
     current?: number;
     data?: UserListVO[];
@@ -509,6 +559,17 @@ declare namespace API {
 
   type RExpenseBillPrintContentVO_ = {
     data?: ExpenseBillPrintContentVO;
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
+  type RInitialBalanceVO_ = {
+    data?: InitialBalanceVO;
     errorCode?: string;
     host?: string;
     message?: string;
@@ -661,6 +722,17 @@ declare namespace API {
     traceId?: string;
   };
 
+  type RLocalDate_ = {
+    data?: string;
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
   type RUserSelfVO_ = {
     data?: UserSelfVO;
     errorCode?: string;
@@ -714,6 +786,19 @@ declare namespace API {
     showType?: number;
     success?: boolean;
     traceId?: string;
+  };
+
+  type cancelClosedAccountUsingPOSTParams = {
+    yearMonthDate: string;
+    yearMonthNum?: number;
+  };
+
+  type closeAccountUsingPOSTParams = {
+    beginDate?: string;
+    endDate?: string;
+    year?: number;
+    yearMonthDate: string;
+    yearMonthNum?: number;
   };
 
   type auditingCurrencyUsingPUTParams = {
@@ -779,7 +864,6 @@ declare namespace API {
     name?: string;
     number?: string;
     pageSize?: number;
-    status?: 'INITIALIZING' | 'SUCCESS';
     telephone?: string;
     type?: 'PROXY' | 'RENT' | 'RENT_AND_PROXY';
     useForeignExchange?: boolean;
@@ -932,6 +1016,35 @@ declare namespace API {
     id: number;
   };
 
+  type auditingInitialBalanceUsingPUTParams = {
+    yearMonthDate: string;
+  };
+
+  type bookkeepingInitialBalanceUsingPUTParams = {
+    /** id */
+    id: number;
+  };
+
+  type deleteInitialBalanceUsingDELETEParams = {
+    /** id */
+    id: number;
+  };
+
+  type pageInitialBalanceItemUsingGETParams = {
+    current?: number;
+    pageSize?: number;
+  };
+
+  type unAuditingInitialBalanceUsingPUTParams = {
+    /** id */
+    id: number;
+  };
+
+  type unBookkeepingInitialBalanceUsingPUTParams = {
+    /** id */
+    id: number;
+  };
+
   type persignedObjectUrlUsingGETParams = {
     bucket: 'EXPENSE_BILL';
     fileExtend?: string;
@@ -948,11 +1061,6 @@ declare namespace API {
     industryId?: number;
     name?: string;
     number?: string;
-  };
-
-  type deleteUserUsingDELETEParams = {
-    /** id */
-    id: number;
   };
 
   type ownedCustomerUsingGETParams = {
@@ -1017,8 +1125,10 @@ declare namespace API {
   type pageVoucherUsingGETParams = {
     currencyType?: 'FOREIGN' | 'LOCAL';
     current?: number;
+    endDate?: string;
     pageSize?: number;
-    yearMonthNum?: number;
+    serialNumber?: number;
+    startDate?: string;
   };
 
   type pageVoucherBookUsingGETParams = {

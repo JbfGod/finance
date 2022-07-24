@@ -74,7 +74,11 @@ export const layout = ({ initialState, setInitialState }) => {
       const {customer, proxyCustomer} = currentUser
       const isSuperCustomer = customer.number === "HX_TOP"
       if (isSuperCustomer && proxyCustomer == null) {
-        if (location.pathname.startsWith("/expense") || location.pathname.startsWith("/voucher")) {
+        if (location.pathname.startsWith("/expense")
+          || location.pathname.startsWith("/voucher")
+          || location.pathname.startsWith("/accountClose")
+          || location.pathname.startsWith("/initialBalance")
+        ) {
           message.warn("请先选择客户单位！")
           history.push("/user/switchCustomer")
          return

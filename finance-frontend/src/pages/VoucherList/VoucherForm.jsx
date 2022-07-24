@@ -9,7 +9,7 @@ import {
 } from "@ant-design/pro-form";
 import {Button, Empty, Form, InputNumber} from "antd";
 import styles from "./index.less"
-import {CURRENCY_TYPE, LENDING_DIRECTION, SUBJECT_TYPE} from "@/constants";
+import {CURRENCY_TYPE, LENDING_DIRECTION} from "@/constants";
 import {
   addVoucherUsingPOST,
   updateVoucherUsingPUT,
@@ -27,7 +27,7 @@ import moment from "moment";
 import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 
 const CAPACITY = 5
-export default ({modal, onSuccess, subjects, setSubjects, subjectById, ...props}) => {
+export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVoucherDate, ...props}) => {
   const {
     mode = "add", currencyType = CURRENCY_TYPE.LOCAL,
     voucherId, visible
@@ -173,7 +173,7 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, ...props}
       for (let i = 0; i < CAPACITY; i++) {
         newItems.push({index: i})
       }
-      formRef.setFieldsValue({items: newItems})
+      formRef.setFieldsValue({items: newItems, voucherDate: defaultVoucherDate})
       loadUsableSerialNumber()
     } else if (isEditMode || isViewMode) {
       initialBillDetail()

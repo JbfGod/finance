@@ -9,7 +9,7 @@ import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-desig
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import * as industryWeb from "@/services/swagger/industryWeb";
-import {SUBJECT_ASSIST_SETTLEMENT, LENDING_DIRECTION, SUBJECT_TYPE} from "@/constants";
+import {LENDING_DIRECTION, SUBJECT_ASSIST_SETTLEMENT, SUBJECT_TYPE} from "@/constants";
 import styles from "@/global.less"
 import GlobalPageContainer from "@/components/PageContainer";
 

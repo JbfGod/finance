@@ -3,14 +3,14 @@ import {Button, Form, InputNumber, Popconfirm} from "antd";
 import {FileSyncOutlined, PlusOutlined} from "@ant-design/icons";
 import ExProTable from "@/components/Table/ExtProTable";
 import {
-    addCurrencyUsingPOST,
-    auditingCurrencyUsingPUT,
-    copyCurrencyByMonthUsingPOST,
-    currencyByIdUsingGET,
-    deleteCurrencyUsingDELETE,
-    pageCurrencyUsingGET,
-    unAuditingCurrencyUsingPUT,
-    updateCurrencyUsingPUT
+  addCurrencyUsingPOST,
+  auditingCurrencyUsingPUT,
+  copyCurrencyByMonthUsingPOST,
+  currencyByIdUsingGET,
+  deleteCurrencyUsingDELETE,
+  pageCurrencyUsingGET,
+  unAuditingCurrencyUsingPUT,
+  updateCurrencyUsingPUT
 } from "@/services/swagger/currencyWeb";
 import {useModalWithParam, useSecurity} from "@/utils/hooks";
 import {ModalForm, ProFormItem, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
