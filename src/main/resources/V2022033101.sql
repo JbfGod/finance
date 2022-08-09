@@ -81,6 +81,7 @@ CREATE TABLE if not exists `resource` (
     `business_code` varchar(50) not null default '' comment '业务代码',
     `permit_code` varchar(500) not null default '' comment '权限代码',
     `sort_num` int(11) not null default 10 comment '排序编号升序',
+    `super_customer` bit(1) not null default false,
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
