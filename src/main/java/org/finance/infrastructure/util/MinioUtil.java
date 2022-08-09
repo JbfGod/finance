@@ -7,11 +7,9 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.UploadObjectArgs;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.finance.infrastructure.exception.HxException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +28,7 @@ public class MinioUtil {
     private String url;
     @Value("${minio.accessKey:jiangbangfa}")
     private String accessKey;
-    @Value("${minio.secretKey:jiangbangfa}")
+    @Value("${minio.secretKey:tkwlwy13izu#GSGM}")
     private String secretKey;
     @Value("${minio.bucketName:jxzl}")
     private String bucketName;
