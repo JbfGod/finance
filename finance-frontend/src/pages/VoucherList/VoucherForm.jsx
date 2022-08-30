@@ -25,6 +25,7 @@ import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
 import {searchExpenseItemCueUsingGET} from "@/services/swagger/expenseBillWeb";
 import moment from "moment";
 import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
+import {ClearOutlined} from "@ant-design/icons";
 
 const CAPACITY = 5
 export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVoucherDate, ...props}) => {
@@ -79,6 +80,15 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
   const loadUsableSerialNumber = () => {
     usableSerialNumberUsingGET().then(({data}) => formRef.setFieldsValue({serialNumber: data}))
   }
+  const setItemByIndex = (index, value, replaced = true) => {
+    const items = formRef.getFieldValue(["items"])
+    formRef.setFieldsValue({items: items.map((item, idx) => {
+      if (idx !== index) {
+        return item
+      }
+      return replaced ? value : {...item, ...value}
+    })})
+  }
   const currencyId = Form.useWatch('currencyId', formRef);
   const columns = [
     {
@@ -93,13 +103,13 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
       title: "会计科目", dataIndex: "subjectId", width: 250,
       renderFormItem: () => (
         <AdvancedSubjectSelect subjects={subjects} placeholder="只能选择费用类科目"
-               fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
-               disableFilter={(subject) => {
-                 return subject.hasLeaf
-               }}
-               setSubjects={setSubjects}
-               onlySelectedLeaf={true} disabled={isViewMode}
-               style={{width: '100%'}} />
+                               fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
+                               disableFilter={(subject) => {
+                                 return subject.hasLeaf
+                               }}
+                               setSubjects={setSubjects}
+                               onlySelectedLeaf={true} disabled={isViewMode}
+                               style={{width: '100%'}}/>
       ),
       render: (_, row) => {
         const v = subjectById[row.subjectId]
@@ -159,11 +169,21 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
         fieldProps: {style: {width: "100%"}}
       }
     ]),
+    {
+      title: "操作", dataIndex: "operate", editable: false, width: 45,
+      render: (_, __, index) => {
+        return (
+          <a title="清空" onClick={() => setItemByIndex(index, {index}, true)}>
+            <ClearOutlined />
+          </a>
+        )
+      }
+    }
   ]
   const voucherDate = Form.useWatch("voucherDate", formRef)
   const yearMonth = moment.isMoment(voucherDate) ? voucherDate.format("YYYYMM")
     :
-    `${voucherDate||""}`.replaceAll(/(\d{4})-(1[0-2]|0?[1-9])-\d{1,2}/g, "$1$2")
+    `${voucherDate || ""}`.replaceAll(/(\d{4})-(1[0-2]|0?[1-9])-\d{1,2}/g, "$1$2")
   useEffect(() => {
     loadCurrencyByYearMonth(yearMonth)
   }, [yearMonth])
@@ -193,16 +213,17 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
                      currencyId: 0,
                      currencyName: "人民币",
                    }),
-                   items: f.items.filter(item => item.subjectId).map(item => {
-                     const isDebit = !!item.debitAmount
-                     return {
-                       ...item,
-                       subjectName: subjectById[item?.subjectId]?.name,
-                       subjectNumber: subjectById[item?.subjectId]?.number,
-                       lendingDirection: isDebit ? LENDING_DIRECTION.BORROW.value : LENDING_DIRECTION.LOAN.value,
-                       amount: isDebit ? item.debitAmount : item.creditAmount
-                     }
-                   })
+                   items: f.items.filter(item => item.subjectId)//过滤调没有选择科目的记录
+                     .map(item => {
+                       const isDebit = !!item.debitAmount
+                       return {
+                         ...item,
+                         subjectName: subjectById[item?.subjectId]?.name,
+                         subjectNumber: subjectById[item?.subjectId]?.number,
+                         lendingDirection: isDebit ? LENDING_DIRECTION.BORROW.value : LENDING_DIRECTION.LOAN.value,
+                         amount: isDebit ? item.debitAmount : item.creditAmount
+                       }
+                     })
                  }
                  if (isAddMode) {
                    return addVoucherUsingPOST(formData).then(_ => {
@@ -258,7 +279,7 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
                  placement: "right"
                }}
                initialValues={{
-                 ...(isLocalCurrency?{unit: "元"}:{}),
+                 ...(isLocalCurrency ? {unit: "元"} : {}),
                  voucherDate: moment().format("YYYY-MM-DD")
                }}
                {...props}
@@ -318,12 +339,14 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
                             }
                             for (let i = index - 1; i >= 0; i--) {
                               if (items[i].summary) {
-                                formRef.setFieldsValue({items: items.map(item => {
+                                formRef.setFieldsValue({
+                                  items: items.map(item => {
                                     if (item.index === index) {
                                       return {...item, summary: items[i].summary}
                                     }
                                     return item
-                                })})
+                                  })
+                                })
                                 return
                               }
                             }
