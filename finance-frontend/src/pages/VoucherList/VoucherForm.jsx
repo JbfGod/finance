@@ -29,10 +29,8 @@ import {ClearOutlined} from "@ant-design/icons";
 
 const CAPACITY = 5
 export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVoucherDate, ...props}) => {
-  const {
-    mode = "add", currencyType = CURRENCY_TYPE.LOCAL,
-    voucherId, visible
-  } = modal
+  const {state, visible} = modal
+  const {mode = "add", currencyType = CURRENCY_TYPE.LOCAL, voucherId} = state
   if (!visible) {
     return null
   }
@@ -98,6 +96,9 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
           return searchExpenseItemCueUsingGET({column: 'SUMMARY', keyword})
         }}/>
       ),
+      render: (_, row) => {
+        return row.summary || ""
+      }
     },
     {
       title: "会计科目", dataIndex: "subjectId", width: 250,
@@ -113,7 +114,7 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
       ),
       render: (_, row) => {
         const v = subjectById[row.subjectId]
-        return v ? `${v.number}-${v.name}` : "-"
+        return v ? `${v.number}-${v.name}` : ""
       }
     },
     ...(isForeignCurrency ? [
@@ -128,11 +129,11 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
           },
           {
             title: "汇率", dataIndex: "debitAmount", editable: false, width: 50,
-            renderText: (v) => v && currencyById[currencyId]?.rate || "-"
+            renderText: (v) => v && currencyById[currencyId]?.rate || ""
           },
           {
             title: "本币", dataIndex: "debitAmount", valueType: "digit", editable: false,
-            render: (v, row) => ((currencyById[currencyId]?.rate || 1) * row.debitAmount) || "-"
+            render: (v, row) => ((currencyById[currencyId]?.rate || 1) * row.debitAmount) || ""
           },
         ]
       },
@@ -147,11 +148,11 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
           },
           {
             title: "汇率", dataIndex: "creditAmount", editable: false, width: 50,
-            renderText: (v) => v && currencyById[currencyId]?.rate || "-"
+            renderText: (v) => v && currencyById[currencyId]?.rate || ""
           },
           {
             title: "本币", dataIndex: "creditAmount", valueType: "digit", editable: false,
-            render: (v, row) => ((currencyById[currencyId]?.rate || 1) * row.creditAmount) || "-"
+            render: (v, row) => ((currencyById[currencyId]?.rate || 1) * row.creditAmount) || ""
           },
         ]
       }
@@ -160,13 +161,19 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
         title: "借方金额",
         valueType: "digit",
         dataIndex: "debitAmount",
-        fieldProps: {style: {width: "100%"}}
+        fieldProps: {style: {width: "100%"}},
+        render: (_, row) => {
+          return row.debitAmount || ""
+        }
       },
       {
         title: "贷方金额",
         valueType: "digit",
         dataIndex: "creditAmount",
-        fieldProps: {style: {width: "100%"}}
+        fieldProps: {style: {width: "100%"}},
+        render: (_, row) => {
+          return row.creditAmount || ""
+        }
       }
     ]),
     {
@@ -272,6 +279,7 @@ export default ({modal, onSuccess, subjects, setSubjects, subjectById, defaultVo
                  })
                }}
                visible={visible}
+               onVisibleChange={modal.handleVisible}
                layout="horizontal"
                modalProps={{
                  destroyOnClose: true,

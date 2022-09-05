@@ -53,7 +53,8 @@ export async function getInitialState() {
     fetchUserInfo,
     settings: defaultSettings,
   };
-} // ProLayout 支持的api https://procomponents.ant.design/components/layout
+}
+// ProLayout 支持的api https://procomponents.ant.design/components/layout
 
 export const layout = ({ initialState, setInitialState }) => {
   return {

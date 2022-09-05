@@ -17,9 +17,9 @@ import {AuditStatus} from "@/constants";
 export default () => {
   const actionRef = useRef()
   const security = useSecurity("expenseBill")
-  const [addModal, handleAddModal, openAddModal] = useModalWithParam()
-  const [editModal, handleEditModal, openEditModal] = useModalWithParam()
-  const [viewModal, handleViewModal, openViewModal] = useModalWithParam()
+  const addModal = useModalWithParam()
+  const editModal = useModalWithParam()
+  const viewModal = useModalWithParam()
   const [print, onPrint] = usePrint()
   const columns = [
     {
@@ -41,14 +41,16 @@ export default () => {
       title: '操作', dataIndex: 'id',
       width: 255, valueType: 'option',
       render: (dom, row) => [
-        <a key="detail" onClick={() => openViewModal({billId: row.id})}>详情</a>,
-        ...security.canOperating && [
-          <a key="edit" onClick={() => openEditModal({billId: row.id})}>编辑</a>,
-          <Popconfirm key="delete" title="确认删除该报销单？"
-                      onConfirm={() => deleteExpenseBillUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
-            <a>删除</a>
-          </Popconfirm>
-        ],
+        <a key="detail" onClick={() => viewModal.open({billId: row.id})}>详情</a>,
+        ...(
+          row.auditStatus === AuditStatus.TO_BE_AUDITED && security.canOperating? [
+            <a key="edit" onClick={() => editModal.open({billId: row.id})}>编辑</a>,
+            <Popconfirm key="delete" title="确认删除该报销单？"
+                        onConfirm={() => deleteExpenseBillUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
+              <a>删除</a>
+            </Popconfirm>
+          ] : []
+        ),
         security.canPrint && (
           <a key="print" onClick={() => onPrint({billId: row.id})}>打印</a>
         ),
@@ -70,12 +72,16 @@ export default () => {
       ]
     },
   ]
+  const reload = () => {
+    actionRef.current?.reload()
+    return true
+  }
   return (
     <PageContainer>
       <ExProTable actionRef={actionRef} columns={columns}
                   request={pageExpenseBillUsingGET}
                   toolBarRender={() => security.canOperating && (
-                    <Button type="primary" onClick={openAddModal}>
+                    <Button type="primary" onClick={() => addModal.open()}>
                       <PlusOutlined/>
                       新增报销单
                     </Button>
@@ -84,13 +90,15 @@ export default () => {
       />
       <BillPrint print={print}/>
       {addModal.visible &&
-        <BillForm visible={true} onVisibleChange={handleAddModal}/>
+        <BillForm visible={true} onVisibleChange={addModal.handleVisible}
+                  onOk={reload}/>
       }
       {editModal.visible &&
-        <BillForm visible={true} mode="edit" onVisibleChange={handleEditModal} billId={editModal.billId}/>
+        <BillForm visible={true} mode="edit" onVisibleChange={editModal.handleVisible}
+                  billId={editModal.state.billId} onOk={reload}/>
       }
       {viewModal.visible &&
-        <BillForm visible={true} mode="view" onVisibleChange={handleViewModal} billId={viewModal.billId}/>
+        <BillForm visible={true} mode="view" onVisibleChange={viewModal.handleVisible} billId={viewModal.state.billId}/>
       }
     </PageContainer>
   )

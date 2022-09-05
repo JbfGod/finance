@@ -12,6 +12,7 @@ import * as industryWeb from "@/services/swagger/industryWeb";
 import {LENDING_DIRECTION, SUBJECT_ASSIST_SETTLEMENT, SUBJECT_TYPE} from "@/constants";
 import styles from "@/global.less"
 import GlobalPageContainer from "@/components/PageContainer";
+import {useModel} from "@/.umi/plugin-model/useModel";
 
 export default ({mode, formModalProps = {}}) => {
   const isFormModal = mode === "formModal"
@@ -19,7 +20,8 @@ export default ({mode, formModalProps = {}}) => {
   const [expandable, onLoad] = useTableExpandable()
   const [selectedIndustry, setSelectedIndustry] = useState({id: 0, number: "0"})
   const [industryTreeData, setIndustryTreeData] = useState([])
-  const [createModal, handleModal, openModal] = useModalWithParam()
+  const createModal = useModalWithParam()
+  const {subjects, fetchSubjects} = useModel("useSubjectModel")
 
   const security = useSecurity()
 
@@ -29,7 +31,7 @@ export default ({mode, formModalProps = {}}) => {
         && (selectedIndustry.hasLeaf || selectedIndustry.id === 0)) {
       return message.warn("新增科目只能选择叶子节点的行业！")
     }
-    openModal(params)
+    createModal.open(params)
   }
 
   // 加载行业数据
@@ -51,13 +53,13 @@ export default ({mode, formModalProps = {}}) => {
       }
     ] : []),
     {
-      title: "科目编号", dataIndex: "number", editable: false, width: 255
-    },
-    {
-      title: "级数", dataIndex: "level", editable: false, search: false, width: 50
+      title: "科目编号", dataIndex: "number", editable: false, width: 220
     },
     {
       title: "科目名称", dataIndex: "name", width: 125
+    },
+    {
+      title: "级数", dataIndex: "level", editable: false, search: false, width: 50
     },
     {
       title: "科目类型", dataIndex: "type", valueType: "select", search: false, width: 115
@@ -92,12 +94,12 @@ export default ({mode, formModalProps = {}}) => {
         return [
           <a key="addSub" onClick={(e) => {
             e.stopPropagation()
-            openModal({parentId : row.id, industryId: row.industryId})
+            createModal.open({parentId : row.id, industryId: row.industryId})
           }}>新增子级</a>,
           <a key="edit" onClick={() => action?.startEditable(row.id)}>编辑</a>,
           <ExtConfirmDel key="del" onConfirm={async () => {
             await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
-            actionRef.current?.reload()
+            fetchSubjects()
           }}/>,
         ]
       }
@@ -128,9 +130,6 @@ export default ({mode, formModalProps = {}}) => {
                       fieldNames={{title: "name", key: "id"}} treeData={industryTreeData}
                       onSelect={(keys, {node}) => {
                         setSelectedIndustry(node)
-                        if (node.id !== selectedIndustry.id) {
-                          actionRef.current?.reload()
-                        }
                       }}
                 />
               </ProCard>
@@ -141,18 +140,30 @@ export default ({mode, formModalProps = {}}) => {
                         params={{industryId: selectedIndustry.id||undefined}}
                         onNew={() => openModalWithCheck({parentId: 0})}
                         editable={editable}
-                        request={async (params) => {
-                          const result = await subjectWeb.treeSubjectUsingGET(params)
-                          let {data} = result
-                          data[0].disabled = true
+                        request={async ({name, number, industryId}) => {
+                          let data = subjects.filter(sub => (
+                            (!industryId || sub.industryId === industryId)
+                            &&
+                            (!name || sub.name.startsWith(name))
+                            &&
+                            (!number || sub.number.startsWith(number))
+                          ))
+                          // data[0].disabled = true
                           return {
-                            ...result
+                            data,
+                            showType: 0,
+                            success: true
                           }
                         }}
                         {...(isFormModal?{
                           scroll: {y: 275},
                           tableAlertRender:false,
-                          onDataSourceChange: formModalProps?.onDataSourceChange,
+                          onRow: (record) => ({
+                            onClick: () => {
+                              formModalProps?.setSelectedKeys([record.id])
+                              formModalProps.onSelect?.([record.id])
+                            }
+                          }),
                           rowSelection:{
                             type: 'radio',
                             selectedRowKeys: formModalProps?.selectedKeys,
@@ -169,18 +180,18 @@ export default ({mode, formModalProps = {}}) => {
             <ModalForm title="新增科目" width="420px" visible={createModal.visible}
                        initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
                        modalProps={{destroyOnClose: true}}
-                       onVisibleChange={handleModal}
+                       onVisibleChange={createModal.handleVisible}
                        layout="inline"
                        grid={true}
                        rowProps={{gutter: [0,12]}}
                        onFinish={async (value) => {
                          await subjectWeb.addSubjectUsingPOST({
                            ...value,
-                           industryId: selectedIndustry.id || createModal.industryId,
-                           parentId: createModal.parentId
+                           industryId: selectedIndustry.id || createModal.state.industryId,
+                           parentId: createModal.state.parentId
                          }).then(() => {
-                           handleModal(false)
-                           actionRef.current?.reload()
+                           createModal.close()
+                           fetchSubjects()
                          })
                        }}
             >

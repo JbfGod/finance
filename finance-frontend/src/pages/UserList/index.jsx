@@ -32,7 +32,7 @@ const renderBadge = (active = false) => {
 export default () => {
   const [createModalVisible, handleModalVisible] = useState(false)
   const [updateModalVisible, handleUpdateModalVisible] = useState(false)
-  const [grantDrawer, handleGrantDrawerVisible, openGrantDrawer] = useModalWithParam(false, {
+  const grantDrawer = useModalWithParam(false, {
     functionData: [], selectedResourceIds: [], user: null
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
@@ -78,7 +78,7 @@ export default () => {
           <a key="grant" onClick={async () => {
             const {data: selectedResourceIds} = await userWeb.resourceIdsOfUserUsingGET({userId: row.id})
             const {data: functionData} = await customerWeb.treeResourceWithOperateUsingGET({customerId: row.customerId})
-            openGrantDrawer({
+            grantDrawer.open({
               user: row, functionData, selectedResourceIds
             })
           }}>授权</a>,
@@ -217,11 +217,11 @@ export default () => {
         </ModalForm>
         {grantDrawer.visible?
             <ResourceDrawerForm title="功能授权" width="500px" visible={true}
-                                drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.functionData}
-                                initialValues={{resourceWithOperateIds: grantDrawer.selectedResourceIds}}
-                                onVisibleChange={handleGrantDrawerVisible}
+                                drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.state.functionData}
+                                initialValues={{resourceWithOperateIds: grantDrawer.state.selectedResourceIds}}
+                                onVisibleChange={grantDrawer.handleVisible}
                                 onFinish={async (v) => {
-                                  return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.user.id})
+                                  return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.state.user.id})
                                 }}
             /> : null
         }

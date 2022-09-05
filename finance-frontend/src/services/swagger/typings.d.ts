@@ -196,7 +196,8 @@ declare namespace API {
     bookkeeping?: boolean;
     creatorName?: string;
     id?: number;
-    yearMonthNum?: string;
+    yearMonthDate?: string;
+    yearMonthNum?: number;
   };
 
   type Item = {
@@ -214,6 +215,7 @@ declare namespace API {
     debitAmount?: number;
     id?: number;
     lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
+    serialNumber?: number;
     subjectId?: number;
     subjectName?: string;
     summary?: string;
@@ -223,6 +225,7 @@ declare namespace API {
     id?: number;
     name?: string;
     remark?: string;
+    serialNumber?: number;
     url?: string;
   };
 
@@ -231,7 +234,9 @@ declare namespace API {
     amountForDay?: number;
     days?: number;
     id?: number;
-    subject?: Record<string, any>;
+    name?: string;
+    serialNumber?: number;
+    subjectId?: number;
   };
 
   type Json = true;
@@ -944,11 +949,6 @@ declare namespace API {
     id: number;
   };
 
-  type expenseBillByIdUsingGETParams = {
-    /** id */
-    id: number;
-  };
-
   type pageExpenseBillUsingGETParams = {
     current?: number;
     number?: string;
@@ -1004,6 +1004,11 @@ declare namespace API {
     position: string;
     reason: string;
     totalSubsidyAmount: number;
+  };
+
+  type expenseBillByIdUsingGETParams = {
+    /** id */
+    id: number;
   };
 
   type printContentOfExpenseBillUsingGETParams = {
@@ -1117,11 +1122,6 @@ declare namespace API {
     id: number;
   };
 
-  type voucherDetailUsingGETParams = {
-    /** id */
-    id: number;
-  };
-
   type pageVoucherUsingGETParams = {
     currencyType?: 'FOREIGN' | 'LOCAL';
     current?: number;
@@ -1168,6 +1168,11 @@ declare namespace API {
   type usableSerialNumberUsingGETParams = {
     /** yearMonthNum */
     yearMonthNum?: number;
+  };
+
+  type voucherDetailUsingGETParams = {
+    /** id */
+    id: number;
   };
 
   type printContentOfVoucherUsingGETParams = {

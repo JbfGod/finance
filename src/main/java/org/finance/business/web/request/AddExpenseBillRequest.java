@@ -30,7 +30,8 @@ public class AddExpenseBillRequest {
     private BigDecimal totalSubsidyAmount;
 
     @Valid
-    @Size(min = 1, message = "至少添加报销项！")
+    @NotNull(message = "至少添加一项报销项！")
+    @Size(min = 1, message = "至少添加一项报销项！")
     private List<Item> items;
 
     @Data

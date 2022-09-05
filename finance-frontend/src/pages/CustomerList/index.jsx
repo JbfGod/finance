@@ -28,13 +28,13 @@ export default () => {
   const selectedCategoryId = selectedCategory.id
   const [industryTreeData, setIndustryTreeData] = useState([])
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
-  const [formModal, handleFormModal, openFormModal] = useModalWithParam()
+  const formModal = useModalWithParam()
 
   const openModalWithCheck = (params) => {
     if (selectedCategory.hasLeaf || selectedCategoryId === 0) {
       return message.warn("新增客户只能选择叶子节点的分类！")
     }
-    openFormModal(params)
+    formModal.open(params)
   }
 
   const fetchTreeCustomerCategory = async () => {
@@ -95,7 +95,7 @@ export default () => {
         return [
           <a key="edit" onClick={(e) => {
             e.stopPropagation()
-            openFormModal({mode: "edit", initialValues: row})
+            formModal.open({mode: "edit", initialValues: row})
           }}>编辑</a>,
           <ExtConfirmDel key="del" onConfirm={async () => {
             await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
@@ -130,7 +130,7 @@ export default () => {
                         onNew={() => openModalWithCheck({mode: "add"})}
                         request={customerWeb.pageCustomerUsingGET}
             />
-            <AddOrUpdateFormModal modal={formModal} onVisibleChange={handleFormModal}
+            <AddOrUpdateFormModal modal={formModal} onVisibleChange={formModal.handleVisible}
                                   categoryId={selectedCategoryId}
                                   industryTreeData={industryTreeData} onSuccess={() => actionRef.current?.reload()}
             />
@@ -149,7 +149,7 @@ export default () => {
 }
 
 function AddOrUpdateFormModal({modal, categoryId, onSuccess, industryTreeData, ...props}) {
-  const {mode, initialValues} = modal
+  const {state: {mode, initialValues}} = modal
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   const title = isAddMode ? "新增客户" : isEditMode ? "编辑客户" : "客户详情"
   const [directors, setDirectors] = useState([])

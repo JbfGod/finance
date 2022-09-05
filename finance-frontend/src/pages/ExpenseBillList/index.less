@@ -3,11 +3,41 @@ div.billDrawer {
     div.ant-drawer-body {
       padding: 15px;
     }
+
     .ant-pro-card-body {
-      padding: 15px;
+      padding: 0;
     }
   }
-  .selectedRow{
+
+  .selectedRow {
     background-color: #f2f4f6;
+  }
+}
+
+div.expenseBill {
+  --common-font: 11px;
+  .commonFont {
+    font-size: var(--common-font) !important;
+  }
+  :global {
+    .ant-table-thead > tr > th.ant-table-cell {
+      padding: 4px;
+      text-align: center;
+    }
+
+    .ant-table-tbody > tr > td.ant-table-cell {
+      padding: 0;
+      text-align: center;
+    }
+
+    .ant-table-small {
+      font-size: var(--common-font);
+      input, textarea {
+        border: none;
+      }
+      &, input, textarea, span {
+        font-size: var(--common-font);
+      }
+    }
   }
 }

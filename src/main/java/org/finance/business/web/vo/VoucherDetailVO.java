@@ -31,6 +31,7 @@ public class VoucherDetailVO {
     public static class Item {
 
         private Long id;
+        private Integer serialNumber;
         private String summary;
         private Long subjectId;
         private String subjectName;

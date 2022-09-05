@@ -13,19 +13,36 @@ export function useBoolean(initialValue = false) {
   ]
 }
 
-export function useModalWithParam(visible = false, params = {}) {
-  const [modal, setModal] = useState({visible, ...params})
-  const handleModalVisible = (v) => {
-    setModal({...modal, visible: v, handleVisible: handleModalVisible})
+export function useModalWithParam(visible = false, state = {}) {
+  const [modal, setModal] = useState({visible, state})
+  const handleVisible = (v) => {
+    setModal({...modal, visible: v})
   }
-  const openModal = (params) => {
-    setModal({visible: true, handleVisible: handleModalVisible, ...params})
+  const open = (newState = {}, mergedState = false) => {
+    setModal({visible: true, state: mergedState? {...state, ...newState}: newState})
   }
-  return [modal, handleModalVisible, openModal]
+  const close = (holdState = false) => {
+    if (holdState) {
+      handleVisible(visible)
+    } else {
+      setModal({visible: false, state: {}})
+    }
+  }
+  return {
+    state: modal.state, visible: modal.visible,
+    open, close, handleVisible
+  }
+  return [modal, handleVisible, open]
+}
+
+export function useAuthFlag() {
+  const {initialState = {}} = useModel('@@initialState')
+  const isAuth = !! initialState.currentUser
+  return isAuth
 }
 
 export function useSecurity(permissionPrefix = "") {
-  const {initialState} = useModel('@@initialState')
+  const {initialState = {}} = useModel('@@initialState')
   const access = useAccess()
   const {currentUser = {}} = initialState || {}
   const {customer = {}, role} = currentUser

@@ -92,14 +92,17 @@ public class ExpenseBillService extends ServiceImpl<ExpenseBillMapper, ExpenseBi
             Long itemId = item.getId();
             // 添加补助费用明细
             List<ExpenseItemSubsidy> subsidies = Optional.ofNullable(item.getSubsidies()).orElse(Collections.emptyList());
-            subsidies.forEach(subsidy -> {
-                this.addOrUpdateSubsidy(subsidy.setBillId(billId).setItemId(itemId));
-            });
+            int subsidySize = subsidies.size();
+            for (int j = 0; j < subsidySize; j++) {
+                ExpenseItemSubsidy subsidy = subsidies.get(j);
+                this.addOrUpdateSubsidy(subsidy.setSerialNumber(j + 1).setBillId(billId).setItemId(itemId));
+            }
             // 添加票据图片信息
             List<ExpenseItemAttachment> attachments = Optional.ofNullable(item.getAttachments()).orElse(Collections.emptyList());
-            for (int j = 0; j < attachments.size(); j++) {
+            int attachmentSize = attachments.size();
+            for (int j = 0; j < attachmentSize; j++) {
                 ExpenseItemAttachment attachment = attachments.get(j)
-                        .setBillId(billId).setItemId(itemId);
+                        .setSerialNumber(j + 1).setBillId(billId).setItemId(itemId);
                 addOrUpdateAttachment(attachment, j);
             }
         }
@@ -145,15 +148,17 @@ public class ExpenseBillService extends ServiceImpl<ExpenseBillMapper, ExpenseBi
     }
 
     private void addOrUpdateAttachment(ExpenseItemAttachment attachment, int index) {
+        if (attachment.getFile() != null) {
+            uploadBillFile(attachment, index);
+        }
         if (attachment.getId() != null) {
             attachmentMapper.updateById(attachment);
             return;
         }
-        String url = uploadBillFile(attachment, index);
-        attachmentMapper.insert(attachment.setUrl(url));
+        attachmentMapper.insert(attachment);
     }
 
-    private String uploadBillFile(ExpenseItemAttachment attachment, int index) {
+    private void uploadBillFile(ExpenseItemAttachment attachment, int index) {
         MultipartFile file = attachment.getFile();
         Long billId = attachment.getBillId();
         Long itemId = attachment.getItemId();
@@ -170,6 +175,6 @@ public class ExpenseBillService extends ServiceImpl<ExpenseBillMapper, ExpenseBi
             log.error("文件服务器繁忙，票据上传失败:", e);
             throw new HxException("文件服务器繁忙，票据上传失败！");
         }
-        return String.format("/%s/%s", BucketName.EXPENSE_BILL.getName(), objectName);
+        attachment.setUrl(String.format("/%s/%s", BucketName.EXPENSE_BILL.getName(), objectName));
     }
 }

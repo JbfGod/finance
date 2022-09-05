@@ -36,7 +36,10 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
 
     public Voucher getAndItemsById(long voucherId) {
         Voucher voucher = baseMapper.selectById(voucherId);
-        List<VoucherItem> items = itemMapper.selectList(Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, voucherId));
+        List<VoucherItem> items = itemMapper.selectList(
+                Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, voucherId)
+                    .orderByAsc(VoucherItem::getSerialNumber)
+        );
         voucher.setItems(items);
         return voucher;
     }
@@ -60,7 +63,9 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
         this.addOrUpdateVoucher(voucher);
 
         List<VoucherItem> items = voucher.getItems();
-        for (VoucherItem item : items) {
+        int itemSize = items.size();
+        for (int i = 0; i < itemSize; i++) {
+            VoucherItem item = items.get(i).setSerialNumber(i + 1);
             this.addOrUpdateItem(voucher, item);
         }
     }

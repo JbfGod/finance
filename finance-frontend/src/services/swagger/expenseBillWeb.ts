@@ -50,20 +50,6 @@ export async function deleteExpenseBillUsingDELETE(
   });
 }
 
-/** expenseBillById GET /api/expense/bill/get/${param0} */
-export async function expenseBillByIdUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.expenseBillByIdUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.RExpenseBillDetailVO_>(`/api/expense/bill/get/${param0}`, {
-    method: 'GET',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
 /** getBillNumber GET /api/expense/bill/getBillNumber */
 export async function getBillNumberUsingGET(options?: { [key: string]: any }) {
   return request<API.RString_>('/api/expense/bill/getBillNumber', {
@@ -147,6 +133,20 @@ export async function updateExpenseBillUsingPUT(
       ...params,
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+/** expenseBillById GET /api/expense/bill/${param0} */
+export async function expenseBillByIdUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.expenseBillByIdUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.RExpenseBillDetailVO_>(`/api/expense/bill/${param0}`, {
+    method: 'GET',
+    params: { ...queryParams },
     ...(options || {}),
   });
 }

@@ -10,7 +10,7 @@ import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 
 export default () => {
-  const [createModal, handleModal, openModal] = useModalWithParam()
+  const creatModal = useModalWithParam()
   const [expandable, onLoad] = useTableExpandable()
   const actionRef = useRef()
   const columns = [
@@ -31,7 +31,7 @@ export default () => {
         return [
           <a key="addSub" onClick={(e) => {
             e.stopPropagation()
-            openModal({parentId : row.id})
+            creatModal.open({parentId : row.id})
           }}>新增子级</a>,
           <a key="edit" onClick={(e) => {
             e.stopPropagation()
@@ -56,18 +56,18 @@ export default () => {
         <Col span={24}>
           <ExProTable pagination={false} actionRef={actionRef} columns={columns}
                       expandable={expandable} onLoad={onLoad}
-                      search={false} onNew={() => openModal({parentId : 0})}
+                      search={false} onNew={() => creatModal.open({parentId : 0})}
                       editable={editable}
                       request={customerCategoryWeb.treeCustomerCategoryUsingGET}
           />
-          <ModalForm title="新增客户类别" width="400px" visible={createModal.visible} modalProps={{destroyOnClose: true}}
-                     onVisibleChange={handleModal}
+          <ModalForm title="新增客户类别" width="400px" visible={creatModal.visible} modalProps={{destroyOnClose: true}}
+                     onVisibleChange={creatModal.handleVisible}
                      onFinish={async (value) => {
                        customerCategoryWeb.addCustomerCategoryUsingPOST({
                          ...value,
-                         parentId: createModal.parentId
+                         parentId: creatModal.state.parentId
                        }).then(() => {
-                         handleModal(false)
+                         creatModal.close()
                          actionRef.current?.reload()
                        })
                      }}

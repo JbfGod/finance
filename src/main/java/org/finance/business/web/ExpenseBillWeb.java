@@ -75,20 +75,25 @@ public class ExpenseBillWeb {
         return RPage.build(page);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public R<ExpenseBillDetailVO> expenseBillById(@PathVariable("id") long id) {
         ExpenseBill bill = baseService.getById(id);
-        List<ExpenseItem> items = itemService.list(Wrappers.<ExpenseItem>lambdaQuery().eq(ExpenseItem::getBillId, id));
+        List<ExpenseItem> items = itemService.list(
+                Wrappers.<ExpenseItem>lambdaQuery().eq(ExpenseItem::getBillId, id)
+                        .orderByAsc(ExpenseItem::getSerialNumber)
+        );
         bill.setItems(items);
 
         items.forEach(item -> {
             item.setSubsidies(subsidyService.list(Wrappers.<ExpenseItemSubsidy>lambdaQuery()
                     .eq(ExpenseItemSubsidy::getBillId, item.getBillId())
                     .eq(ExpenseItemSubsidy::getItemId, item.getId())
+                    .orderByAsc(ExpenseItemSubsidy::getSerialNumber)
             ));
             item.setAttachments(attachmentService.list(Wrappers.<ExpenseItemAttachment>lambdaQuery()
                     .eq(ExpenseItemAttachment::getBillId, item.getBillId())
                     .eq(ExpenseItemAttachment::getItemId, item.getId())
+                    .orderByAsc(ExpenseItemAttachment::getSerialNumber)
             ));
         });
         return R.ok(ExpenseBillConvert.INSTANCE.toExpenseBillDetailVO(bill));

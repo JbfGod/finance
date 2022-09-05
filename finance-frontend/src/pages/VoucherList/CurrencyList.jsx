@@ -26,8 +26,7 @@ const yearMonthNumTransform = v => ({
 export default function CurrencyList() {
   const actionRef = useRef()
   const security = useSecurity("currency")
-  const [formModal, handleFormModal, openFormModal] = useModalWithParam()
-  const [syncModal, _, openSyncModal] = useModalWithParam()
+  const formModal = useModalWithParam(), syncModal = useModalWithParam()
   const onSuccess = () => {
     actionRef.current?.reload()
   }
@@ -54,7 +53,7 @@ export default function CurrencyList() {
       render: (dom, row) => [
         ...security.canOperating && row.auditStatus === AuditStatus.TO_BE_AUDITED ? [
           <a key="edit"
-             onClick={() => openFormModal({id: row.id, mode: "edit"})}>
+             onClick={() => formModal.open({id: row.id, mode: "edit"})}>
             编辑
           </a>,
           <Popconfirm key="delete" title="确认删除该凭证？"
@@ -93,11 +92,11 @@ export default function CurrencyList() {
                     }}
                     toolBarRender={() => security.canOperating && (
                         <>
-                          <Button type="primary" onClick={openFormModal}>
+                          <Button type="primary" onClick={() => formModal.open()}>
                             <PlusOutlined/>
                             新增外币
                           </Button>
-                          <Button type="primary" onClick={openSyncModal}>
+                          <Button type="primary" onClick={() => syncModal.open()}>
                             <FileSyncOutlined />
                             同步汇率
                           </Button>
@@ -105,9 +104,7 @@ export default function CurrencyList() {
                     )}
                     editable={false}
         />
-        <AddOrUpdateModal onVisibleChange={handleFormModal}
-                          modal={formModal} onSuccess={onSuccess}
-        />
+        <AddOrUpdateModal modal={formModal} onSuccess={onSuccess}/>
         <SyncModal modal={syncModal} onSuccess={onSuccess}/>
       </GlobalPageContainer>
   )
@@ -119,7 +116,6 @@ function SyncModal({modal, onSuccess}) {
       <ModalForm title="同步汇率" width={350} visible={visible} onVisibleChange={handleVisible}
                  layout="horizontal"  modalProps={{destroyOnClose: true}}
                  onFinish={async (values) => {
-                   console.log(values)
                    await copyCurrencyByMonthUsingPOST(values).then(() => onSuccess && onSuccess())
                    return true
                  }}
@@ -135,7 +131,9 @@ function SyncModal({modal, onSuccess}) {
 }
 
 function AddOrUpdateModal({modal, onSuccess, ...props}) {
-  const {mode = "add", visible, id} = modal
+  const {state, visible} = modal
+  const {mode = "add", id} = state
+
   if (!visible) {
     return null
   }
@@ -149,6 +147,7 @@ function AddOrUpdateModal({modal, onSuccess, ...props}) {
   }, [])
   return (
       <ModalForm title={title} width="500px"
+                 onVisibleChange={modal.handleVisible}
                  initialValues={{
                    yearMonthNum: moment().format("YYYY-MM")
                  }}

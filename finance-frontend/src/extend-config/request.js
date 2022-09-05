@@ -63,9 +63,8 @@ const responseInterceptor = async (response, options) => {
         common.clearAccessToken()
         pathname = "/user/login"
       }
-      message.error({content: errorMessage, key: loadingKey, onClose: () => {
-          pathname && (window.location.href = pathname)
-      }})
+      message.error({content: errorMessage, key: loadingKey})
+      pathname && (window.location.href = pathname)
       break
     default:
       message.error(errorMessage)

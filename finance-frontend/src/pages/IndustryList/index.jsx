@@ -10,7 +10,7 @@ import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 
 export default () => {
-  const [createModal, handleModal, openModal] = useModalWithParam()
+  const createModal = useModalWithParam()
   const [expandable, onLoad] = useTableExpandable()
   const actionRef = useRef()
   const columns = [
@@ -31,7 +31,7 @@ export default () => {
         return [
           <a key="addSub" onClick={(e) => {
             e.stopPropagation()
-            openModal({parentId : row.id})
+            createModal.open({parentId : row.id})
           }}>新增子级</a>,
           <a key="edit" onClick={(e) => {
             e.stopPropagation()
@@ -56,18 +56,18 @@ export default () => {
         <Col span={24}>
           <ExProTable pagination={false} actionRef={actionRef} columns={columns}
                       onLoad={onLoad} expandable={expandable}
-                      search={false} onNew={() => openModal({parentId : 0})}
+                      search={false} onNew={() => createModal.open({parentId : 0})}
                       editable={editable}
                       request={industryWeb.treeIndustryUsingGET}
           />
           <ModalForm title="新增客户行业" width="400px" visible={createModal.visible} modalProps={{destroyOnClose: true}}
-                     onVisibleChange={handleModal}
+                     onVisibleChange={createModal.handleVisible}
                      onFinish={async (value) => {
                        industryWeb.addIndustryUsingPOST({
                          ...value,
-                         parentId: createModal.parentId
+                         parentId: createModal.state.parentId
                        }).then(() => {
-                         handleModal(false)
+                         createModal.close()
                          actionRef.current?.reload()
                        })
                      }}

@@ -96,7 +96,7 @@ public class VoucherWeb {
         return RPage.build(baseService.pageVoucherBookVO(request.extractPage()));
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public R<VoucherDetailVO> voucherDetail(@PathVariable("id") long id) {
         Voucher voucher = baseService.getAndItemsById(id);
         return R.ok(VoucherConvert.INSTANCE.toVoucherDetailVO(voucher));

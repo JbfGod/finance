@@ -41,7 +41,7 @@ export default () => {
   const [defaultVoucherDate, setDefaultVoucherDate] = useState()
   const [initialBalance, setInitialBalance] = useState({})
   const {bookkeeping} = initialBalance
-  const [formModal, handleFormModal, openFormModal] = useModalWithParam()
+  const formModal = useModalWithParam()
   const [print, onPrint] = usePrint()
   const [currencyType, setCurrencyType] = useState(CURRENCY_TYPE.LOCAL)
 
@@ -127,12 +127,12 @@ export default () => {
       render: (dom, row) => (
         <AutoDropdown overlay={[
           <a key="detail"
-             onClick={() => openFormModal({mode: "view", voucherId: row.id, currentType: row.currentType})}>
+             onClick={() => formModal.open({mode: "view", voucherId: row.id, currentType: row.currentType})}>
             详情
           </a>,
           ...security.canOperating && row.auditStatus === AuditStatus.TO_BE_AUDITED ? [
             <a key="edit"
-               onClick={() => openFormModal({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
+               onClick={() => formModal.open({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
               编辑
             </a>,
             <Popconfirm key="delete" title="确认删除该凭证？"
@@ -194,7 +194,7 @@ export default () => {
                     })
                   }}
                   toolBarRender={() => security.canOperating && (
-                    <Button type="primary" onClick={() => openFormModal({mode: "add", currencyType})}>
+                    <Button type="primary" onClick={() => formModal.open({mode: "add", currencyType})}>
                       <PlusOutlined/>
                       新增凭证单
                     </Button>
@@ -204,8 +204,7 @@ export default () => {
       <VoucherPrint print={print}/>
       <VoucherForm modal={formModal} onSuccess={actionRef.current?.reload}
                    defaultVoucherDate={defaultVoucherDate && moment(defaultVoucherDate, "YYYY-MM-DD") || moment()}
-                   subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}
-                   onVisibleChange={handleFormModal}/>
+                   subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}/>
     </PageContainer>
   )
 }

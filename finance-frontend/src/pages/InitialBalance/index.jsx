@@ -34,7 +34,7 @@ export default () => {
   const setYearMonthDate = (v) => {
     setInitialBalance({...initialBalance, yearMonthDate: v})
   }
-  const [formModal, handleFormModal, openFormModal] = useModalWithParam()
+  const formModal = useModalWithParam()
 
   const [subjects, setSubjects] = useState([])
   const subjectById = useMemo(() => flatTreeToMap(subjects), [subjects])
@@ -76,7 +76,7 @@ export default () => {
       render: (dom, row) => (
         <AutoDropdown overlay={[
           <a key="edit"
-             onClick={() => openFormModal({mode: "edit", voucherId: row.id})}>
+             onClick={() => formModal.open({mode: "edit", voucherId: row.id})}>
             编辑
           </a>,
           <Popconfirm key="delete" title="确认删除该记录？"
@@ -100,7 +100,7 @@ export default () => {
                       } else if (auditStatus === AuditStatus.AUDITED) {
                         return message.warn("初始余额已审核！")
                       }
-                      openFormModal({mode: "add"})
+                      formModal.open({mode: "add"})
                     }}>
                       <PlusOutlined/>
                       新增
@@ -162,14 +162,14 @@ export default () => {
                   )}
       />
       <FormModal modal={formModal} yearMonthDate={yearMonthDate} onSuccess={actionRef.current?.reload}
-                   subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}
-                   onVisibleChange={handleFormModal}/>
+                   subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}/>
     </PageContainer>
   )
 }
 
 function FormModal({modal, yearMonthDate, subjects, setSubjects, subjectById}) {
-  const {visible, handleVisible, mode = "add"} = modal
+  const {visible, handleVisible, state} = modal
+  const {mode = "add"} = state
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   return (
     <ModalForm title="新增初始余额" width="420px" visible={visible}

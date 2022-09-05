@@ -173,9 +173,10 @@ CREATE TABLE if not exists `expense_bill` (
     `expense_person` varchar(255) not null comment '报销人',
     `expense_time` datetime not null comment '报销日期',
     `position` varchar(50) not null comment '职位',
-    `total_subsidy_amount` decimal(10, 5) not null comment '合计补助金额',
+    `total_subsidy_amount` decimal(10, 5) not null default 0 comment '合计补助金额',
     `reason` varchar(500) not null comment '报销事由',
     `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
+    `approval_flow_instance_id` bigint(20) not null default 0 comment '流程审批ID，0表示还未开启审批流程',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -188,20 +189,20 @@ CREATE TABLE if not exists `expense_bill` (
 
 CREATE TABLE if not exists `expense_item` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int not null comment '序号',
     `customer_id` bigint(20) not null comment '客户ID',
     `bill_id` bigint(20) not null comment '对应的报销单ID',
-    `serial_number` int not null comment '序号',
     `subject_id` bigint(20) not null comment '费用名称对应的科目',
     `name` varchar(255) not null comment '费用名称',
     `begin_time` datetime not null comment '开始日期',
     `end_time` datetime not null comment '结束日期',
     `travel_place` varchar(255) not null comment '出差起讫地点',
     `summary` varchar(500) not null default '' comment '摘要',
-    `num_of_bill` int not null null comment '票据张数',
-    `bill_amount` decimal(10, 5) not null comment '票据金额',
-    `actual_amount` decimal(10, 5) not null comment '实际金额',
-    `subsidy_amount` decimal(10, 5) not null comment '补助费用金额',
-    `subtotal_amount` decimal(10, 5) not null comment '小计费用金额',
+    `num_of_bill` int not null default 0 comment '票据张数',
+    `bill_amount` decimal(10, 5) not null default 0 comment '票据金额',
+    `actual_amount` decimal(10, 5) not null default 0 comment '实际金额',
+    `subsidy_amount` decimal(10, 5) not null default 0 comment '补助费用金额',
+    `subtotal_amount` decimal(10, 5) not null default 0 comment '小计费用金额',
     `remark` varchar(500) not null default '' comment '备注',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
@@ -214,6 +215,7 @@ CREATE TABLE if not exists `expense_item` (
 
 CREATE TABLE if not exists `expense_item_subsidy` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int not null comment '序号',
     `customer_id` bigint(20) not null comment '客户ID',
     `bill_id` bigint(20) not null comment '对应的报销单ID',
     `item_id` bigint(20) not null comment '对应的费用报销条目ID',
@@ -233,6 +235,7 @@ CREATE TABLE if not exists `expense_item_subsidy` (
 
 CREATE TABLE if not exists `expense_item_attachment` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int not null comment '序号',
     `customer_id` bigint(20) not null comment '客户ID',
     `bill_id` bigint(20) not null comment '对应的报销单ID',
     `item_id` bigint(20) not null comment '对应的费用报销条目ID',
@@ -301,6 +304,7 @@ CREATE TABLE if not exists `voucher` (
 
 CREATE TABLE if not exists `voucher_item` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int not null comment '序号',
     `customer_id` bigint(20) not null comment '客户ID',
     `year` int(11) not null comment '年份:yyyy',
     `year_month_num` int(11) not null comment '月份:yyyyMM',

@@ -97,20 +97,6 @@ export async function deleteVoucherUsingDELETE(
   });
 }
 
-/** voucherDetail GET /api/voucher/get/${param0} */
-export async function voucherDetailUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.voucherDetailUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.RVoucherDetailVO_>(`/api/voucher/get/${param0}`, {
-    method: 'GET',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
 /** pageVoucher GET /api/voucher/page */
 export async function pageVoucherUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -240,6 +226,20 @@ export async function usableSerialNumberUsingGET(
     params: {
       ...params,
     },
+    ...(options || {}),
+  });
+}
+
+/** voucherDetail GET /api/voucher/${param0} */
+export async function voucherDetailUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.voucherDetailUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.RVoucherDetailVO_>(`/api/voucher/${param0}`, {
+    method: 'GET',
+    params: { ...queryParams },
     ...(options || {}),
   });
 }

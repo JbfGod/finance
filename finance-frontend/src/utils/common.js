@@ -1,6 +1,13 @@
 import {ACCESS_TOKEN} from "@/constants";
 import React from "react";
 
+export function preMinioUrl(url) {
+  if (url.startsWith("blob")) {
+    return url
+  }
+  return `/minio${url}`
+}
+
 export function setAccessToken(token) {
   sessionStorage.setItem(ACCESS_TOKEN, token)
 }
@@ -65,7 +72,7 @@ export function flatArrayToMap(array = [], keyField = "id") {
   return map;
 }
 
-export function jsonToFormData(json, matchTransform) {
+export function jsonToFormData(json) {
   const formData = new FormData()
   const recursion = (obj, keyPrefix = "") => {
     const keys = Object.keys(obj)
@@ -75,15 +82,6 @@ export function jsonToFormData(json, matchTransform) {
         return
       }
       let fKey = `${keyPrefix}${keyPrefix ? "." : ""}${key}`
-      if (matchTransform) {
-        for (let regexp in matchTransform) {
-          if (new RegExp(regexp).test(fKey)) {
-            const transformValue = matchTransform[regexp](key, value) || {}
-            recursion(transformValue, keyPrefix)
-            return
-          }
-        }
-      }
       if (Array.isArray(value)) {
         value.forEach((tmp, index) => {
           recursion(tmp, `${fKey}[${index}]`)
