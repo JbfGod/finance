@@ -5,6 +5,7 @@ import org.finance.business.web.request.AddCustomerRequest;
 import org.finance.business.web.request.UpdateCustomerRequest;
 import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
+import org.finance.business.web.vo.OwnedApprovalCustomerVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -23,4 +24,6 @@ public interface CustomerConvert {
     Customer toCustomer(UpdateCustomerRequest request);
 
     CustomerCueVO toCustomerCueVO(Customer customer);
+
+    OwnedApprovalCustomerVO toOwnedApprovalCustomerVO(Customer customer);
 }

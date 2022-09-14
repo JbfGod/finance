@@ -3,6 +3,7 @@ import {useAccess, useModel} from "umi";
 import {Form} from "antd";
 import * as common from "@/utils/common";
 import {useReactToPrint} from "react-to-print";
+import {getUserIdentity} from "@/utils/common";
 
 export function useBoolean(initialValue = false) {
   const [value, setValue] = useState(initialValue)
@@ -32,13 +33,19 @@ export function useModalWithParam(visible = false, state = {}) {
     state: modal.state, visible: modal.visible,
     open, close, handleVisible
   }
-  return [modal, handleVisible, open]
 }
 
-export function useAuthFlag() {
+export function useCurrentUser() {
   const {initialState = {}} = useModel('@@initialState')
-  const isAuth = !! initialState.currentUser
-  return isAuth
+  const {currentUser = {}} = initialState
+  const {customer = {}} = currentUser
+  const isSuperCustomer = customer.number === "HX_TOP"
+  const isAuth = !! currentUser
+  return {
+    isAuth,
+    currentUser,
+    isSuperCustomer
+  }
 }
 
 export function useSecurity(permissionPrefix = "") {
@@ -48,8 +55,10 @@ export function useSecurity(permissionPrefix = "") {
   const {customer = {}, role} = currentUser
   const isAuth = !! initialState.currentUser
   const isAdmin = role === "ADMIN"
+  const hasMultipleIdentities = ["ADMIN", "ADVANCED_APPROVER"].includes(role)
   const isSuperCustomer = customer.number === "HX_TOP"
   const isSuperAdmin = isSuperCustomer && isAdmin
+  const isApprover = getUserIdentity() === "APPROVER"
 
   const proxyCustomer = currentUser?.proxyCustomer || {
     id: customer.id,
@@ -67,7 +76,9 @@ export function useSecurity(permissionPrefix = "") {
   const canAddFeign = isSuperAdmin || access[`${permissionPrefix}:addForeign`]
   return {
     isAuth,
+    isApprover,
     isSuperCustomer,
+    hasMultipleIdentities,
     isSuperProxyCustomer,
     canAuditing,
     canUnAuditing,

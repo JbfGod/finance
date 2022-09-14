@@ -35,6 +35,23 @@ export function removeCurrCustomer() {
   return sessionStorage.removeItem(CURR_CUSTOMER_KEY)
 }
 
+const USER_IDENTITY = "USER_IDENTITY"
+
+/**
+ * @returns [APPROVER|NORMAL]{string}
+ */
+export function getUserIdentity() {
+  return sessionStorage.getItem(USER_IDENTITY)
+}
+
+/**
+ * 切换用户身份
+ * @param identity [NORMAL|APPROVER](操作员|审批人员)
+ */
+export function switchUserIdentity(identity) {
+  return sessionStorage.setItem(USER_IDENTITY, identity)
+}
+
 export function eachTree(treeData = [], callback, childrenField = "children") {
   const recursion = (node) => {
     if (node == null) {

@@ -130,11 +130,4 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
         };
     }
 
-    public String getUserNameById(long id) {
-        User user = baseMapper.selectOne(Wrappers.<User>lambdaQuery()
-                .select(User::getName)
-                .eq(User::getId, id)
-        );
-        return user.getName();
-    }
 }

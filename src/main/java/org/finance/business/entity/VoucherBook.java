@@ -62,11 +62,6 @@ public class VoucherBook implements Serializable {
     private String subjectNumber;
 
     /**
-     * 科目名称
-     */
-    private String subjectName;
-
-    /**
      * 凭证日期
      */
     private LocalDateTime voucherTime;

@@ -224,7 +224,8 @@ public class UserWeb {
         boolean isSuperCustomer = SecurityUtil.isSuperCustomer();
         LambdaQueryWrapper<User> condition = Wrappers.<User>lambdaQuery()
                 .eq(!isSuperCustomer, User::getCustomerId, currentUser.getCustomerId())
-                .eq(request.getRole() != null, User::getRole, request.getRole())
+                // ADVANCED_APPROVER 兼具操作员和审核人员
+                .in(request.getRole() != null, User::getRole, Arrays.asList(request.getRole(), User.Role.ADVANCED_APPROVER))
                 .likeRight(StringUtils.hasText(request.getCustomerNumber()), User::getCustomerNumber, request.getCustomerNumber())
                 .likeRight(StringUtils.hasText(request.getName()), User::getName, request.getName())
                 .likeRight(StringUtils.hasText(request.getAccount()), User::getAccount, request.getAccount())

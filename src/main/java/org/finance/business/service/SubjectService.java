@@ -8,6 +8,10 @@ import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 /**
  * <p>
  * 科目表 服务实现类
@@ -81,4 +85,19 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
     public boolean existsByIndustryId(long industryId) {
         return baseMapper.exists(Wrappers.<Subject>lambdaQuery().eq(Subject::getIndustryId, industryId));
     }
+
+    public Function<Long, String> getNameFunction() {
+        Map<Long, String> nameById = new HashMap<>(10);
+        return (Long userId) -> {
+            if (nameById.containsKey(userId)) {
+                return nameById.get(userId);
+            }
+            Subject subject = baseMapper.selectOne(Wrappers.<Subject>lambdaQuery()
+                    .select(Subject::getName)
+                    .eq(Subject::getId, userId)
+            );
+            return subject == null ? "无效的科目" : subject.getName();
+        };
+    }
+
 }

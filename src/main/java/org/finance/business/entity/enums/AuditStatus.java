@@ -12,5 +12,9 @@ public enum AuditStatus {
      * 已审核
      */
     AUDITED,
+    /**
+     * 已审批
+     */
+    APPROVED
     ;
 }

@@ -12,16 +12,15 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static org.finance.infrastructure.constants.Constants.YEAR_MONTH_FMT;
 
 /**
  * @author jiangbangfa
  */
 @Data
 public class AddVoucherRequest {
-
-    private final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
 
     private Integer serialNumber;
     @NotNull(message = "请选择币别！")
@@ -48,8 +47,6 @@ public class AddVoucherRequest {
         private Long subjectId;
         @NotBlank(message = "请选择科目！")
         private String subjectNumber;
-        @NotBlank(message = "请选择科目！")
-        private String subjectName;
         @NotNull(message = "请选择借贷方向！")
         private LendingDirection lendingDirection;
         @NotNull(message = "请输入原币金额！")

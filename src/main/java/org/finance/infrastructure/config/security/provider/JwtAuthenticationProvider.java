@@ -94,7 +94,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         Customer customer = Optional.ofNullable(user.getProxyCustomer()).orElse(user.getCustomer());
 
         // 添加认证标识权限
-        authorities.add(new SimpleGrantedAuthority("iaAuth"));
+        authorities.add(new SimpleGrantedAuthority("isAuth"));
         // 是否能够添加外币凭证
         if (Objects.equals(customer.getUseForeignExchange(), true)) {
             authorities.add(new SimpleGrantedAuthority("voucher:addForeign"));

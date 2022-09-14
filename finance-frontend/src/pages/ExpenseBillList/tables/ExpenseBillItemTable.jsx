@@ -6,8 +6,12 @@ import React, {useRef} from "react";
 import moment from "moment";
 import {useModel} from "@/.umi/plugin-model/useModel";
 import ExtEditableProTable from "@/pages/ExpenseBillList/tables/EditableProTableItem";
+import {Table} from "antd";
+import MoneyColumn from "@/pages/ExpenseBillList/tables/MomeyColumn";
+import NumberColumn from "@/pages/ExpenseBillList/tables/NumberColumn";
 
 const DEFAULT_CHAR = ""
+
 
 export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
   const actionRef = useRef()
@@ -71,51 +75,16 @@ export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
         return row.summary || DEFAULT_CHAR
       }
     },
-    {
-      title: "票据张数",
-      valueType: "digit",
-      dataIndex: "numOfBill",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.numOfBill || DEFAULT_CHAR
+    NumberColumn("票据张数", "numOfBill"),
+    MoneyColumn("票据金额", "billAmount"),
+    MoneyColumn("实报金额", "actualAmount"),
+    MoneyColumn("补助金额", "subsidyAmount", {
+      editable: false, render: (_, row) => {
+        const {subsidies} = row
+        return subsidies.reduce((prev, curr) => prev + Number(curr.amount || 0), 0) || ""
       }
-    },
-    {
-      title: "票据金额",
-      valueType: "digit",
-      dataIndex: "billAmount",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.billAmount || DEFAULT_CHAR
-      }
-    },
-    {
-      title: "实报金额",
-      valueType: "digit",
-      dataIndex: "actualAmount",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.actualAmount || DEFAULT_CHAR
-      }
-    },
-    {
-      title: "补助金额",
-      valueType: "digit",
-      dataIndex: "subsidyAmount",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.subsidyAmount || DEFAULT_CHAR
-      }
-    },
-    {
-      title: "小计金额",
-      valueType: "digit",
-      dataIndex: "subtotalAmount",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.subtotalAmount || DEFAULT_CHAR
-      }
-    },
+    }),
+    MoneyColumn("小计金额", "subtotalAmount"),
     {
       title: (<div style={{textAlign: "center"}}>备注</div>), dataIndex: "remark", width: 75,
       renderFormItem: () => (
@@ -154,6 +123,38 @@ export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
     })
   }
   return (
-    <ExtEditableProTable name="items" columns={columns} actionRef={actionRef} isViewMode={isViewMode} {...props}/>
+    <ExtEditableProTable name="items" columns={columns} actionRef={actionRef} isViewMode={isViewMode}
+                         summary={(rows) => {
+                           let totalNumOfBill = 0
+                             , totalBillAmount = 0
+                             , totalActualAmount = 0
+                             , totalSubtotalAmount = 0
+                             , totalSubsidyAmount = 0
+                           rows.forEach(row => {
+                             totalNumOfBill += Number(row.numOfBill || 0)
+                             totalBillAmount += Number(row.billAmount || 0)
+                             totalActualAmount += Number(row.actualAmount || 0)
+                             totalSubtotalAmount += Number(row.subsidyAmount || 0)
+                             totalSubsidyAmount += Number(row.subtotalAmount || 0)
+                           })
+                           return (
+                             <Table.Summary fixed>
+                               <Table.Summary.Row>
+                                 <Table.Summary.Cell index={0}>合计</Table.Summary.Cell>
+                                 <Table.Summary.Cell index={1} colSpan={4}></Table.Summary.Cell>
+                                 <Table.Summary.Cell index={2}>{totalNumOfBill || ""}</Table.Summary.Cell>
+                                 <Table.Summary.Cell index={3}>{totalBillAmount || ""}</Table.Summary.Cell>
+                                 <Table.Summary.Cell index={4}>{totalActualAmount || ""}</Table.Summary.Cell>
+                                 <Table.Summary.Cell index={5}>{totalSubtotalAmount || ""}</Table.Summary.Cell>
+                                 <Table.Summary.Cell index={6}>{totalSubsidyAmount || ""}</Table.Summary.Cell>
+                                 <Table.Summary.Cell index={7}></Table.Summary.Cell>
+                                 {!isViewMode && (
+                                   <Table.Summary.Cell index={8}></Table.Summary.Cell>
+                                 )}
+                               </Table.Summary.Row>
+                             </Table.Summary>
+                           )
+                         }}
+                         {...props}/>
   )
 }

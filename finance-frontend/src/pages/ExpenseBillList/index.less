@@ -19,6 +19,9 @@ div.expenseBill {
   .commonFont {
     font-size: var(--common-font) !important;
   }
+  .selected {
+    background-color: #f7f7f7;
+  }
   :global {
     .ant-table-thead > tr > th.ant-table-cell {
       padding: 4px;
@@ -27,6 +30,11 @@ div.expenseBill {
 
     .ant-table-tbody > tr > td.ant-table-cell {
       padding: 0;
+      text-align: center;
+      height: 24px;
+    }
+    .ant-table-summary > tr > td.ant-table-cell {
+      padding: 4px;
       text-align: center;
     }
 

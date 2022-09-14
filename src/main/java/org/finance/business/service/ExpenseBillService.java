@@ -25,10 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -59,9 +61,11 @@ public class ExpenseBillService extends ServiceImpl<ExpenseBillMapper, ExpenseBi
         attachmentMapper.delete(Wrappers.<ExpenseItemAttachment>lambdaQuery().eq(ExpenseItemAttachment::getBillId, id));
     }
 
-    public void auditingById(long id) {
+    @Transactional(rollbackFor = Exception.class)
+    public void auditingById(long id, Supplier<Long> getApprovalInstanceId) {
         boolean success = this.update(Wrappers.<ExpenseBill>lambdaUpdate()
                 .set(ExpenseBill::getAuditStatus, AuditStatus.AUDITED)
+                .set(ExpenseBill::getApprovalFlowInstanceId, getApprovalInstanceId.get())
                 .eq(ExpenseBill::getAuditStatus, AuditStatus.TO_BE_AUDITED)
                 .eq(ExpenseBill::getId, id));
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
@@ -80,12 +84,32 @@ public class ExpenseBillService extends ServiceImpl<ExpenseBillMapper, ExpenseBi
         if (beforeCall != null) {
             beforeCall.run();
         }
+        List<ExpenseItem> items = bill.getItems();
+        // 计算合计
+        BigDecimal totalSubsidyAmount = new BigDecimal("0")
+        ,totalBillAmount = new BigDecimal("0")
+        ,totalActualAmount = new BigDecimal("0")
+        ,totalSubtotalAmount = new BigDecimal("0");
+        int totalNumOfBill = 0;
+        for (ExpenseItem item : items) {
+            totalSubsidyAmount = totalSubsidyAmount.add(item.getSubsidyAmount());
+            totalNumOfBill += item.getNumOfBill();
+            totalBillAmount = totalBillAmount.add(item.getBillAmount());
+            totalActualAmount = totalActualAmount.add(item.getActualAmount());
+            totalSubtotalAmount = totalSubtotalAmount.add(item.getSubtotalAmount());
+        }
+        bill.setTotalNumOfBill(totalNumOfBill)
+            .setTotalBillAmount(totalSubsidyAmount)
+            .setTotalBillAmount(totalBillAmount)
+            .setTotalActualAmount(totalActualAmount)
+            .setTotalSubtotalAmount(totalSubtotalAmount);
+
         this.addOrUpdateBill(bill);
         Long billId = bill.getId();
 
-        List<ExpenseItem> items = bill.getItems();
         // 添加费用报销项
-        for (int i = 0; i < items.size(); i++) {
+        int itemSize = items.size();
+        for (int i = 0; i < itemSize; i++) {
             ExpenseItem item = items.get(i).setSerialNumber(i + 1).setBillId(billId);
             this.addOrUpdateItem(item);
 

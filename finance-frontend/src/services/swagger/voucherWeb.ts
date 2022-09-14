@@ -2,6 +2,34 @@
 /* eslint-disable */
 import { request } from 'umi';
 
+/** voucherDetail GET /api/voucher/${param0} */
+export async function voucherDetailUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.voucherDetailUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.RVoucherDetailVO_>(`/api/voucher/${param0}`, {
+    method: 'GET',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** printContentOfVoucher GET /api/voucher/${param0}/printContent */
+export async function printContentOfVoucherUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.printContentOfVoucherUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.RVoucherPrintContentVO_>(`/api/voucher/${param0}/printContent`, {
+    method: 'GET',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** addVoucher POST /api/voucher/add */
 export async function addVoucherUsingPOST(
   body: API.AddVoucherRequest,
@@ -226,34 +254,6 @@ export async function usableSerialNumberUsingGET(
     params: {
       ...params,
     },
-    ...(options || {}),
-  });
-}
-
-/** voucherDetail GET /api/voucher/${param0} */
-export async function voucherDetailUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.voucherDetailUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.RVoucherDetailVO_>(`/api/voucher/${param0}`, {
-    method: 'GET',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** printContentOfVoucher GET /api/voucher/${param0}/printContent */
-export async function printContentOfVoucherUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.printContentOfVoucherUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.RVoucherPrintContentVO_>(`/api/voucher/${param0}/printContent`, {
-    method: 'GET',
-    params: { ...queryParams },
     ...(options || {}),
   });
 }

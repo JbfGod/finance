@@ -12,6 +12,13 @@ const menus = [
         access: 'can'
       },
       {
+        name: '选择用户身份',
+        layout: false,
+        path: '/user/switchIdentity',
+        component: './SwitchUserIdentity',
+        access: 'isAuth'
+      },
+      {
         name: '选择客户单位',
         path: '/user/switchCustomer',
         component: './SwitchCustomer',
@@ -21,6 +28,21 @@ const menus = [
         component: './404',
       },
     ],
+  },
+  {
+    path: '/approval',
+    icon: 'simple',
+    routes: [
+      {
+        name: '费用报销单审批',
+        path: '/approval/expenseBill',
+        component: './Approval/ExpenseBillApproval',
+        access: 'isAuth'
+      },
+      {
+        component: './404',
+      },
+    ]
   },
   {
     path: '/expense',
@@ -97,6 +119,13 @@ const menus = [
         icon: '/system/customerGrantPermissionPage',
         access: 'MENU:/system/customerGrantPermissionPage',
         component: './CustomerList/CustomerGrantPermission',
+      },
+      {
+        path: '/system/customerApprovalFlow',
+        name: '审批流程配置',
+        icon: '/system/customerGrantPermissionPage',
+        access: 'MENU:/system/customerGrantPermissionPage',
+        component: './CustomerList/CustomerApprovalFlow',
       },
       {
         component: './404',

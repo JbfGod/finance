@@ -5,15 +5,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.finance.business.entity.enums.AuditStatus;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -60,6 +60,27 @@ public class ExpenseBill implements Serializable {
      * 合计补助金额
      */
     private BigDecimal totalSubsidyAmount;
+
+    /**
+     * 总票据张数
+     */
+    private Integer totalNumOfBill;
+
+    /**
+     * 总票据金额
+     */
+    private BigDecimal totalBillAmount;
+
+    /**
+     * 总实际金额
+     */
+    private BigDecimal totalActualAmount;
+
+    /**
+     * 总小计费用金额
+     */
+    private BigDecimal totalSubtotalAmount;
+
     /**
      * 报销日期
      */
@@ -79,6 +100,11 @@ public class ExpenseBill implements Serializable {
      * 审核状态
      */
     private AuditStatus auditStatus;
+
+    /**
+     * 流程审批ID，0表示还未开启审批流程
+     */
+    private Long approvalFlowInstanceId;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;

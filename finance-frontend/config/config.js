@@ -1,18 +1,14 @@
 // https://umijs.org/config/
-import { defineConfig } from 'umi';
-import { join } from 'path';
+import {defineConfig} from 'umi';
+import {join} from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
+
 const { REACT_APP_ENV } = process.env;
 export default defineConfig({
   hash: true,
-  antd: {
-
-  },
-  dva: {
-    hmr: true,
-  },
+  antd: {},
   layout: {
     // https://umijs.org/zh-CN/plugins/plugin-layout
     locale: false,
@@ -54,8 +50,8 @@ export default defineConfig({
     'root-entry-name': 'variable',
   },
   // esbuild is father build tools
-  // https://umijs.org/plugins/plugin-esbuild
   esbuild: {},
+  // https://umijs.org/plugins/plugin-esbuild
   title: false,
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],

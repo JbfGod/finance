@@ -8,6 +8,7 @@ import org.finance.business.entity.InitialBalanceItem;
 import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.service.InitialBalanceItemService;
 import org.finance.business.service.InitialBalanceService;
+import org.finance.business.service.SubjectService;
 import org.finance.business.web.request.AddInitialBalanceRequest;
 import org.finance.business.web.request.AuditingInitialBalanceRequest;
 import org.finance.business.web.request.QueryInitialBalanceRequest;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -46,6 +48,8 @@ public class InitialBalanceWeb {
     private InitialBalanceService baseService;
     @Resource
     private InitialBalanceItemService itemService;
+    @Resource
+    private SubjectService subjectService;
 
     @GetMapping("/outline")
     public R<InitialBalanceVO> initialBalanceOutline() {
@@ -59,9 +63,14 @@ public class InitialBalanceWeb {
 
     @GetMapping("/page")
     public RPage<InitialBalanceItemVO> pageInitialBalanceItem(QueryInitialBalanceRequest request) {
+        Function<Long, String> nameBySubjectId = subjectService.getNameFunction();
         IPage<InitialBalanceItemVO> page = itemService.page(request.extractPage(),
                 Wrappers.<InitialBalanceItem>lambdaQuery().orderByDesc(InitialBalanceItem::getYearMonthNum)
-        ).convert(InitialBalanceConvert.INSTANCE::toInitialBalanceItemVO);
+        ).convert(item -> {
+            InitialBalanceItemVO initialBalanceItemVO = InitialBalanceConvert.INSTANCE.toInitialBalanceItemVO(item);
+            initialBalanceItemVO.setSubjectName(nameBySubjectId.apply(item.getSubjectId()));
+            return initialBalanceItemVO;
+        });
         return RPage.build(page);
     }
 

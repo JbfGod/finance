@@ -29,6 +29,8 @@ public class ExpenseBillPrintContentVO {
     @Data
     public static class Item {
         private Long id;
+        private Long subjectId;
+        private String subjectNumber;
         private String name;
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDateTime beginTime;

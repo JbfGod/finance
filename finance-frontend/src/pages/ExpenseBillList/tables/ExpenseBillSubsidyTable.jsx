@@ -3,6 +3,8 @@ import {ClearOutlined} from "@ant-design/icons";
 import React, {useRef} from "react";
 import {useModel} from "@/.umi/plugin-model/useModel";
 import ExtEditableProTable from "@/pages/ExpenseBillList/tables/EditableProTableItem";
+import MoneyColum from "@/pages/ExpenseBillList/tables/MomeyColumn";
+import NumberColumn from "@/pages/ExpenseBillList/tables/NumberColumn";
 
 const DEFAULT_CHAR = ""
 
@@ -26,33 +28,9 @@ export default function ExpenseBillSubsidyTable({formRef, itemIndex, isViewMode,
         return v ? `${v.number}-${v.name}` : DEFAULT_CHAR
       }
     },
-    {
-      title: "补助明细天数",
-      valueType: "digit",
-      dataIndex: "days",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.days || DEFAULT_CHAR
-      }
-    },
-    {
-      title: "元/天",
-      valueType: "digit",
-      dataIndex: "amountForDay",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.amountForDay || DEFAULT_CHAR
-      }
-    },
-    {
-      title: "补助金额",
-      valueType: "digit",
-      dataIndex: "amount",
-      fieldProps: {style: {width: "100%"}},
-      render: (_, row) => {
-        return row.amount || DEFAULT_CHAR
-      }
-    },
+    NumberColumn("补助明细天数", "days"),
+    NumberColumn("元/天", "amountForDay"),
+    MoneyColum("补助金额", "amount"),
     ...(isViewMode ? [] : [{
       title: "操作", dataIndex: "operate", editable: false, width: 45,
       render: (_, __, index) => {

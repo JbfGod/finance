@@ -1,8 +1,7 @@
 package org.finance.business.web.vo;
 
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import org.finance.business.entity.User;
 
 /**
  * @author jiangbangfa
@@ -11,23 +10,11 @@ import java.time.LocalDateTime;
 public class UserListVO {
 
     private Long id;
-
+    private User.Role role;
     private Long customerId;
-
     private String name;
-
     private String customerNumber;
-
     private String customerName;
-
     private String account;
-
-    private Long createBy;
-
-    private LocalDateTime createTime;
-
-    private Long modifyBy;
-
-    private LocalDateTime modifyTime;
 
 }

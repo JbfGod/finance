@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.finance.infrastructure.constants.Constants.YEAR_MONTH_FMT;
+
 /**
  * <p>
  * 凭证
@@ -156,4 +158,54 @@ public class Voucher implements Serializable {
 
     @TableField(exist = false)
     private List<VoucherItem> items;
+
+    public Voucher toVoucher(ExpenseBill expenseBill) {
+        Voucher voucher = new Voucher();
+        //setYear(expenseTime.getYear())
+        //                .setYearMonthNum(Integer.parseInt(expenseTime.format(YEAR_MONTH_FMT)))
+        //
+        List<ExpenseItem> itemList = expenseBill.getItems();
+        LocalDateTime expenseTime = expenseBill.getExpenseTime();
+        voucher.setCustomerId(expenseBill.getCustomerId())
+                .setCustomerNumber(expenseBill.getCustomerNumber())
+                .setYear(expenseTime.getYear())
+                .setYearMonthNum(Integer.parseInt(expenseTime.format(YEAR_MONTH_FMT)))
+                .setVoucherTime(expenseTime)
+                .setCurrencyId(Currency.LOCAL_CURRENCY.getId())
+                .setRate(Currency.LOCAL_CURRENCY.getRate())
+                .setCurrencyName(Currency.LOCAL_CURRENCY.getName())
+                .setUnit("元")
+
+                .setSerialNumber(null)
+                .setAttachmentNum(null)
+                .setTotalCurrencyAmount(null)
+                .setTotalLocalCurrencyAmount(null)
+                .setAuditStatus(null)
+                .setBookkeeping(false)
+                .setBookkeeperName(null)
+                .setBookkeepingBy(null)
+                .setAuditBy(null)
+                .setAuditorName(null)
+                .setItems(null);
+        ;
+        /*for (int i = 0; i < itemList.size(); i++) {
+            ExpenseItem expenseItem = itemList.get(i);
+            VoucherItem voucherItem = new VoucherItem();
+            voucherItem.setYear(voucher.getYear())
+                    .setYearMonthNum(voucher.getYearMonthNum())
+                    .setRate(voucher.getRate())
+                    .setSerialNumber(expenseItem.getSerialNumber())
+                    .setCustomerId(voucher.getCustomerId())
+                    .setCurrencyId(voucher.getCurrencyId())
+                    .setCurrencyName(voucher.getCurrencyName())
+                    .setVoucherId(null)
+                    .setAmount(null)
+                    .setLendingDirection(null)
+                    .setSummary(expenseItem.getSummary())
+                    .setSubjectId(expenseItem.getSubjectId())
+                    .setSubjectName(expenseItem.getSubjectId())
+                    .setSubjectNumber(expenseItem.getSubjectId())
+        }*/
+        return voucher;
+    }
 }

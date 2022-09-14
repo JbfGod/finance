@@ -41,6 +41,11 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
             "subject", "voucher", "voucher_item", "currency"
     );
 
+    private final List<String> ignoreUrls = Arrays.asList(
+            "/api/user/self", "/api/expense/bill/page/approval", "/api/expense/bill/{id:\\d+}",
+            "/api/approvalFlow/**", "/api/approvalInstance/**"
+    );
+
     @Override
     public boolean ignoreTable(String tableName) {
         HttpServletRequest request = SpringContextUtil.getHttpServletRequest();
@@ -50,8 +55,10 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
         if (SecurityUtil.getCurrentUserOfNullable() == null) {
             return true;
         }
-        if (ignoreAntMatcher.match("/api/user/self", request.getRequestURI())) {
-            return true;
+        for (String ignoreUrl : ignoreUrls) {
+            if (ignoreAntMatcher.match(ignoreUrl, request.getRequestURI())) {
+                return true;
+            }
         }
         return !includeTables.contains(tableName.replace("`", ""));
     }

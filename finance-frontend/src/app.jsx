@@ -9,6 +9,7 @@ import * as common from "@/utils/common";
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import Footer from "@/components/Footer";
+import {getUserIdentity} from "@/utils/common";
 
 moment.locale('zh-cn');
 
@@ -69,20 +70,34 @@ export const layout = ({ initialState, setInitialState }) => {
       const { location } = history; // 如果没有登录，重定向到 login
       const currentUser = initialState?.currentUser
       if (!currentUser) {
+        // 如果没有认证就跳转到登录页面
         history.push(loginPath);
         return
       }
-      const {customer, proxyCustomer} = currentUser
+      const {customer, proxyCustomer, role} = currentUser
       const isSuperCustomer = customer.number === "HX_TOP"
+
+      // 如果用户存在双重含义的身份，跳转身份选择页面
+      const isAdvanceApprover = ["ADVANCED_APPROVER", "ADMIN"].includes(role)
+      const userIdentity = getUserIdentity()
+      if (isAdvanceApprover) {
+        if (!userIdentity) {
+          history.push("/user/switchIdentity")
+        } else if (userIdentity === "APPROVER") {
+          return
+        }
+      }
+
       if (isSuperCustomer && proxyCustomer == null) {
         if (location.pathname.startsWith("/expense")
           || location.pathname.startsWith("/voucher")
           || location.pathname.startsWith("/accountClose")
           || location.pathname.startsWith("/initialBalance")
+          || location.pathname.startsWith("/approval")
         ) {
           message.warn("请先选择客户单位！")
           history.push("/user/switchCustomer")
-         return
+          return
         }
       }
       if (location.pathname === loginPath) {
@@ -97,7 +112,21 @@ export const layout = ({ initialState, setInitialState }) => {
         if (!params.userId) {
           return []
         }
+        const userIdentity = getUserIdentity()
+        const isApprover = userIdentity === "APPROVER"
         const {data : selfPermissions} = await userWeb.selfPermissionUsingGET()
+        if (isApprover) {
+          const approvalExpenseBillPage = "/approval/expenseBill"
+          const switchUserIdentity = "/user/switchIdentity"
+          const switchCustomer = "/user/switchCustomer"
+          const treeMenus = [
+            {path: approvalExpenseBillPage, key: approvalExpenseBillPage, name: "费用报销单审批"},
+            {path: switchUserIdentity, key: switchUserIdentity},
+            {path: switchCustomer, key: switchCustomer},
+          ]
+          setInitialState((preInitialState) => ({ ...preInitialState, selfPermissions, treeMenus }))
+          return treeMenus
+        }
         const {data: treeMenus} = await userWeb.selfMenusUsingGET();
         setInitialState((preInitialState) => ({ ...preInitialState, selfPermissions, treeMenus }))
         return treeMenus

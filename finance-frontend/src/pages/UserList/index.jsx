@@ -110,8 +110,8 @@ export default () => {
           label: <span>操作人员{renderBadge(activeTabKey === 'NORMAL')}</span>,
         },
         {
-          key: 'APPROVER',
-          label: <span>审批人员{renderBadge(activeTabKey === 'APPROVER')}</span>,
+          key: 'NORMAL_APPROVER',
+          label: <span>审批人员{renderBadge(activeTabKey === 'NORMAL_APPROVER')}</span>,
         }
       ],
       onChange: (key) => {

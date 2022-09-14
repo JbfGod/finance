@@ -72,11 +72,6 @@ public class VoucherItem implements Serializable {
     private String subjectNumber;
 
     /**
-     * 科目名称
-     */
-    private String subjectName;
-
-    /**
      * 借贷方向
      */
     private LendingDirection lendingDirection;

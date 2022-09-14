@@ -21,6 +21,7 @@ public class ExpenseBillDetailVO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime expenseTime;
     private BigDecimal totalSubsidyAmount;
+    private Long approvalFlowInstanceId;
     private List<Item> items;
 
     @Data
@@ -28,6 +29,7 @@ public class ExpenseBillDetailVO {
         private Long id;
         private Integer serialNumber;
         private Long subjectId;
+        private String subjectNumber;
         private String name;
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDateTime beginTime;

@@ -7,6 +7,7 @@ import {flatTree} from "@/utils/common";
 
 export default function access(initialState) {
   const {selfPermissions, treeMenus = []} = initialState ?? {}
+  const isAuth = !! initialState.currentUser
   const selfMenuPaths = flatTree(treeMenus, "children").map(m => m.path)
   const allMenuAccess = flatTree(menus, "routes")
     .filter(menu => menu.path)
@@ -20,6 +21,7 @@ export default function access(initialState) {
       return curr;
     }, {}),
     ...allMenuAccess,
+    isAuth,
     "can": true
   }
 }

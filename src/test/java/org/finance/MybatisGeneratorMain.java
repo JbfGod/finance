@@ -31,31 +31,35 @@ public class MybatisGeneratorMain {
                 })
                 .strategyConfig(builder -> {
                     builder.controllerBuilder().enableRestStyle().formatFileName("%sWeb")
-                        .serviceBuilder().formatServiceImplFileName("%sService");
+                            .serviceBuilder().formatServiceImplFileName("%sService");
                     builder.entityBuilder()
                             .enableLombok()
                             .enableChainModel()
                             .addTableFills(Arrays.asList(
-                            new Column("create_by", FieldFill.INSERT),
-                            new Column("create_time", FieldFill.INSERT),
-                            new Column("creator_name", FieldFill.INSERT),
-                            new Column("modify_by", FieldFill.INSERT_UPDATE),
-                            new Column("modify_name", FieldFill.INSERT_UPDATE),
-                            new Column("modify_time", FieldFill.INSERT_UPDATE),
-                            new Column("customer_id", FieldFill.INSERT),
-                            new Column("customer_number", FieldFill.INSERT),
-                            new Column("bookkeeper_name", FieldFill.UPDATE),
-                            new Column("bookkeeping_by", FieldFill.UPDATE),
-                            new Column("audit_by", FieldFill.UPDATE),
-                            new Column("auditor_name", FieldFill.UPDATE)
-                    )).logicDeleteColumnName("deleted");
+                                    new Column("create_by", FieldFill.INSERT),
+                                    new Column("create_time", FieldFill.INSERT),
+                                    new Column("creator_name", FieldFill.INSERT),
+                                    new Column("modify_by", FieldFill.INSERT_UPDATE),
+                                    new Column("modify_name", FieldFill.INSERT_UPDATE),
+                                    new Column("modify_time", FieldFill.INSERT_UPDATE),
+                                    new Column("customer_id", FieldFill.INSERT),
+                                    new Column("customer_number", FieldFill.INSERT),
+                                    new Column("bookkeeper_name", FieldFill.UPDATE),
+                                    new Column("bookkeeping_by", FieldFill.UPDATE),
+                                    new Column("audit_by", FieldFill.UPDATE),
+                                    new Column("auditor_name", FieldFill.UPDATE)
+                            )).logicDeleteColumnName("deleted");
                     builder.addExclude(
-                        "flyway_schema_history",
-                        "expense_item_attachment",
-                        "expense_item_subsidy",
-                        "customer_resource",
-                        "user_resource",
-                        "^act.+"
+                            "flyway_schema_history",
+                            "expense_item_attachment",
+                            "expense_item_subsidy",
+                            "customer_resource",
+                            "approval_flow_approver",
+                            "approval_flow_item",
+                            "approval_instance_approver",
+                            "approval_instance_item",
+                            "user_resource",
+                            "^act.+"
                     );
                 })
                 .templateConfig(builder -> {

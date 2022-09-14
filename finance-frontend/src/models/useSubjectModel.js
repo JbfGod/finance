@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from "react"
 import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import {flatTree} from "@/utils/common";
-import {useAuthFlag} from "@/utils/hooks";
+import {useCurrentUser} from "@/utils/hooks";
 
 export default function useSubjectModel() {
-  const isAuth = useAuthFlag()
+  const {isAuth} = useCurrentUser()
 
   const [treeSubjects, setTreeSubjects] = useState([])
   const subjects = useMemo(() => flatTree(treeSubjects).map(({children, ...subject}) => subject)

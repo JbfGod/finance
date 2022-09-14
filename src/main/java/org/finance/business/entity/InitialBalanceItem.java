@@ -63,11 +63,6 @@ public class InitialBalanceItem implements Serializable {
     private String subjectNumber;
 
     /**
-     * 科目名称
-     */
-    private String subjectName;
-
-    /**
      * 科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷
      */
     private String lendingDirection;

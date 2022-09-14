@@ -13,6 +13,7 @@ import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.service.AccountCloseListService;
 import org.finance.business.service.CustomerService;
 import org.finance.business.service.InitialBalanceService;
+import org.finance.business.service.SubjectService;
 import org.finance.business.service.VoucherItemService;
 import org.finance.business.service.VoucherService;
 import org.finance.business.web.request.AddVoucherRequest;
@@ -48,6 +49,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +74,8 @@ public class VoucherWeb {
     private AccountCloseListService accountCloseListService;
     @Resource
     private InitialBalanceService initialBalanceService;
+    @Resource
+    private SubjectService subjectService;
     private final static DateTimeFormatter yyyyMMFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
     private final String RESOURCE_TARGET = "voucher";
 
@@ -99,6 +103,12 @@ public class VoucherWeb {
     @GetMapping("/{id}")
     public R<VoucherDetailVO> voucherDetail(@PathVariable("id") long id) {
         Voucher voucher = baseService.getAndItemsById(id);
+        VoucherDetailVO voucherDetailVO = VoucherConvert.INSTANCE.toVoucherDetailVO(voucher);
+
+        Function<Long, String> nameBySubjectId = subjectService.getNameFunction();
+        voucherDetailVO.getItems().forEach(item -> {
+            item.setSubjectName(nameBySubjectId.apply(item.getSubjectId()));
+        });
         return R.ok(VoucherConvert.INSTANCE.toVoucherDetailVO(voucher));
     }
 
@@ -108,6 +118,11 @@ public class VoucherWeb {
         Voucher voucher = baseService.getAndItemsById(id);
         VoucherPrintContentVO voucherPrintContentVO = VoucherConvert.INSTANCE.toVoucherPrintContentVO(voucher);
         voucherPrintContentVO.setCustomerName(customerService.getCustomerNameById(voucher.getCustomerId()));
+
+        Function<Long, String> nameBySubjectId = subjectService.getNameFunction();
+        voucherPrintContentVO.getItems().forEach(item -> {
+            item.setSubjectName(nameBySubjectId.apply(item.getSubjectId()));
+        });
         return R.ok(voucherPrintContentVO);
     }
 

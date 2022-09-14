@@ -55,8 +55,6 @@ public class UpdateVoucherRequest {
         private Long subjectId;
         @NotBlank(message = "请选择科目！")
         private String subjectNumber;
-        @NotBlank(message = "请选择科目！")
-        private String subjectName;
         @NotNull(message = "请选择借贷方向！")
         private LendingDirection lendingDirection;
         @NotNull(message = "请输入借方金额！")

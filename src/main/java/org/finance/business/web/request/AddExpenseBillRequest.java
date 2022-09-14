@@ -1,6 +1,7 @@
 package org.finance.business.web.request;
 
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -26,8 +27,6 @@ public class AddExpenseBillRequest {
     private String reason;
     @NotNull(message = "请填写报销时间！")
     private LocalDateTime expenseTime;
-    @NotNull(message = "请填写合计补助金额！")
-    private BigDecimal totalSubsidyAmount;
 
     @Valid
     @NotNull(message = "至少添加一项报销项！")
@@ -38,8 +37,8 @@ public class AddExpenseBillRequest {
     public static class Item {
         @NotNull(message = "请填写科目ID！")
         private Long subjectId;
-        @NotNull(message = "请填写费用名称！")
-        private String name;
+        @NotBlank(message = "请选择科目！")
+        private String subjectNumber;
         @NotNull(message = "请填写开始时间！")
         private LocalDateTime beginTime;
         @NotNull(message = "请填写结束时间！")
@@ -54,8 +53,6 @@ public class AddExpenseBillRequest {
         private BigDecimal billAmount;
         @NotNull(message = "请填写实报金额！")
         private BigDecimal actualAmount;
-        @NotNull(message = "请填写补助费用金额！")
-        private BigDecimal subsidyAmount;
         @NotNull(message = "请填小计金额！")
         private BigDecimal subtotalAmount;
         private String remark;
@@ -63,14 +60,23 @@ public class AddExpenseBillRequest {
         private List<ItemSubsidy> subsidies;
         @Valid
         private List<ItemAttachment> attachments;
+
+        public BigDecimal getSubsidyAmount() {
+            if (CollectionUtils.isEmpty(subsidies)) {
+                return new BigDecimal("0");
+            }
+            return subsidies.stream().reduce(new BigDecimal("0"),
+                    (prev, curr) -> prev.add(curr.getAmount()),
+                    BigDecimal::add);
+        }
     }
 
     @Data
     public static class ItemSubsidy {
         @NotNull(message = "请填写科目ID！")
         private Long subjectId;
-        @NotNull(message = "请填写补助费用名称！")
-        private String name;
+        @NotBlank(message = "请选择科目！")
+        private String subjectNumber;
         @NotNull(message = "请填写补助明细天数！")
         private Integer days;
         @NotNull(message = "请填写补助明细，元/天！")

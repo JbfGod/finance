@@ -20,10 +20,8 @@ const Login = () => {
       await setInitialState((s) => ({ ...s, currentUser: userInfo }));
     }
     return userInfo
-  };
-  useEffect(() => {
-    removeCurrCustomer()
-  }, [])
+  }
+
   const handleSubmit = async (values) => {
     const resp = await login({ ...values })
     common.setAccessToken(resp.data)
@@ -40,11 +38,17 @@ const Login = () => {
       return
     }
     /** 此方法会跳转到 redirect 参数所在的位置 */
-    if (!history) return;
-    const { query } = history.location;
-    const { redirect } = query;
-    history.push(redirect || '/');
-  };
+    if (!history) {
+      return
+    }
+    const { query } = history.location
+    const { redirect } = query
+    history.push(redirect || '/')
+  }
+
+  useEffect(() => {
+    removeCurrCustomer()
+  }, [])
   return (
     <div className={styles.container}>
       <div className={styles.content}>

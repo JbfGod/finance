@@ -2,6 +2,20 @@
 /* eslint-disable */
 import { request } from 'umi';
 
+/** resourceIdsOfUser GET /api/user/${param0}/resources */
+export async function resourceIdsOfUserUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.resourceIdsOfUserUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { userId: param0, ...queryParams } = params;
+  return request<API.RListString_>(`/api/user/${param0}/resources`, {
+    method: 'GET',
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** addUser POST /api/user/add */
 export async function addUserUsingPOST(body: API.AddUserRequest, options?: { [key: string]: any }) {
   return request<API.R>('/api/user/add', {
@@ -152,20 +166,6 @@ export async function updateUserUsingPUT(
       'Content-Type': 'application/json',
     },
     data: body,
-    ...(options || {}),
-  });
-}
-
-/** resourceIdsOfUser GET /api/user/${param0}/resources */
-export async function resourceIdsOfUserUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.resourceIdsOfUserUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { userId: param0, ...queryParams } = params;
-  return request<API.RListString_>(`/api/user/${param0}/resources`, {
-    method: 'GET',
-    params: { ...queryParams },
     ...(options || {}),
   });
 }

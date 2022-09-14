@@ -101,17 +101,18 @@ public class User implements Serializable, UserDetails {
          */
         ADMIN,
         /**
-         * 审批人员
+         * 高级审批人员（兼具操作员功能），既有操作功能也有外部审批功能
          */
-        APPROVER,
+        ADVANCED_APPROVER,
         /**
-         * 机关人员
+         * 操作员，每个客户下可以有多个
          */
-        OFFICER,
+        NORMAL,
         /**
-         * 普通员工、每个客户下可以有多个
+         * 普通审批人员，只有外部审批权限
          */
-        NORMAL
+        NORMAL_APPROVER,
+        ;
     }
 
     @Override

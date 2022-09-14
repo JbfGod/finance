@@ -20,7 +20,8 @@ export const IMG_ACCEPT = ".jpeg,.jpg,.png,.gif"
  */
 export const USER_ROLE = {
   NORMAL: {label: "操作人员", value: "NORMAL"},
-  APPROVER: {label: "审批人员", value: "APPROVER"}
+  NORMAL_APPROVER: {label: "审批人员", value: "NORMAL_APPROVER"},
+  ADVANCED_APPROVER: {label: "操作+审批人员", value: "ADVANCED_APPROVER"},
 }
 export const SUBJECT_TYPE = {
   SUBJECT: {label: "科目", value: "SUBJECT"},
@@ -49,6 +50,10 @@ export const CUSTOMER_TYPE = {
   RENT_AND_PROXY: {label: "租用+代理", value: "RENT_AND_PROXY"}
 }
 
+export const ApprovalBusinessModules = {
+  EXPENSE_BILL: {label: "费用报销", value: "EXPENSE_BILL"}
+}
+
 /**
  * 货币类型
  */
@@ -73,6 +78,8 @@ export const AuditStatus = {
   /**
    * 已审核
    */
-  AUDITED: "AUDITED"
+  AUDITED: "AUDITED",
+  APPROVED: "APPROVED"
 }
+
 export default constants

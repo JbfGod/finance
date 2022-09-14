@@ -1,6 +1,5 @@
 import {history, request} from "umi";
 import * as common from "@/utils/common";
-import {stringify} from "querystring";
 
 export async function login(body) {
   return request('/api/login', {

@@ -3,6 +3,8 @@
 // API 更新时间：
 // API 唯一标识：
 import * as accountCloseListWeb from './accountCloseListWeb';
+import * as approvalFlowWeb from './approvalFlowWeb';
+import * as approvalInstanceWeb from './approvalInstanceWeb';
 import * as currencyWeb from './currencyWeb';
 import * as customerWeb from './customerWeb';
 import * as customerCategoryWeb from './customerCategoryWeb';
@@ -17,6 +19,8 @@ import * as userWeb from './userWeb';
 import * as voucherWeb from './voucherWeb';
 export default {
   accountCloseListWeb,
+  approvalFlowWeb,
+  approvalInstanceWeb,
   currencyWeb,
   customerWeb,
   customerCategoryWeb,

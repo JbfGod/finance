@@ -6,6 +6,7 @@ import org.finance.business.convert.CustomerConvert;
 import org.finance.business.convert.ResourceConvert;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
+import org.finance.business.service.ApprovalInstanceApproverService;
 import org.finance.business.service.CustomerCategoryService;
 import org.finance.business.service.CustomerResourceService;
 import org.finance.business.service.CustomerService;
@@ -16,6 +17,7 @@ import org.finance.business.web.request.QueryCustomerRequest;
 import org.finance.business.web.request.UpdateCustomerRequest;
 import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
+import org.finance.business.web.vo.OwnedApprovalCustomerVO;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceWithOperateVO;
 import org.finance.infrastructure.common.R;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,11 +53,28 @@ import java.util.stream.Collectors;
 public class CustomerWeb {
 
     @javax.annotation.Resource
-    private CustomerService customerService;
+    private CustomerService baseService;
     @javax.annotation.Resource
     private CustomerCategoryService customerCategoryService;
     @javax.annotation.Resource
     private CustomerResourceService customerResourceService;
+    @javax.annotation.Resource
+    private ApprovalInstanceApproverService instanceApproverService;
+
+    @GetMapping("/owned/approval")
+    public R<List<OwnedApprovalCustomerVO>> ownedApprovalCustomers() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        List<Long> customerIds = instanceApproverService.customerIdsByApproverId(currentUserId);
+        if (customerIds.isEmpty()) {
+            return R.ok(Collections.emptyList());
+        }
+        return R.ok(
+            baseService.list(Wrappers.<Customer>lambdaQuery()
+                .in(Customer::getId, customerIds)
+            ).stream().map(CustomerConvert.INSTANCE::toOwnedApprovalCustomerVO)
+            .collect(Collectors.toList())
+        );
+    }
 
     @GetMapping("/{customerId}/resourceIds")
     public R<List<ResourceIdentifiedVO>> resourceIdsOfCustomer(@PathVariable("customerId") long customerId) {
@@ -89,7 +109,7 @@ public class CustomerWeb {
             categoryIds = customerCategoryService.listChildrenIdsById(request.getCategoryId());
         }
 
-        IPage<CustomerListVO> pages = customerService.page(request.extractPage(), Wrappers.<Customer>lambdaQuery()
+        IPage<CustomerListVO> pages = baseService.page(request.extractPage(), Wrappers.<Customer>lambdaQuery()
                 .gt(Customer::getId, 0)
                 .likeRight(StringUtils.hasText(request.getNumber()), Customer::getNumber, request.getNumber())
                 .likeRight(StringUtils.hasText(request.getName()), Customer::getName, request.getName())
@@ -110,9 +130,10 @@ public class CustomerWeb {
         return RPage.build(pages);
     }
 
+
     @GetMapping("/searchCustomerCue")
     public R<List<CustomerCueVO>> searchCustomerCue(QueryCustomerCueRequest request) {
-        List<CustomerCueVO> cues = customerService.list(Wrappers.<Customer>lambdaQuery()
+        List<CustomerCueVO> cues = baseService.list(Wrappers.<Customer>lambdaQuery()
                 .select(Customer::getId, Customer::getNumber, Customer::getName)
                 .gt(Customer::getId, 0)
                 .likeRight(StringUtils.hasText(request.getKeyword()), Customer::getNumber, request.getKeyword())
@@ -130,19 +151,19 @@ public class CustomerWeb {
     @PostMapping("/add")
     public R addCustomer(@Valid AddCustomerRequest request) {
         Customer customer = CustomerConvert.INSTANCE.toCustomer(request);
-        customerService.addCustomerAndUser(customer);
+        baseService.addCustomerAndUser(customer);
         return R.ok();
     }
 
     @PutMapping("/update")
     public R updateCustomer(@Valid UpdateCustomerRequest request) {
-        customerService.updateById(CustomerConvert.INSTANCE.toCustomer(request));
+        baseService.updateById(CustomerConvert.INSTANCE.toCustomer(request));
         return R.ok();
     }
 
     @DeleteMapping("/delete/{id}")
     public R deleteCustomer(@PathVariable("id") long id) {
-        customerService.deleteById(id);
+        baseService.deleteById(id);
         return R.ok();
     }
 
