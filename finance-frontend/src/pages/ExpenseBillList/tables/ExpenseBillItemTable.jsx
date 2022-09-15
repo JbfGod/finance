@@ -84,7 +84,12 @@ export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
         return subsidies.reduce((prev, curr) => prev + Number(curr.amount || 0), 0) || ""
       }
     }),
-    MoneyColumn("小计金额", "subtotalAmount"),
+    MoneyColumn("小计金额", "subtotalAmount", {
+      editable: false, render: (_, row) => {
+        const {subsidies} = row
+        return subsidies.reduce((prev, curr) => prev + Number(curr.amount || 0), row.actualAmount || 0) || ""
+      }
+    }),
     {
       title: (<div style={{textAlign: "center"}}>备注</div>), dataIndex: "remark", width: 75,
       renderFormItem: () => (

@@ -51,7 +51,7 @@ public class ApprovalInstanceService extends ServiceImpl<ApprovalInstanceMapper,
         ApprovalInstance approvalInstance = baseMapper.selectById(approvalInstanceItem.getInstanceId());
         LambdaUpdateWrapper<ApprovalInstance> updateWrapper = Wrappers.<ApprovalInstance>lambdaUpdate()
                 .eq(ApprovalInstance::getId, approvalInstance.getId())
-                .set(ApprovalInstance::getCurrentItemId, approvalInstanceItem.getApproverId())
+                .set(ApprovalInstance::getCurrentItemId, approvalInstanceItem.getId())
                 .set(!approvalInstanceItem.getLasted(), ApprovalInstance::getCurrentLevel, approvalInstanceItem.getLevel() + 1);
         if (approvalInstanceItem.getLasted()) {
             updateWrapper = updateWrapper.set(ApprovalInstance::getEnded, true);

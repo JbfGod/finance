@@ -58,8 +58,6 @@ public class UpdateExpenseBillRequest {
         private BigDecimal billAmount;
         @NotNull(message = "请填写实报金额！")
         private BigDecimal actualAmount;
-        @NotNull(message = "请填小计金额！")
-        private BigDecimal subtotalAmount;
         private String remark;
         @Valid
         private List<ItemSubsidy> subsidies;
@@ -73,6 +71,10 @@ public class UpdateExpenseBillRequest {
             return subsidies.stream().reduce(new BigDecimal("0"),
                     (prev, curr) -> prev.add(curr.getAmount()),
                     BigDecimal::add);
+        }
+
+        public BigDecimal getSubtotalAmount() {
+            return getSubsidyAmount().add(this.actualAmount);
         }
     }
 

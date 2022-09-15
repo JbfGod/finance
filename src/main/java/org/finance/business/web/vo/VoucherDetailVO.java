@@ -3,6 +3,7 @@ package org.finance.business.web.vo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.finance.business.entity.Voucher;
 import org.finance.infrastructure.constants.LendingDirection;
 
 import java.math.BigDecimal;
@@ -17,6 +18,8 @@ import java.util.List;
 public class VoucherDetailVO {
 
     private Long id;
+    private Voucher.Source source;
+    private Long expenseBillId;
     private Integer serialNumber;
     private Long currencyId;
     private String currencyName;

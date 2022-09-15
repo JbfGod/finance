@@ -45,6 +45,8 @@ export default ({mode = "add", billId, visible, onVisibleChange, onClose}) => {
     const [formRef] = Form.useForm()
     const [billDetail, setBillDetail] = useState({})
     const {approvalFlowInstanceId} = billDetail
+    const [approvalInstance, setApprovalInstance] = useState({})
+    const {currentLevel, items = []} = approvalInstance
     // 当前编辑的行
     const [editableKeys, setEditableKeys] = useState([])
     const initialAddForm = () => {
@@ -56,8 +58,9 @@ export default ({mode = "add", billId, visible, onVisibleChange, onClose}) => {
     const initialBillDetail = () => {
         expenseBillByIdUsingGET({id: billId})
             .then(({data}) => {
-                setBillDetail({...data, items: fillItemData(data?.items)})
-                formRef.setFieldsValue(data)
+                const newValue = {...data, items: fillItemData(data?.items)}
+                setBillDetail(newValue)
+                formRef.setFieldsValue(newValue)
             })
     }
     const fillDeleteIdsToFormData = (formValues, formData) => {
@@ -137,7 +140,39 @@ export default ({mode = "add", billId, visible, onVisibleChange, onClose}) => {
                         className: styles.billDrawer,
                         placement: "left"
                     }}
+                    onValuesChange={(changedValues, allValues) => {
+                        const changedItems = changedValues.items
+                        if (!changedItems) {
+                            return
+                        }
+                        const {items} = allValues
+                        // 填写票据金额的时，填充实报金额
+                        Object.keys(changedItems).forEach((key) => {
+                            const {billAmount, actualAmount} = changedItems[key]
+                            if (billAmount && actualAmount == null) {
+                                formRef.setFieldsValue({
+                                    items: items.map(item => {
+                                        if (`${item.index}` === key) {
+                                            return {...items[key], actualAmount: billAmount}
+                                        }
+                                        return item
+                                    })
+                                })
+                            }
+                        })
+                    }}
         >
+            {approvalFlowInstanceId > 0 && (
+                <Space style={{marginBottom: 20}}>
+                    {(approvalInstance?.items || []).map(({level}) =>
+                        <div key={level} style={{
+                            padding: "0 12px", color: "white",
+                            height: 30, lineHeight: "30px",
+                            background: `${currentLevel === level? "#08bbff":"gray"}`
+                        }}>审批{level}</div>
+                    )}
+                </Space>
+            )}
             <Row>
                 <Col span={24}>
                     <Space align="start">
@@ -178,6 +213,8 @@ export default ({mode = "add", billId, visible, onVisibleChange, onClose}) => {
                             <div>
                                 {approvalFlowInstanceId > 0 &&
                                     <ApprovalTable mode={mode} billId={billId} onClose={onClose}
+                                                   approvalInstance={approvalInstance}
+                                                   setApprovalInstance={setApprovalInstance}
                                                    approvalInstanceId={approvalFlowInstanceId}/>}
                             </div>
                         </div>
@@ -188,10 +225,9 @@ export default ({mode = "add", billId, visible, onVisibleChange, onClose}) => {
     )
 }
 
-function ApprovalTable({mode, approvalInstanceId, billId, onClose}) {
+function ApprovalTable({mode, approvalInstanceId, approvalInstance, setApprovalInstance, billId, onClose}) {
     const commonRender = (dataIndex) => (_, row) => <span title={row[dataIndex] || ""}>{row[dataIndex] || ""}</span>
     const isViewMode = mode === "view", isApprovalMode = mode === "approval"
-    const [approvalInstance, setApprovalInstance] = useState({})
     const actionRef = useRef()
     const {currentLevel, items = []} = approvalInstance
     const canEdit = !!items.find(item => item.canApproved)

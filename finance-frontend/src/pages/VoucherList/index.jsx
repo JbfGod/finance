@@ -135,10 +135,12 @@ export default () => {
                onClick={() => formModal.open({mode: "edit", currencyType: row.currencyType, voucherId: row.id})}>
               编辑
             </a>,
-            <Popconfirm key="delete" title="确认删除该凭证？"
-                        onConfirm={() => deleteVoucherUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
-              <a>删除</a>
-            </Popconfirm>
+            row.expenseBillId === 0 && (
+                <Popconfirm key="delete" title="确认删除该凭证？"
+                            onConfirm={() => deleteVoucherUsingDELETE({id: row.id}).then(actionRef.current?.reload)}>
+                    <a>删除</a>
+                </Popconfirm>
+            )
           ] : [],
           security.canPrint && (
             <a key="print" onClick={() => onPrint({voucherId: row.id, currencyType: row.currencyType})}>打印</a>

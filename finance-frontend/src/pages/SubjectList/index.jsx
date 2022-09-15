@@ -160,6 +160,9 @@ export default ({mode, formModalProps = {}}) => {
                           tableAlertRender:false,
                           onRow: (record) => ({
                             onClick: () => {
+                              if (disableFilter?.(record)) {
+                                return
+                              }
                               formModalProps?.setSelectedKeys([record.id])
                               formModalProps.onSelect?.([record.id])
                             }

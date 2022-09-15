@@ -280,6 +280,8 @@ CREATE TABLE if not exists `voucher` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `customer_id` bigint(20) not null comment '客户ID',
     `customer_number` varchar(50) NOT NULL default 'HX_TOP' COMMENT '客户编号',
+    `source` enum('MANUAL', 'EXPENSE_BILL') not null default 'MANUAL' comment '凭证来源，MANUAL：手工，EXPENSE_BILL：费用报销单转',
+    `expense_bill_id` bigint(20) not null default 0 comment 'source=EXPENSE_BILL时>0',
     `year` int(11) not null comment '年份:yyyy',
     `year_month_num` int(11) not null comment '月份:yyyyMM',
     `currency_id` bigint(20) not null default 0 comment '原币ID',

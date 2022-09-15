@@ -263,6 +263,7 @@ public class VoucherWeb {
     @PreAuthorize("hasPermission('voucher', 'base')")
     public R deleteVoucher(@PathVariable("id") long id) {
         Voucher voucher = baseService.getById(id);
+        AssertUtil.isTrue(voucher.getSource() == Voucher.Source.EXPENSE_BILL, "凭证来源：费用报销单，禁止删除！");
         assertUnCloseAccount(voucher.getVoucherTime().toLocalDate());
         assertUnAudited(id);
         baseService.deleteById(id);
@@ -281,9 +282,7 @@ public class VoucherWeb {
             }
         }
         Voucher voucher = VoucherConvert.INSTANCE.toVoucher(request);
-        baseService.addOrUpdate(voucher, () -> {
-            itemService.removeByIds(request.getDeletedItemIds());
-        });
+        baseService.addOrUpdate(voucher, () -> itemService.removeByIds(request.getDeletedItemIds()));
         return R.ok();
     }
 

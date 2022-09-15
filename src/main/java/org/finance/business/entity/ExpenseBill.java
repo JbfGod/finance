@@ -9,11 +9,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.finance.business.entity.enums.AuditStatus;
+import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.finance.infrastructure.constants.Constants.YEAR_MONTH_FMT;
 
 /**
  * <p>
@@ -127,4 +131,46 @@ public class ExpenseBill implements Serializable {
     @TableField(exist = false)
     private List<ExpenseItem> items;
 
+    public Voucher toVoucher() {
+        Voucher voucher = new Voucher();
+        // .setYear(expenseTime.getYear())
+        // .setYearMonthNum(Integer.parseInt(expenseTime.format(YEAR_MONTH_FMT)))
+        //
+
+        LocalDateTime expenseTime = this.getExpenseTime();
+        voucher.setCustomerId(this.getCustomerId())
+                .setCustomerNumber(this.getCustomerNumber())
+                .setSource(Voucher.Source.EXPENSE_BILL)
+                .setExpenseBillId(this.getId())
+                .setYear(expenseTime.getYear())
+                .setYearMonthNum(Integer.parseInt(expenseTime.format(YEAR_MONTH_FMT)))
+                .setVoucherTime(expenseTime)
+                .setCurrencyId(Currency.LOCAL_CURRENCY.getId())
+                .setRate(Currency.LOCAL_CURRENCY.getRate())
+                .setCurrencyName(Currency.LOCAL_CURRENCY.getName())
+                .setUnit("元");
+        List<ExpenseItem> itemList = this.getItems();
+        List<VoucherItem> voucherItems = itemList.stream().map(
+                expenseItem -> new VoucherItem()
+                        .setYear(voucher.getYear())
+                        .setYearMonthNum(voucher.getYearMonthNum())
+                        .setRate(voucher.getRate())
+                        .setSerialNumber(expenseItem.getSerialNumber())
+                        .setCustomerId(voucher.getCustomerId())
+                        .setCurrencyId(voucher.getCurrencyId())
+                        .setCurrencyName(voucher.getCurrencyName())
+                        .setAmount(expenseItem.getSubtotalAmount())
+                        .setLendingDirection(LendingDirection.BORROW)
+                        .setSummary(expenseItem.getSummary())
+                        .setSubjectId(expenseItem.getSubjectId())
+                        .setSubjectNumber(expenseItem.getSubjectNumber())
+        ).collect(Collectors.toList());
+        voucher.setAttachmentNum(this.getTotalNumOfBill())
+                .setTotalCurrencyAmount(this.getTotalSubtotalAmount())
+                .setTotalLocalCurrencyAmount(this.getTotalSubtotalAmount())
+                .setAuditStatus(AuditStatus.TO_BE_AUDITED)
+                .setBookkeeping(false)
+                .setItems(voucherItems);
+        return voucher;
+    }
 }

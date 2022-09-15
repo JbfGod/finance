@@ -177,7 +177,7 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     private void addOrUpdateVoucher(Voucher voucher) {
         if (voucher.getSerialNumber() == null) {
             Integer serialNumber = Optional.ofNullable(
-                    baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
+                baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
             ).map(num -> num + 1).orElse(1);
             voucher.setSerialNumber(serialNumber);
         }
@@ -185,7 +185,6 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
             baseMapper.updateById(voucher);
             return;
         }
-
         baseMapper.insert(voucher);
     }
 

@@ -7,11 +7,14 @@ import org.finance.business.entity.ApprovalInstance;
 import org.finance.business.entity.ApprovalInstanceApprover;
 import org.finance.business.entity.ApprovalInstanceItem;
 import org.finance.business.entity.ExpenseBill;
+import org.finance.business.entity.ExpenseItem;
 import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.service.ApprovalInstanceApproverService;
 import org.finance.business.service.ApprovalInstanceItemService;
 import org.finance.business.service.ApprovalInstanceService;
 import org.finance.business.service.ExpenseBillService;
+import org.finance.business.service.ExpenseItemService;
+import org.finance.business.service.VoucherService;
 import org.finance.business.web.request.ApprovedRequest;
 import org.finance.business.web.request.ReviewRejectedRequest;
 import org.finance.business.web.vo.ApprovalInstanceItemVO;
@@ -50,6 +53,10 @@ public class ApprovalInstanceWeb {
     private ApprovalInstanceApproverService instanceApproverService;
     @Resource
     private ExpenseBillService expenseBillService;
+    @Resource
+    private ExpenseItemService expenseItemService;
+    @Resource
+    private VoucherService voucherService;
 
     @GetMapping("/{id}")
     public R<ApprovalInstanceVO> approvalInstance(@PathVariable("id") long id) {
@@ -96,9 +103,15 @@ public class ApprovalInstanceWeb {
         if (businessModule == ApprovalFlow.BusinessModule.EXPENSE_BILL) {
             if (approvalInstanceItem.getLasted()) {
                 expenseBillService.update(Wrappers.<ExpenseBill>lambdaUpdate()
-                    .eq(ExpenseBill::getApprovalFlowInstanceId, approvalInstance.getId())
+                    .eq(ExpenseBill::getId, approvalInstance.getModuleId())
                     .set(ExpenseBill::getAuditStatus, AuditStatus.APPROVED)
                 );
+                ExpenseBill expenseBill = expenseBillService.getById(approvalInstance.getModuleId());
+                List<ExpenseItem> items = expenseItemService.list(Wrappers.<ExpenseItem>lambdaQuery()
+                    .eq(ExpenseItem::getBillId, expenseBill.getId())
+                );
+                expenseBill.setItems(items);
+                voucherService.addOrUpdate(expenseBill.toVoucher(), null);
             }
         }
     }
