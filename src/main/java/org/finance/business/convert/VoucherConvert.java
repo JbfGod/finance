@@ -7,6 +7,7 @@ import org.finance.business.web.request.AddVoucherRequest;
 import org.finance.business.web.request.UpdateVoucherRequest;
 import org.finance.business.web.vo.VoucherDetailVO;
 import org.finance.business.web.vo.VoucherPrintContentVO;
+import org.finance.business.web.vo.VoucherItemVO;
 import org.finance.business.web.vo.VoucherVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -31,5 +32,5 @@ public interface VoucherConvert {
 
     VoucherPrintContentVO toVoucherPrintContentVO(Voucher voucher);
 
-
+    VoucherItemVO toVoucherItem(VoucherItem item);
 }

@@ -20,7 +20,6 @@ export default function ExProTable({columns, pagination, ...props}) {
     } : {}),
     ...(props.params ? {
         params : {
-          pageSize: 10,
           ...props.params
         }
       } : {}
@@ -31,7 +30,7 @@ export default function ExProTable({columns, pagination, ...props}) {
     ...props
   }
   if (pagination == null) {
-    newProps.pagination = {pageSize: 10}
+    newProps.pagination = {defaultPageSize: 10}
   }
 
   return (

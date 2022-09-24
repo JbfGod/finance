@@ -2,4 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.finance.business.mapper.VoucherItemMapper">
 
+    <select id="summaryGroupBySubjectId" resultType="org.finance.business.entity.VoucherItem">
+        select vi.subject_id, sum(vi.local_debit_amount) local_debit_amount, sum(vi.local_credit_amount) local_credit_amount
+        from voucher_item vi
+        where vi.year_month_num = #{yearMonthNum}
+        group by vi.subject_id
+    </select>
 </mapper>

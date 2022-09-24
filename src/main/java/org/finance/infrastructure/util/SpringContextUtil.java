@@ -9,6 +9,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
  * @author jiangbangfa
@@ -66,6 +67,11 @@ public class SpringContextUtil implements ApplicationContextAware {
     public static <T> T getBean(Class<T> clazz) {
         checkApplicationContext();
         return applicationContext.getBean(clazz);
+    }
+
+    public static <T> Collection<T> getBeansOfType(Class<T> clazz) {
+        checkApplicationContext();
+        return applicationContext.getBeansOfType(clazz).values();
     }
 
     /**

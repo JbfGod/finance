@@ -10,7 +10,6 @@ import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.mapper.VoucherItemMapper;
 import org.finance.business.mapper.VoucherMapper;
 import org.finance.business.web.vo.VoucherBookVO;
-import org.finance.infrastructure.constants.LendingDirection;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +65,10 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
         int itemSize = items.size();
         for (int i = 0; i < itemSize; i++) {
             VoucherItem item = items.get(i).setSerialNumber(i + 1);
+            item.setLocalDebitAmount(item.getDebitAmount().multiply(voucher.getRate()))
+                .setLocalCreditAmount(item.getCreditAmount().multiply(voucher.getRate()))
+                .setVoucherNumber(voucher.getSerialNumber())
+                .setVoucherDate(voucher.getVoucherDate());
             this.addOrUpdateItem(voucher, item);
         }
     }
@@ -191,10 +194,7 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     private void addOrUpdateItem(Voucher voucher, VoucherItem item) {
         item.setVoucherId(voucher.getId())
                 .setYear(voucher.getYear())
-                .setYearMonthNum(voucher.getYearMonthNum())
-                .setCurrencyId(voucher.getCurrencyId())
-                .setCurrencyName(voucher.getCurrencyName())
-                .setRate(voucher.getRate());
+                .setYearMonthNum(voucher.getYearMonthNum());
         if (item.getId() != null) {
             itemMapper.updateById(item);
             return;
@@ -215,20 +215,9 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
      * 断言凭证的借贷金额平衡
      */
     private void assertVoucherItemLoanBalanced(long voucherId, int voucherSerialNum) {
-        List<VoucherItem> voucherItems = itemMapper.selectList(Wrappers.<VoucherItem>lambdaQuery()
-                .eq(VoucherItem::getVoucherId, voucherId)
-        );
-        BigDecimal borrowAmount = new BigDecimal("0");
-        BigDecimal loanAmount = new BigDecimal("0");
-        for (VoucherItem item : voucherItems) {
-            if (item.getLendingDirection() == LendingDirection.BORROW) {
-                borrowAmount = borrowAmount.add(item.getAmount().multiply(item.getRate()));
-            } else if (item.getLendingDirection() == LendingDirection.LOAN) {
-                loanAmount = loanAmount.add(item.getAmount().multiply(item.getRate()));
-            }
-        }
-        BigDecimal diff = borrowAmount.subtract(loanAmount).abs();
-        AssertUtil.isTrue(borrowAmount.equals(loanAmount),
+        Voucher voucher = baseMapper.selectById(voucherId);
+        BigDecimal diff = voucher.getTotalDebitAmount().subtract(voucher.getTotalCreditAmount()).abs();
+        AssertUtil.isTrue(voucher.getTotalDebitAmount().equals(voucher.getTotalCreditAmount()),
                 String.format("凭证号：%d，借贷金额不平衡，借-贷相差:%s", voucherSerialNum, diff.toString().replaceFirst("\\.?0*$", ""))
         );
     }

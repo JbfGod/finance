@@ -2,10 +2,13 @@ package org.finance.business.web;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.finance.business.convert.AccountCloseListConvert;
 import org.finance.business.convert.InitialBalanceConvert;
+import org.finance.business.entity.AccountCloseList;
 import org.finance.business.entity.InitialBalance;
 import org.finance.business.entity.InitialBalanceItem;
 import org.finance.business.entity.enums.AuditStatus;
+import org.finance.business.service.AccountCloseListService;
 import org.finance.business.service.InitialBalanceItemService;
 import org.finance.business.service.InitialBalanceService;
 import org.finance.business.service.SubjectService;
@@ -17,6 +20,8 @@ import org.finance.business.web.vo.InitialBalanceItemVO;
 import org.finance.business.web.vo.InitialBalanceVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
+import org.finance.infrastructure.constants.Constants;
+import org.finance.infrastructure.constants.LendingDirection;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.time.YearMonth;
 import java.util.function.Function;
 
 /**
@@ -50,13 +56,15 @@ public class InitialBalanceWeb {
     private InitialBalanceItemService itemService;
     @Resource
     private SubjectService subjectService;
+    @Resource
+    private AccountCloseListService accountCloseListService;
 
     @GetMapping("/outline")
     public R<InitialBalanceVO> initialBalanceOutline() {
         InitialBalanceVO initialBalance = InitialBalanceConvert.INSTANCE.toInitialBalanceVO(
-            baseService.getOne(
-                Wrappers.<InitialBalance>lambdaQuery().orderByDesc(InitialBalance::getYearMonthNum)
-            )
+                baseService.getOne(
+                        Wrappers.<InitialBalance>lambdaQuery().orderByDesc(InitialBalance::getYearMonthNum)
+                )
         );
         return R.ok(initialBalance);
     }
@@ -68,6 +76,7 @@ public class InitialBalanceWeb {
                 Wrappers.<InitialBalanceItem>lambdaQuery().orderByDesc(InitialBalanceItem::getYearMonthNum)
         ).convert(item -> {
             InitialBalanceItemVO initialBalanceItemVO = InitialBalanceConvert.INSTANCE.toInitialBalanceItemVO(item);
+            initialBalanceItemVO.setAmount(item.getLendingDirection() == LendingDirection.BORROW ? item.getDebitAmount() : item.getCreditAmount());
             initialBalanceItemVO.setSubjectName(nameBySubjectId.apply(item.getSubjectId()));
             return initialBalanceItemVO;
         });
@@ -101,9 +110,9 @@ public class InitialBalanceWeb {
     @PreAuthorize("hasPermission('initialBalance', 'auditing')")
     public R<InitialBalanceVO> auditingInitialBalance(@Valid AuditingInitialBalanceRequest request) {
         return R.ok(
-            InitialBalanceConvert.INSTANCE.toInitialBalanceVO(
-               baseService.auditingByYearMonth(request.getYearMonthDate())
-            )
+                InitialBalanceConvert.INSTANCE.toInitialBalanceVO(
+                        baseService.auditingByYearMonth(request.getYearMonthDate())
+                )
         );
     }
 
@@ -113,17 +122,27 @@ public class InitialBalanceWeb {
         baseService.unAuditingById(id);
         return R.ok();
     }
+
     @PutMapping("/bookkeeping/{id}")
     @PreAuthorize("hasPermission('initialBalance', 'bookkeeping')")
     public R bookkeepingInitialBalance(@PathVariable("id") long id) {
-        baseService.bookkeepingById(id);
+        baseService.bookkeepingById(id, initialBalance -> {
+            // 初始余额4月份，则关账关的是3月份的
+            YearMonth yearMonth = YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT).minusMonths(1);
+            AccountCloseList accountCloseList = AccountCloseListConvert.INSTANCE.toAccountCloseList(yearMonth);
+            accountCloseListService.closeAccount(accountCloseList);
+        });
         return R.ok();
     }
 
     @PutMapping("/unBookkeeping/{id}")
     @PreAuthorize("hasPermission('initialBalance', 'unBookkeeping')")
     public R unBookkeepingInitialBalance(@PathVariable("id") long id) {
-        baseService.unBookkeepingById(id);
+        baseService.unBookkeepingById(id, initialBalance -> {
+            YearMonth yearMonth = YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT).minusMonths(1);
+            int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
+            accountCloseListService.cancelClosedAccount(yearMonthNum);
+        });
         return R.ok();
     }
 

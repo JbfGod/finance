@@ -38,12 +38,14 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
 
     private final List<String> includeTables = Arrays.asList(
             "expense_bill", "expense_item", "expense_item_attachment", "expense_item_subsidy",
-            "subject", "voucher", "voucher_item", "currency"
+            "subject", "voucher", "voucher_item", "currency", "account_close_list",
+            "initial_balance", "initial_balance_item"
     );
 
     private final List<String> ignoreUrls = Arrays.asList(
             "/api/user/self", "/api/expense/bill/page/approval", "/api/expense/bill/{id:\\d+}",
-            "/api/approvalFlow/**", "/api/approvalInstance/**"
+            "/api/approvalFlow/**", "/api/approvalInstance/**",
+            "/api/customer/add"
     );
 
     @Override

@@ -11,6 +11,7 @@ import org.finance.business.entity.enums.AuditStatus;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class Voucher implements Serializable {
     /**
      * 凭证日期
      */
-    private LocalDateTime voucherTime;
+    private LocalDate voucherDate;
 
     /**
      * 原币ID
@@ -103,14 +104,22 @@ public class Voucher implements Serializable {
     private Integer attachmentNum;
 
     /**
-     * 原币合计金额
+     * 借方原币合计金额
      */
-    private BigDecimal totalCurrencyAmount;
+    private BigDecimal totalDebitAmount;
+    /**
+     * 贷方原币合计金额
+     */
+    private BigDecimal totalCreditAmount;
 
     /**
-     * 本币合计金额
+     * 借方本币合计金额
      */
-    private BigDecimal totalLocalCurrencyAmount;
+    private BigDecimal totalLocalDebitAmount;
+    /**
+     * 贷方本币合计金额
+     */
+    private BigDecimal totalLocalCreditAmount;
 
     /**
      * 审核状态

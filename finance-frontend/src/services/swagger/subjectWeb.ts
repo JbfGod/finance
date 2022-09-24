@@ -31,13 +31,28 @@ export async function deleteSubjectUsingDELETE(
   });
 }
 
-/** treeSubject GET /api/subject/tree */
-export async function treeSubjectUsingGET(
+/** listSubject GET /api/subject/list */
+export async function listSubjectUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.treeSubjectUsingGETParams,
+  params: API.listSubjectUsingGETParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.RListTreeSubjectVO_>('/api/subject/tree', {
+  return request<API.RListSubjectVO_>('/api/subject/list', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** pageSubject GET /api/subject/page */
+export async function pageSubjectUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.pageSubjectUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RPageSubjectVO_>('/api/subject/page', {
     method: 'GET',
     params: {
       ...params,

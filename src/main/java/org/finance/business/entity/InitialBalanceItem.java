@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -63,9 +64,9 @@ public class InitialBalanceItem implements Serializable {
     private String subjectNumber;
 
     /**
-     * 科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷
+     * 科目方向,BORROW：借、LOAN：贷
      */
-    private String lendingDirection;
+    private LendingDirection lendingDirection;
 
     /**
      * 原币名称
@@ -73,9 +74,13 @@ public class InitialBalanceItem implements Serializable {
     private String currencyName;
 
     /**
-     * 金额
+     * 借方金额
      */
-    private BigDecimal amount;
+    private BigDecimal debitAmount;
+    /**
+     * 贷方金额
+     */
+    private BigDecimal creditAmount;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;

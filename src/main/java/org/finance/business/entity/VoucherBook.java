@@ -10,7 +10,7 @@ import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * <p>
@@ -64,7 +64,7 @@ public class VoucherBook implements Serializable {
     /**
      * 凭证日期
      */
-    private LocalDateTime voucherTime;
+    private LocalDate voucherDate;
 
     /**
      * 摘要

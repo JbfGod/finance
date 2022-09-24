@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.finance.business.mapper.AccountBalanceMapper">
+
+    <select id="summaryGroupBySubjectId" resultType="org.finance.business.entity.AccountBalance">
+        select ab.subject_id,
+               sum(ab.debit_opening_amount)  debit_opening_amount,
+               sum(ab.credit_opening_amount) credit_opening_amount,
+               sum(ab.debit_closing_amount)  debit_closing_amount,
+               sum(ab.credit_closing_amount) credit_closing_amount,
+               sum(ab.debit_current_amount)  debit_current_amount,
+               sum(ab.credit_current_amount) credit_current_amount,
+               sum(ab.debit_annual_amount)   debit_annual_amount,
+               sum(ab.credit_annual_amount)  credit_annual_amount
+        from account_balance ab
+        where ab.year_month_num = #{yearMonthNum}
+        group by ab.subject_id
+    </select>
+</mapper>

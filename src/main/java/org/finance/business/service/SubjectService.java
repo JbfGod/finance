@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -100,4 +102,12 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
         };
     }
 
+    public List<Long> listChildrenIds(long subjectId) {
+        Subject dbSubject = baseMapper.selectById(subjectId);
+        return baseMapper.selectList(Wrappers.<Subject>lambdaQuery()
+            .select(Subject::getId)
+            .ge(Subject::getLeftValue, dbSubject.getLeftValue())
+            .le(Subject::getRightValue, dbSubject.getRightValue())
+        ).stream().map(Subject::getId).collect(Collectors.toList());
+    }
 }

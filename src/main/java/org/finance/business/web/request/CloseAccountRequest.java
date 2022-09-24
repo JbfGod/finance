@@ -12,7 +12,6 @@ import java.time.YearMonth;
 @Data
 public class CloseAccountRequest {
 
-
     @NotNull(message = "请选择关账的月份！")
     private YearMonth yearMonthDate;
 

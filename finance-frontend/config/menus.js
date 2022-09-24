@@ -177,6 +177,51 @@ const menus = [
     ]
   },
   {
+    path: '/report',
+    name: '报表管理',
+    icon: 'simple',
+    routes: [
+      {
+        path: '/report/accountBalance',
+        name: '科目余额表',
+        icon: 'smile',
+        access: 'MENU:/report/accountBalance',
+        component: './Report/AccountBalance',
+      },
+      {
+        path: '/report/generalLedger',
+        name: '总分类账',
+        icon: 'smile',
+        access: 'MENU:/report/generalLedger',
+        component: './Report/GeneralLedger',
+      },
+      {
+        path: '/report/subLedger',
+        name: '明细分类账',
+        icon: 'smile',
+        access: 'MENU:/report/subLedger',
+        component: './Report/SubLedger',
+      },
+      {
+        path: '/report/dailyCash',
+        name: '现金日报表',
+        icon: 'smile',
+        access: 'MENU:/report/dailyCash',
+        component: './Report/DailyCash',
+      },
+      {
+        path: '/report/dailyBank',
+        name: '银行存款日报表',
+        icon: 'smile',
+        access: 'MENU:/report/dailyBank',
+        component: './Report/DailyBank',
+      },
+      {
+        component: './404',
+      },
+    ]
+  },
+  {
     path: '/',
     name: 'welcome',
     icon: 'icon-danwei',

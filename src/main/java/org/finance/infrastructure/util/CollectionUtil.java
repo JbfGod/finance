@@ -2,7 +2,7 @@ package org.finance.infrastructure.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author jiangbangfa
@@ -43,8 +42,31 @@ public class CollectionUtil {
         return treeList;
     }
 
+    public static <KEY, NODE> List<NODE> orderByTree(List<NODE> list, Function<NODE, KEY> keyFunction,
+                                                     Function<NODE, KEY> parentKeyFunction,
+                                                     Function<NODE, List<NODE>> childrenFunction,
+                                                     BiConsumer<NODE, List<NODE>> setChildrenConsumer) {
+        List<NODE> tree = transformTree(list, keyFunction, parentKeyFunction, childrenFunction, setChildrenConsumer);
+        List<NODE> result = new ArrayList<>();
+        flatTree(tree, result, childrenFunction);
+        return result;
+    }
+
+    public static <NODE> void flatTree(List<NODE> list, List<NODE> result, Function<NODE, List<NODE>> childrenFunction) {
+        if (list == null) {
+            return;
+        }
+        list.stream().sorted(Comparator.comparing(Object::toString))
+            .forEach(node -> {
+                result.add(node);
+                List<NODE> children = childrenFunction.apply(node);
+                flatTree(children, result, childrenFunction);
+            });
+    }
+
     /**
      * 集合去重
+     *
      * @return
      */
     public static <E> List<E> distinct(Collection<E> collection) {
@@ -53,8 +75,9 @@ public class CollectionUtil {
 
     /**
      * 按照指定集合元素的内容去重
+     *
      * @param collection
-     * @param uidFunc (集合元素) -> 元素的内容
+     * @param uidFunc    (集合元素) -> 元素的内容
      * @return
      */
     public static <E, PK> List<E> distinct(Collection<E> collection, Function<E, PK> uidFunc) {
@@ -72,6 +95,7 @@ public class CollectionUtil {
 
     /**
      * 将集合转换成Map 1:1
+     *
      * @return
      */
     public static <K, E> Map<K, E> toMap(Collection<E> list, Function<E, K> keyFunc) {
@@ -83,6 +107,7 @@ public class CollectionUtil {
 
     /**
      * 将集合转换成Map 1:n
+     *
      * @param keyFunc
      * @return
      */
@@ -100,9 +125,10 @@ public class CollectionUtil {
 
     /**
      * 提取target集合不在source集合中的元素
+     *
      * @param sourceKeyFunc source元素的标识
      * @param targetKeyFunc target元素的标识
-     * @param <K> 元素的标识
+     * @param <K>           元素的标识
      * @return
      */
     public static <S, T, K> Collection<T> extractNotInSource(Collection<S> source, Function<S, K> sourceKeyFunc,
@@ -113,8 +139,8 @@ public class CollectionUtil {
         target.forEach(targetEle -> {
             boolean matchFlag = source.stream().anyMatch(sourceEle ->
                     Objects.equals(
-                            sourceKeyFunc == null? sourceEle : sourceKeyFunc.apply(sourceEle),
-                            targetKeyFunc == null? targetEle : targetKeyFunc.apply(targetEle)
+                            sourceKeyFunc == null ? sourceEle : sourceKeyFunc.apply(sourceEle),
+                            targetKeyFunc == null ? targetEle : targetKeyFunc.apply(targetEle)
                     )
             );
             if (!matchFlag) {
@@ -126,8 +152,9 @@ public class CollectionUtil {
 
     /**
      * 获取source和target集合不相交的元素
+     *
      * @param keyFunc 集合元素的标识
-     * @param <K> 元素的标识
+     * @param <K>     元素的标识
      * @return
      */
     public static <E, K> AddOrDelCollection<E> extractOfUnIntersection(Collection<E> source, Collection<E> target,
@@ -142,6 +169,7 @@ public class CollectionUtil {
     /**
      * 获取source和target集合不相交的元素
      * 元素标识 = E元素
+     *
      * @return
      */
     public static <E> AddOrDelCollection<E> extractOfUnIntersection(Collection<E> source, Collection<E> target) {
@@ -150,6 +178,7 @@ public class CollectionUtil {
 
     /**
      * 提取target集合不在source集合中的元素
+     *
      * @param <K> target和source的元素的标识
      * @return
      */
@@ -162,6 +191,7 @@ public class CollectionUtil {
     /**
      * 提取target集合不在source集合中的元素
      * 元素标识 = E元素
+     *
      * @return
      */
     public static <E> Collection<E> extractNotInSource(Collection<E> source, Collection<E> target) {
@@ -181,4 +211,5 @@ public class CollectionUtil {
             consumer.accept(this.addCollections, this.delCollections);
         }
     }
+
 }

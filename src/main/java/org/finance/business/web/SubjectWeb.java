@@ -1,5 +1,6 @@
 package org.finance.business.web;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.convert.SubjectConvert;
@@ -10,8 +11,9 @@ import org.finance.business.service.SubjectService;
 import org.finance.business.web.request.AddSubjectRequest;
 import org.finance.business.web.request.QuerySubjectRequest;
 import org.finance.business.web.request.UpdateSubjectRequest;
-import org.finance.business.web.vo.TreeSubjectVO;
+import org.finance.business.web.vo.SubjectVO;
 import org.finance.infrastructure.common.R;
+import org.finance.infrastructure.common.RPage;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +29,8 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -45,24 +49,44 @@ public class SubjectWeb {
     @Resource
     private IndustryService industryService;
 
-    @GetMapping("/tree")
-    public R<List<TreeSubjectVO>> treeSubject(@Valid QuerySubjectRequest request) {
-        List<Subject> subjects;
-        Customer proxyCustomer = SecurityUtil.getProxyCustomer();
-        if (proxyCustomer.isSuperCustomer()){
-            subjects = this.listSubjectByRequest(request);
-        } else {
-            subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
-                    .eq(Subject::getIndustryId, proxyCustomer.getIndustryId())
-                    .likeRight(StringUtils.isNotBlank(request.getNumber()) ,Subject::getNumber, request.getNumber())
-                    .likeRight(StringUtils.isNotBlank(request.getName()) ,Subject::getName, request.getName())
-            );
+    @GetMapping("/list")
+    public R<List<SubjectVO>> listSubject(@Valid QuerySubjectRequest request) {
+        List<Long> industryWithChildrenIds = new ArrayList<>();
+        if (request.getIndustryId() != null) {
+            industryWithChildrenIds = industryService.listChildrenIdsById(request.getIndustryId());
         }
+        Function<Long, String> industryNameFunc = industryService.geNameFunction();
+        List<SubjectVO> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
+                .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
+                .likeRight(StringUtils.isNotBlank(request.getNumber()), Subject::getNumber,request.getNumber())
+                .likeRight(StringUtils.isNotBlank(request.getName()), Subject::getName, request.getName())
+                .orderByAsc(Subject::getRootNumber, Subject::getLeftValue)
+        ).stream().map(subject -> {
+            SubjectVO subjectVO = SubjectConvert.INSTANCE.toSubjectVO(subject);
+            subjectVO.setIndustry(industryNameFunc.apply(subject.getIndustryId()));
+            return subjectVO;
+        }).collect(Collectors.toList());
+        return R.ok(subjects);
+    }
 
-        List<TreeSubjectVO> treeSubjectVOList = SubjectConvert.INSTANCE.toTreeSubjectVO(subjects, (sub) -> {
-            sub.setIndustry(industryService.getById(sub.getIndustryId()).getName());
+    @GetMapping("/page")
+    public RPage<SubjectVO> pageSubject(@Valid QuerySubjectRequest request) {
+        List<Long> industryWithChildrenIds = new ArrayList<>();
+        if (request.getIndustryId() != null) {
+            industryWithChildrenIds = industryService.listChildrenIdsById(request.getIndustryId());
+        }
+        Function<Long, String> industryNameFunc = industryService.geNameFunction();
+        IPage<SubjectVO> subjects = subjectService.page(request.extractPage(), Wrappers.<Subject>lambdaQuery()
+                .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
+                .likeRight(StringUtils.isNotBlank(request.getNumber()), Subject::getNumber,request.getNumber())
+                .likeRight(StringUtils.isNotBlank(request.getName()), Subject::getName, request.getName())
+                .orderByAsc(Subject::getRootNumber, Subject::getLeftValue)
+        ).convert(subject -> {
+            SubjectVO subjectVO = SubjectConvert.INSTANCE.toSubjectVO(subject);
+            subjectVO.setIndustry(industryNameFunc.apply(subject.getIndustryId()));
+            return subjectVO;
         });
-        return R.ok(treeSubjectVOList);
+        return RPage.build(subjects);
     }
 
     @PostMapping("/add")
@@ -94,16 +118,4 @@ public class SubjectWeb {
         return R.ok();
     }
 
-    private List<Subject> listSubjectByRequest(QuerySubjectRequest request) {
-        List<Long> industryWithChildrenIds = new ArrayList<>();
-        if (request.getIndustryId() != null) {
-            industryWithChildrenIds = industryService.listChildrenIdsById(request.getIndustryId());
-        }
-        return subjectService.list(Wrappers.<Subject>lambdaQuery()
-                .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
-                .likeRight(StringUtils.isNotBlank(request.getNumber()), Subject::getNumber,request.getNumber())
-                .likeRight(StringUtils.isNotBlank(request.getName()), Subject::getName, request.getName())
-                .orderByAsc(Subject::getNumber)
-        );
-    }
 }

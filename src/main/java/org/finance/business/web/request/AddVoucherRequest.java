@@ -3,7 +3,6 @@ package org.finance.business.web.request;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.finance.business.entity.Currency;
-import org.finance.infrastructure.constants.LendingDirection;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -31,7 +30,7 @@ public class AddVoucherRequest {
     private BigDecimal rate;
     @NotBlank(message = "请输入单位！")
     private String unit;
-    @NotNull(message = "请输入凭证时间！")
+    @NotNull(message = "请输入凭证日期！")
     private LocalDate voucherDate;
     private Integer attachmentNum;
     @Valid
@@ -47,11 +46,16 @@ public class AddVoucherRequest {
         private Long subjectId;
         @NotBlank(message = "请选择科目！")
         private String subjectNumber;
-        @NotNull(message = "请选择借贷方向！")
-        private LendingDirection lendingDirection;
-        @NotNull(message = "请输入原币金额！")
-        private BigDecimal amount;
+        private BigDecimal debitAmount;
+        private BigDecimal creditAmount;
 
+        public BigDecimal getDebitAmount() {
+            return this.debitAmount == null? BigDecimal.ZERO: this.debitAmount;
+        }
+
+        public BigDecimal getCreditAmount() {
+            return this.creditAmount == null? BigDecimal.ZERO: this.creditAmount;
+        }
     }
 
     public Integer getYear() {
@@ -62,15 +66,26 @@ public class AddVoucherRequest {
         return Integer.parseInt(voucherDate.format(YEAR_MONTH_FMT));
     }
 
-    public BigDecimal getTotalCurrencyAmount() {
+    public BigDecimal getTotalDebitAmount() {
         return this.items.stream().reduce(new BigDecimal("0"),
-                (curr, next) -> curr.add(next.getAmount()),
+                (curr, next) -> curr.add(next.getDebitAmount()),
                 BigDecimal::add
         );
     }
 
-    public BigDecimal getTotalLocalCurrencyAmount() {
-        return this.getTotalCurrencyAmount().multiply(this.getRate());
+    public BigDecimal getTotalCreditAmount() {
+        return this.items.stream().reduce(new BigDecimal("0"),
+                (curr, next) -> curr.add(next.getCreditAmount()),
+                BigDecimal::add
+        );
+    }
+
+    public BigDecimal getTotalLocalDebitAmount() {
+        return this.getTotalDebitAmount().multiply(this.getRate());
+    }
+
+    public BigDecimal getTotalLocalCreditAmount() {
+        return this.getTotalCreditAmount().multiply(this.getRate());
     }
 
     public Integer getAttachmentNum() {

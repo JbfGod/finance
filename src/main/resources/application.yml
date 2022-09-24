@@ -14,6 +14,8 @@ spring:
         allow:
       web-stat-filter:
         enabled: true
+  profiles:
+    include:
 #  activiti:
 #    check-process-definitions: false
 #    database-schema: act

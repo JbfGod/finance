@@ -57,6 +57,9 @@ public class MybatisGeneratorMain {
                             "approval_flow_approver",
                             "approval_flow_item",
                             "approval_instance_approver",
+                            "initial_balance_item",
+                            "expense_item",
+                            "voucher_item",
                             "approval_instance_item",
                             "user_resource",
                             "^act.+"

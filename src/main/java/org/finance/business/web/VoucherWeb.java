@@ -19,6 +19,7 @@ import org.finance.business.service.VoucherService;
 import org.finance.business.web.request.AddVoucherRequest;
 import org.finance.business.web.request.AuditingVoucherRequest;
 import org.finance.business.web.request.BookkeepingVoucherRequest;
+import org.finance.business.web.request.QuerySummaryVoucherRequest;
 import org.finance.business.web.request.QueryVoucherBookRequest;
 import org.finance.business.web.request.QueryVoucherItemCueRequest;
 import org.finance.business.web.request.QueryVoucherRequest;
@@ -26,6 +27,7 @@ import org.finance.business.web.request.UnBookkeepingVoucherRequest;
 import org.finance.business.web.request.UpdateVoucherRequest;
 import org.finance.business.web.vo.VoucherBookVO;
 import org.finance.business.web.vo.VoucherDetailVO;
+import org.finance.business.web.vo.VoucherItemVO;
 import org.finance.business.web.vo.VoucherPrintContentVO;
 import org.finance.business.web.vo.VoucherVO;
 import org.finance.infrastructure.common.R;
@@ -79,6 +81,16 @@ public class VoucherWeb {
     private final static DateTimeFormatter yyyyMMFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
     private final String RESOURCE_TARGET = "voucher";
 
+    @GetMapping("/bySubject/{subjectId}")
+    public R<List<VoucherItemVO>> voucherItemBySubject(@Valid QuerySummaryVoucherRequest request) {
+        List<Long> subjectIds = subjectService.listChildrenIds(request.getSubjectId());
+        List<VoucherItemVO> voucherItemVOs = itemService.list(Wrappers.<VoucherItem>lambdaQuery()
+                .in(VoucherItem::getSubjectId, subjectIds)
+            ).stream().map(VoucherConvert.INSTANCE::toVoucherItem)
+            .collect(Collectors.toList());
+        return R.ok(voucherItemVOs);
+    }
+
     @GetMapping("/page")
     public RPage<VoucherVO> pageVoucher(QueryVoucherRequest request) {
         boolean canSearchAll = SecurityUtil.canViewAll(RESOURCE_TARGET);
@@ -88,9 +100,9 @@ public class VoucherWeb {
                 .eq(isLocalCurrency, Voucher::getCurrencyId, Currency.LOCAL_CURRENCY.getId())
                 .gt(!isLocalCurrency, Voucher::getCurrencyId, Currency.LOCAL_CURRENCY.getId())
                 .eq(request.getSerialNumber() != null, Voucher::getSerialNumber, request.getSerialNumber())
-                .between(request.getStartDate() != null && request.getEndDate() != null, Voucher::getVoucherTime, request.getStartDate(), request.getEndDate())
+                .between(request.getStartDate() != null && request.getEndDate() != null, Voucher::getVoucherDate, request.getStartDate(), request.getEndDate())
                 .eq(!canSearchAll, Voucher::getCreateBy, currentUser.getId())
-                .orderByDesc(Voucher::getVoucherTime)
+                .orderByDesc(Voucher::getVoucherDate)
         ).convert(VoucherConvert.INSTANCE::toVoucherVO);
         return RPage.build(page);
     }
@@ -158,16 +170,16 @@ public class VoucherWeb {
                 .last("limit 1")
         );
         // 从关账列表取日期
-        if (lastClosedAccount == null) {
+        if (lastClosedAccount != null) {
             defaultVoucherDate = lastClosedAccount.getBeginDate();
         } else {
             // 从凭证列表取日期
             Voucher lastVoucher = baseService.getOne(Wrappers.<Voucher>lambdaQuery()
-                    .orderByDesc(Voucher::getVoucherTime)
+                    .orderByDesc(Voucher::getVoucherDate)
                     .last("limit 1")
             );
             defaultVoucherDate = Optional.ofNullable(lastVoucher)
-                    .map(v -> v.getVoucherTime().toLocalDate())
+                    .map(Voucher::getVoucherDate)
                     .orElseGet(() -> {
                         // 从初始余额取日期
                         InitialBalance initialBalance = initialBalanceService.getOne(
@@ -264,7 +276,7 @@ public class VoucherWeb {
     public R deleteVoucher(@PathVariable("id") long id) {
         Voucher voucher = baseService.getById(id);
         AssertUtil.isTrue(voucher.getSource() == Voucher.Source.EXPENSE_BILL, "凭证来源：费用报销单，禁止删除！");
-        assertUnCloseAccount(voucher.getVoucherTime().toLocalDate());
+        assertUnCloseAccount(voucher.getVoucherDate());
         assertUnAudited(id);
         baseService.deleteById(id);
         return R.ok();

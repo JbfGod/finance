@@ -103,6 +103,22 @@ export async function bookkeepingVoucherUsingPUT(
   });
 }
 
+/** voucherItemBySubject GET /api/voucher/bySubject/${param0} */
+export async function voucherItemBySubjectUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.voucherItemBySubjectUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { subjectId: param0, ...queryParams } = params;
+  return request<API.RListVoucherItemVO_>(`/api/voucher/bySubject/${param0}`, {
+    method: 'GET',
+    params: {
+      ...queryParams,
+    },
+    ...(options || {}),
+  });
+}
+
 /** defaultVoucherDate GET /api/voucher/defaultVoucherDate */
 export async function defaultVoucherDateUsingGET(options?: { [key: string]: any }) {
   return request<API.RLocalDate_>('/api/voucher/defaultVoucherDate', {

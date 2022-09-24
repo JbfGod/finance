@@ -173,11 +173,11 @@ CREATE TABLE if not exists `expense_bill` (
     `expense_person` varchar(255) not null comment '报销人',
     `expense_time` datetime not null comment '报销日期',
     `position` varchar(50) not null comment '职位',
-    `total_num_of_bill` decimal(10, 5) not null default 0 comment '总票据张数',
-    `total_bill_amount` decimal(10, 5) not null default 0 comment '总票据金额',
-    `total_actual_amount` decimal(10, 5) not null default 0 comment '总实际金额',
-    `total_subtotal_amount` decimal(10, 5) not null default 0 comment '总小计金额',
-    `total_subsidy_amount` decimal(10, 5) not null default 0 comment '合计补助金额',
+    `total_num_of_bill` decimal(12, 5) not null default 0 comment '总票据张数',
+    `total_bill_amount` decimal(12, 5) not null default 0 comment '总票据金额',
+    `total_actual_amount` decimal(12, 5) not null default 0 comment '总实际金额',
+    `total_subtotal_amount` decimal(12, 5) not null default 0 comment '总小计金额',
+    `total_subsidy_amount` decimal(12, 5) not null default 0 comment '合计补助金额',
     `reason` varchar(500) not null comment '报销事由',
     `audit_status` enum('TO_BE_AUDITED', 'AUDITED', 'APPROVED') default 'TO_BE_AUDITED' not null comment '审核状态',
     `approval_flow_instance_id` bigint(20) not null default 0 comment '流程审批ID，0表示还未开启审批流程',
@@ -203,10 +203,10 @@ CREATE TABLE if not exists `expense_item` (
     `travel_place` varchar(255) not null comment '出差起讫地点',
     `summary` varchar(500) not null default '' comment '摘要',
     `num_of_bill` int not null default 0 comment '票据张数',
-    `bill_amount` decimal(10, 5) not null default 0 comment '票据金额',
-    `actual_amount` decimal(10, 5) not null default 0 comment '实际金额',
-    `subsidy_amount` decimal(10, 5) not null default 0 comment '补助费用金额',
-    `subtotal_amount` decimal(10, 5) not null default 0 comment '小计费用金额',
+    `bill_amount` decimal(12, 5) not null default 0 comment '票据金额',
+    `actual_amount` decimal(12, 5) not null default 0 comment '实际金额',
+    `subsidy_amount` decimal(12, 5) not null default 0 comment '补助费用金额',
+    `subtotal_amount` decimal(12, 5) not null default 0 comment '小计费用金额',
     `remark` varchar(500) not null default '' comment '备注',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
@@ -227,7 +227,7 @@ CREATE TABLE if not exists `expense_item_subsidy` (
     `subject_number` varchar(50) not null comment '科目编号',
     `days` int not null comment '天数',
     `amount_for_day` decimal (10, 5) not null comment '元/天',
-    `amount` decimal(10, 5) not null comment '补助金额',
+    `amount` decimal(12, 5) not null default 0 comment '补助金额',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -255,7 +255,6 @@ CREATE TABLE if not exists `expense_item_attachment` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='费用报销条目附件';
 
-
 CREATE TABLE if not exists `currency` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `customer_id` bigint(20) not null comment '客户ID',
@@ -263,7 +262,7 @@ CREATE TABLE if not exists `currency` (
     `number` varchar(50) not null comment '货币编号',
     `year_month_num` int(11) not null comment '月份:yyyyMM',
     `name` varchar(255) not null comment '货币名称',
-    `rate` decimal(10, 5) not null comment '汇率',
+    `rate` decimal(12, 5) not null comment '汇率',
     `remark` varchar(500) default '' comment '备注',
     `create_by` bigint(20) not null default 1,
     `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
@@ -286,13 +285,15 @@ CREATE TABLE if not exists `voucher` (
     `year_month_num` int(11) not null comment '月份:yyyyMM',
     `currency_id` bigint(20) not null default 0 comment '原币ID',
     `currency_name` varchar(255) not null comment '原币名称',
-    `rate` decimal(10, 5) not null comment '原币汇率',
+    `rate` decimal(12, 5) not null comment '原币汇率',
     `unit` varchar(255) not null comment '单位',
     `serial_number` int(11) not null comment '凭证序号,每月凭证从1开始',
-    `voucher_time` datetime not null comment '凭证日期',
+    `voucher_date` date not null comment '凭证日期',
     `attachment_num` int(11) not null default 0 comment '附件张数',
-    `total_currency_amount` decimal(10, 5) not null comment '原币合计金额',
-    `total_local_currency_amount` decimal(10, 5) not null comment '本币合计金额',
+    `total_debit_amount` decimal(12, 5) not null default 0 comment '借方原币合计金额',
+    `total_credit_amount` decimal(12, 5) not null default 0 comment '贷方原币合计金额',
+    `total_local_debit_amount` decimal(12, 5) not null default 0 comment '借方本币合计金额',
+    `total_local_credit_amount` decimal(12, 5) not null default 0 comment '贷方本币合计金额',
     `audit_status` enum('TO_BE_AUDITED', 'AUDITED') default 'TO_BE_AUDITED' not null comment '审核状态',
     `bookkeeping` bit not null default false comment '记账状态',
     `bookkeeping_by` bigint(20) not null default 0 comment '记账人',
@@ -314,15 +315,16 @@ CREATE TABLE if not exists `voucher_item` (
     `customer_id` bigint(20) not null comment '客户ID',
     `year` int(11) not null comment '年份:yyyy',
     `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `voucher_date` date not null comment '凭证日期:yyyyMMdd',
     `voucher_id` bigint(20) not null comment '所属凭证ID',
+    `voucher_number` int(11) not null comment '凭证号',
     `summary` varchar(500) not null default '' comment '摘要',
     `subject_id` bigint(20) not null comment '科目ID',
     `subject_number` varchar(50) not null comment '科目编号',
-    `lending_direction` enum('BORROW', 'LOAN') not null comment '科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷',
-    `currency_id` bigint(20) not null default 0 comment '原币ID',
-    `currency_name` varchar(255) not null comment '原币名称',
-    `rate` decimal(10, 5) not null comment '原币汇率',
-    `amount` decimal(10, 5) not null comment '借方金额',
+    `debit_amount` decimal(12, 5) default 0 not null comment '借方金额(原币)',
+    `credit_amount` decimal(12, 5) default 0 not null comment '贷方金额(原币)',
+    `local_debit_amount` decimal(12, 5) default 0 not null comment '借方金额(本币)',
+    `local_credit_amount` decimal(12, 5) default 0 not null comment '贷方金额(本币)',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -331,6 +333,10 @@ CREATE TABLE if not exists `voucher_item` (
     `modify_time` datetime not null default current_timestamp,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='凭证项';
+create index voucher_item_year_month_num_index
+    on voucher_item (year_month_num);
+create index voucher_item_subject_id_index
+    on voucher_item (subject_id);
 
 CREATE TABLE if not exists `sequence` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -367,9 +373,10 @@ create table if not exists `initial_balance_item` (
     `year_month_num` int(11) not null comment '月份:yyyyMM',
     `subject_id` bigint(20) not null comment '科目ID',
     `subject_number` varchar(50) not null comment '科目编号',
-    `lending_direction` enum('BORROW', 'LOAN') not null comment '科目方向,BORROW：借、LOAN：贷、NOTHING：借+贷',
     `currency_name` varchar(255) not null comment '原币名称',
-    `amount` decimal(10, 5) not null comment '金额',
+    `lending_direction` enum('BORROW', 'LOAN') not null comment '科目方向,BORROW：借、LOAN：贷',
+    `debit_amount` decimal(12, 5) not null default 0 comment '借方金额',
+    `credit_amount` decimal(12, 5) not null default 0 comment '贷方金额',
     `create_by` bigint(20) not null default 1,
     `creator_name` varchar(50) not null default '管理员',
     `create_time` datetime not null default current_timestamp,
@@ -415,7 +422,15 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (140, '140', '批量记账', 120, '120', false, 2, 'MENU', '/voucher/batchBookkeeping', '', 'voucher:batch', 'bookkeeping,unBookkeeping', 400, false),
 (150, '150', '科目账簿', 120, '120', false, 2, 'MENU', '/voucher/book', '', '', '', 200, false),
 (160, '160', '汇率管理', 120, '120', false, 2, 'MENU', '/voucher/currency', '', 'currency', 'base,auditing,unAuditing', 500, false),
-(170, '170', '月度关账', 120, '120', false, 2, 'MENU', '/voucher/accountClose', '', 'accountClose', '', 50, false)
+(170, '170', '月度关账', 120, '120', false, 2, 'MENU', '/voucher/accountClose', '', 'accountClose', '', 50, false),
+
+(200, '200', '报表管理', 0, '', true, 1, 'MENU', '/report', 'icon-caiwubaobiao', '', '', 50, false),
+(210, '210', '科目余额表', 200, '200', false, 2, 'MENU', '/report/accountBalance', '', '', '', 50, false),
+(220, '220', '总分类账', 200, '200', false, 2, 'MENU', '/report/generalLedger', '', '', '', 50, false),
+(230, '230', '明细分类账', 200, '200', false, 2, 'MENU', '/report/subLedger', '', '', '', 50, false),
+(240, '240', '现金日报表', 200, '200', false, 2, 'MENU', '/report/dailyCash', '', '', '', 50, false),
+(250, '250', '银行存款日报表', 200, '200', false, 2, 'MENU', '/report/dailyBank', '', '', '', 50, false)
+
 ;
 
 delete from `user_resource` where user_id = 1;

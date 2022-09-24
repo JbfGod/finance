@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
 import {Badge, Button, Card, Empty, Popconfirm} from "antd"
@@ -6,7 +6,8 @@ import {PlusOutlined} from "@ant-design/icons"
 import {useModalWithParam, usePrint, useSecurity} from "@/utils/hooks"
 import {
   auditingVoucherUsingPUT,
-  bookkeepingVoucherUsingPUT, defaultVoucherDateUsingGET,
+  bookkeepingVoucherUsingPUT,
+  defaultVoucherDateUsingGET,
   deleteVoucherUsingDELETE,
   pageVoucherUsingGET,
   unAuditingVoucherUsingPUT,
@@ -17,10 +18,9 @@ import {AuditStatus, CURRENCY_TYPE} from "@/constants";
 import VoucherPrint from "@/pages/VoucherList/VoucherPrint";
 import moment from "moment";
 import AutoDropdown from "@/components/Common/AutoDropdown";
-import {flatTreeToMap} from "@/utils/common";
-import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import {initialBalanceOutlineUsingGET} from "@/services/swagger/initialBalanceWeb";
 import {history} from 'umi';
+import {useModel} from "@/.umi/plugin-model/useModel";
 
 const renderBadge = (active = false) => {
   return (
@@ -45,14 +45,6 @@ export default () => {
   const [print, onPrint] = usePrint()
   const [currencyType, setCurrencyType] = useState(CURRENCY_TYPE.LOCAL)
 
-  const [subjects, setSubjects] = useState([])
-  const subjectById = useMemo(() => flatTreeToMap(subjects), [subjects])
-
-  const loadSubjects = () => {
-    treeSubjectUsingGET().then(({data}) => {
-      setSubjects(data)
-    })
-  }
   const fetchInitialBalanceOutline = () => {
     initialBalanceOutlineUsingGET().then(({data}) => data && setInitialBalance({...data, yearMonthDate: moment(data.yearMonthDate, "YYYY-MM")}))
   }
@@ -61,7 +53,6 @@ export default () => {
   }
 
   useEffect(() => {
-    loadSubjects()
     fetchInitialBalanceOutline()
     getDefaultVoucherDate()
   }, [])
@@ -107,10 +98,11 @@ export default () => {
           endDate: v?.[1]
         })
       },
-      valueType: "dateRange", hideInTable: true
+      valueType: "dateRange", hideInTable: true,
+      initialValue: [moment().startOf("month"), moment()]
     },
     {
-      title: "凭证日期", dataIndex: "voucherTime", search: false
+      title: "凭证日期", dataIndex: "voucherDate", search: false
     },
     {
       title: "单位", dataIndex: "unit", search: false
@@ -189,12 +181,8 @@ export default () => {
     <PageContainer>
       <ExProTable actionRef={actionRef} columns={columns}
                   toolbar={toolbar} params={{currencyType}}
-                  request={(params) => {
-                    const {yearMonthNum = moment().format("YYYYMM")} = params
-                    return pageVoucherUsingGET({
-                      ...params, yearMonthNum
-                    })
-                  }}
+                  search={{filterType: "light"}}
+                  request={pageVoucherUsingGET}
                   toolBarRender={() => security.canOperating && (
                     <Button type="primary" onClick={() => formModal.open({mode: "add", currencyType})}>
                       <PlusOutlined/>
@@ -205,8 +193,7 @@ export default () => {
       />
       <VoucherPrint print={print}/>
       <VoucherForm modal={formModal} onSuccess={actionRef.current?.reload}
-                   defaultVoucherDate={defaultVoucherDate && moment(defaultVoucherDate, "YYYY-MM-DD") || moment()}
-                   subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}/>
+                   defaultVoucherDate={defaultVoucherDate && moment(defaultVoucherDate, "YYYY-MM-DD") || moment()}/>
     </PageContainer>
   )
 }

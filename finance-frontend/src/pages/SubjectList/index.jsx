@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Button, Col, Empty, message, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
+import {listSubjectUsingGET, pageSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import * as hooks from "@/utils/hooks";
 import {useModalWithParam, useSecurity, useTableExpandable} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";
@@ -21,7 +22,7 @@ export default ({mode, formModalProps = {}}) => {
   const [selectedIndustry, setSelectedIndustry] = useState({id: 0, number: "0"})
   const [industryTreeData, setIndustryTreeData] = useState([])
   const createModal = useModalWithParam()
-  const {subjects, fetchSubjects} = useModel("useSubjectModel")
+  const {fetchSubjects} = useModel("useSubjectModel")
 
   const security = useSecurity()
 
@@ -53,7 +54,7 @@ export default ({mode, formModalProps = {}}) => {
       }
     ] : []),
     {
-      title: "科目编号", dataIndex: "number", editable: false, width: 220
+      title: "科目编号", dataIndex: "number", editable: false, width: 125
     },
     {
       title: "科目名称", dataIndex: "name", width: 125
@@ -135,26 +136,13 @@ export default ({mode, formModalProps = {}}) => {
               </ProCard>
           )}
           <Col span={security.isSuperProxyCustomer?19:24}>
-            <ExProTable pagination={false} actionRef={actionRef} columns={columns}
+            <ExProTable actionRef={actionRef} columns={columns}
                         expandable={expandable} onLoad={onLoad}
                         params={{industryId: selectedIndustry.id||undefined}}
                         onNew={() => openModalWithCheck({parentId: 0})}
-                        editable={editable}
-                        request={async ({name, number, industryId}) => {
-                          let data = subjects.filter(sub => (
-                            (!industryId || sub.industryId === industryId)
-                            &&
-                            (!name || sub.name.startsWith(name))
-                            &&
-                            (!number || sub.number.startsWith(number))
-                          ))
-                          // data[0].disabled = true
-                          return {
-                            data,
-                            showType: 0,
-                            success: true
-                          }
-                        }}
+                        search={{filterType: "light"}}
+                        editable={editable} scroll={{y: window.innerHeight - 330}}
+                        request={pageSubjectUsingGET}
                         {...(isFormModal?{
                           scroll: {y: 275},
                           tableAlertRender:false,

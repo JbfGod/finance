@@ -9,9 +9,11 @@ import org.finance.business.mapper.InitialBalanceItemMapper;
 import org.finance.business.mapper.InitialBalanceMapper;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.YearMonth;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -66,7 +68,8 @@ public class InitialBalanceService extends ServiceImpl<InitialBalanceMapper, Ini
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
-    public void bookkeepingById(long initialBalanceId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void bookkeepingById(long initialBalanceId, Consumer<InitialBalance> onSuccess) {
         boolean success = this.update(Wrappers.<InitialBalance>lambdaUpdate()
                 .set(InitialBalance::getBookkeeping, true)
                 .eq(InitialBalance::getId, initialBalanceId)
@@ -74,9 +77,11 @@ public class InitialBalanceService extends ServiceImpl<InitialBalanceMapper, Ini
                 .eq(InitialBalance::getAuditStatus, AuditStatus.AUDITED)
         );
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
+        onSuccess.accept(baseMapper.selectById(initialBalanceId));
     }
 
-    public void unBookkeepingById(long initialBalanceId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void unBookkeepingById(long initialBalanceId, Consumer<InitialBalance> onSuccess) {
         boolean success = this.update(Wrappers.<InitialBalance>lambdaUpdate()
                 .set(InitialBalance::getBookkeeping, false)
                 .set(InitialBalance::getAuditStatus, AuditStatus.TO_BE_AUDITED)
@@ -85,6 +90,7 @@ public class InitialBalanceService extends ServiceImpl<InitialBalanceMapper, Ini
                 .eq(InitialBalance::getAuditStatus, AuditStatus.AUDITED)
         );
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
+        onSuccess.accept(baseMapper.selectById(initialBalanceId));
     }
 
     private InitialBalance createIfNotExists(YearMonth yearMonth) {

@@ -12,7 +12,6 @@ import NumberColumn from "@/pages/ExpenseBillList/tables/NumberColumn";
 
 const DEFAULT_CHAR = ""
 
-
 export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
   const actionRef = useRef()
   const {subjects, subjectById} = useModel("useSubjectModel")

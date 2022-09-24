@@ -92,8 +92,9 @@ export const layout = ({ initialState, setInitialState }) => {
         if (location.pathname.startsWith("/expense")
           || location.pathname.startsWith("/voucher")
           || location.pathname.startsWith("/accountClose")
-          || location.pathname.startsWith("/initialBalance")
+          || location.pathname.startsWith("/base/initialBalance")
           || location.pathname.startsWith("/approval")
+          || location.pathname.startsWith("/report")
         ) {
           message.warn("请先选择客户单位！")
           history.push("/user/switchCustomer")

@@ -8,7 +8,7 @@ import org.finance.business.entity.Voucher;
 import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.web.request.AbstractPageRequest;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * @author jiangbangfa
@@ -25,7 +25,7 @@ public class VoucherVO extends AbstractPageRequest {
     private String unit;
     private Integer serialNumber;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime voucherTime;
+    private LocalDate voucherDate;
     private Integer attachmentNum;
     private Boolean bookkeeping;
     private AuditStatus auditStatus;

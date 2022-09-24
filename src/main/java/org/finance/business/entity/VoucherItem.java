@@ -8,10 +8,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -54,10 +54,14 @@ public class VoucherItem implements Serializable {
      */
     private Integer yearMonthNum;
 
+    private LocalDate voucherDate;
+
     /**
      * 所属凭证ID
      */
     private Long voucherId;
+
+    private Integer voucherNumber;
 
     /**
      * 摘要
@@ -72,29 +76,22 @@ public class VoucherItem implements Serializable {
     private String subjectNumber;
 
     /**
-     * 借贷方向
+     * 借方金额
      */
-    private LendingDirection lendingDirection;
+    private BigDecimal debitAmount;
+    /**
+     * 贷方金额
+     */
+    private BigDecimal creditAmount;
 
     /**
-     * 原币ID
+     * 借方金额
      */
-    private Long currencyId;
-
+    private BigDecimal localDebitAmount;
     /**
-     * 原币名称
+     * 贷方金额
      */
-    private String currencyName;
-
-    /**
-     * 原币汇率
-     */
-    private BigDecimal rate;
-
-    /**
-     * 金额
-     */
-    private BigDecimal amount;
+    private BigDecimal localCreditAmount;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;

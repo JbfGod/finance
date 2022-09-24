@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import PageContainer from "@/components/PageContainer"
 import ExProTable from "@/components/Table/ExtProTable"
 import {Button, DatePicker, message, Popconfirm} from "antd"
@@ -7,8 +7,6 @@ import {useModalWithParam, useSecurity} from "@/utils/hooks"
 import {AuditStatus, LENDING_DIRECTION} from "@/constants";
 import moment from "moment";
 import AutoDropdown from "@/components/Common/AutoDropdown";
-import {flatTreeToMap} from "@/utils/common";
-import {treeSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import {
   addInitialBalanceItemUsingPOST,
   auditingInitialBalanceUsingPUT,
@@ -23,6 +21,7 @@ import {
 import {ModalForm, ProFormItem, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 import {InputNumber} from "antd/es";
+import {useModel} from "@/.umi/plugin-model/useModel";
 
 export default () => {
   const actionRef = useRef()
@@ -36,21 +35,13 @@ export default () => {
   }
   const formModal = useModalWithParam()
 
-  const [subjects, setSubjects] = useState([])
-  const subjectById = useMemo(() => flatTreeToMap(subjects), [subjects])
-
-  const loadSubjects = () => {
-    treeSubjectUsingGET().then(({data}) => {
-      setSubjects(data)
-    })
-  }
+  const {subjectById} = useModel("useSubjectModel")
 
   const fetchInitialBalanceOutline = () => {
     initialBalanceOutlineUsingGET().then(({data}) => data && setInitialBalance({...data, yearMonthDate: moment(data.yearMonthDate, "YYYY-MM")}))
   }
 
   useEffect(() => {
-    loadSubjects()
     fetchInitialBalanceOutline()
   }, [])
 
@@ -162,18 +153,18 @@ export default () => {
                   )}
       />
       <FormModal modal={formModal} yearMonthDate={yearMonthDate} onSuccess={actionRef.current?.reload}
-                   subjects={subjects} setSubjects={setSubjects} subjectById={subjectById}/>
+                   subjectById={subjectById}/>
     </PageContainer>
   )
 }
 
-function FormModal({modal, yearMonthDate, subjects, setSubjects, subjectById}) {
+function FormModal({modal, yearMonthDate, subjectById}) {
   const {visible, handleVisible, state} = modal
   const {mode = "add"} = state
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   return (
     <ModalForm title="新增初始余额" width="420px" visible={visible}
-               initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
+               initialValues={{lendingDirection: "BORROW"}}
                modalProps={{destroyOnClose: true}}
                onVisibleChange={handleVisible}
                onFinish={async (value) => {
@@ -181,35 +172,33 @@ function FormModal({modal, yearMonthDate, subjects, setSubjects, subjectById}) {
                  const newValues = {
                    ...value,
                    subjectNumber: subjectById[subjectId]?.number,
-                   subjectName: subjectById[subjectId]?.name,
                    yearMonthDate: yearMonthDate?.format("YYYY-MM")
                  }
                  if (isAddMode) {
                    return await addInitialBalanceItemUsingPOST(newValues).then(() => {
                      handleVisible(false)
-                     actionRef.current?.reload()
+                     onSuccess?.()
                    })
                  } else if (isEditMode) {
                    return await updateInitialBalanceUsingPUT.then(() => {
                      handleVisible(false)
-                     actionRef.current?.reload()
+                     onSuccess?.()
                    })
                  }
                  return true
                }}
     >
       <ProFormItem label="科目" name="subjectId">
-        <AdvancedSubjectSelect subjects={subjects} placeholder="只能选择费用类科目"
+        <AdvancedSubjectSelect placeholder="只能选择费用类科目"
                                fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
                                disableFilter={(subject) => {
                                  return subject.hasLeaf
                                }}
-                               setSubjects={setSubjects}
                                onlySelectedLeaf={true} disabled={isViewMode}
                                style={{width: '100%'}} />
       </ProFormItem>
       <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
-                     allowClear={false} label="方向" options={Object.values(LENDING_DIRECTION)}/>
+                     allowClear={false} label="方向" options={Object.values(LENDING_DIRECTION).filter(v => v.value !== "DEFAULT")}/>
       <ProFormText label="币别" name="currencyName"/>
       <ProFormItem name="amount" label="初期余额">
         <InputNumber min={0}/>

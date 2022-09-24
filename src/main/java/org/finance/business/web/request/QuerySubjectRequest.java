@@ -6,7 +6,7 @@ import lombok.Data;
  * @author jiangbangfa
  */
 @Data
-public class QuerySubjectRequest {
+public class QuerySubjectRequest extends AbstractPageRequest {
 
     private Long industryId;
     private String name;

@@ -35,4 +35,11 @@ public class AddInitialBalanceRequest {
         return yearMonthDate.getYear() * 100 + yearMonthDate.getMonthValue();
     }
 
+    public BigDecimal getDebitAmount() {
+        return lendingDirection == LendingDirection.BORROW? amount : new BigDecimal("0");
+    }
+
+    public BigDecimal getCreditAmount() {
+        return lendingDirection == LendingDirection.LOAN? amount : new BigDecimal("0");
+    }
 }

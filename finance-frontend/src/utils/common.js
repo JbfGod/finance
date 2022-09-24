@@ -52,6 +52,26 @@ export function switchUserIdentity(identity) {
   return sessionStorage.setItem(USER_IDENTITY, identity)
 }
 
+export function arrayToTree(array, {keyField = "id", parentKeyField = "parentId", childrenField = "children"} = {}) {
+  const eleByKey = array.reduce((curr, next) => {
+    curr[next[keyField]] = next
+    return {...curr}
+  }, {})
+  const treeData = []
+  array.forEach(ele => {
+    const parentKey = ele[parentKeyField]
+    const parentEle = eleByKey[parentKey]
+    if (parentEle == null) {
+      treeData.push(ele)
+      return
+    }
+    const children = parentEle[childrenField] || []
+    parentEle[childrenField] = children
+    children.push(ele)
+  })
+  return treeData
+}
+
 export function eachTree(treeData = [], callback, childrenField = "children") {
   const recursion = (node) => {
     if (node == null) {

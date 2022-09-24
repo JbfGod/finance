@@ -10,6 +10,7 @@ import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -121,6 +122,9 @@ public class Subject implements Serializable {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
+
+    @TableField(exist = false)
+    private List<Subject> children;
 
     /**
      * 科目类型

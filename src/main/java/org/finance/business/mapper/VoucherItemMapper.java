@@ -1,7 +1,10 @@
 package org.finance.business.mapper;
 
-import org.finance.business.entity.VoucherItem;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.finance.business.entity.VoucherItem;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2022-05-25
  */
 public interface VoucherItemMapper extends BaseMapper<VoucherItem> {
+
+    List<VoucherItem> summaryGroupBySubjectId(@Param("yearMonthNum") int yearMonthNum);
 
 }

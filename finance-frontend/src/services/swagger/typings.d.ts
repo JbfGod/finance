@@ -1,4 +1,22 @@
 declare namespace API {
+  type accountBalanceUsingGETParams = {
+    yearMonth: string;
+  };
+
+  type AccountBalanceVO = {
+    creditAnnualAmount?: number;
+    creditClosingAmount?: number;
+    creditCurrentAmount?: number;
+    creditOpeningAmount?: number;
+    debitAnnualAmount?: number;
+    debitClosingAmount?: number;
+    debitCurrentAmount?: number;
+    debitOpeningAmount?: number;
+    subjectId?: number;
+    subjectName?: string;
+    subjectNumber?: string;
+  };
+
   type AddCurrencyRequest = {
     name: string;
     number: string;
@@ -41,17 +59,17 @@ declare namespace API {
     'items[0].beginTime': string;
     'items[0].billAmount': number;
     'items[0].endTime': string;
-    'items[0].name': string;
     'items[0].numOfBill': number;
     'items[0].remark'?: string;
     'items[0].subjectId': number;
+    'items[0].subjectNumber': string;
     'items[0].subsidies[0].amount': number;
     'items[0].subsidies[0].amountForDay': number;
     'items[0].subsidies[0].days': number;
-    'items[0].subsidies[0].name': string;
     'items[0].subsidies[0].subjectId': number;
+    'items[0].subsidies[0].subjectNumber': string;
     'items[0].subsidyAmount'?: number;
-    'items[0].subtotalAmount': number;
+    'items[0].subtotalAmount'?: number;
     'items[0].summary': string;
     'items[0].travelPlace': string;
     number?: string;
@@ -71,7 +89,6 @@ declare namespace API {
     currencyName: string;
     lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
     subjectId: number;
-    subjectName: string;
     subjectNumber: string;
     yearMonthDate: string;
   };
@@ -320,6 +337,11 @@ declare namespace API {
     id: number;
   };
 
+  type deleteUserUsingDELETEParams = {
+    /** id */
+    id: number;
+  };
+
   type deleteVoucherUsingDELETEParams = {
     /** id */
     id: number;
@@ -421,10 +443,9 @@ declare namespace API {
   };
 
   type Item = {
-    amount: number;
-    lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
+    creditAmount?: number;
+    debitAmount?: number;
     subjectId: number;
-    subjectName: string;
     subjectNumber: string;
     summary: string;
   };
@@ -460,6 +481,14 @@ declare namespace API {
   };
 
   type Json = true;
+
+  type listSubjectUsingGETParams = {
+    current?: number;
+    industryId?: number;
+    name?: string;
+    number?: string;
+    pageSize?: number;
+  };
 
   type OwnedApprovalCustomerVO = {
     id?: number;
@@ -515,6 +544,14 @@ declare namespace API {
 
   type pageInitialBalanceItemUsingGETParams = {
     current?: number;
+    pageSize?: number;
+  };
+
+  type pageSubjectUsingGETParams = {
+    current?: number;
+    industryId?: number;
+    name?: string;
+    number?: string;
     pageSize?: number;
   };
 
@@ -660,6 +697,17 @@ declare namespace API {
     traceId?: string;
   };
 
+  type RListAccountBalanceVO_ = {
+    data?: AccountBalanceVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
   type RListApprovalFlowItemVO_ = {
     data?: ApprovalFlowItemVO[];
     errorCode?: string;
@@ -748,6 +796,17 @@ declare namespace API {
     traceId?: string;
   };
 
+  type RListSubjectVO_ = {
+    data?: SubjectVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
   type RListTreeCustomerCategoryVO_ = {
     data?: TreeCustomerCategoryVO[];
     errorCode?: string;
@@ -792,17 +851,6 @@ declare namespace API {
     traceId?: string;
   };
 
-  type RListTreeSubjectVO_ = {
-    data?: TreeSubjectVO[];
-    errorCode?: string;
-    host?: string;
-    message?: string;
-    redirectUrl?: string;
-    showType?: number;
-    success?: boolean;
-    traceId?: string;
-  };
-
   type RListUserListVO_ = {
     data?: UserListVO[];
     errorCode?: string;
@@ -816,6 +864,17 @@ declare namespace API {
 
   type RListUserOwnedMenuVO_ = {
     data?: UserOwnedMenuVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
+  type RListVoucherItemVO_ = {
+    data?: VoucherItemVO[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -863,6 +922,14 @@ declare namespace API {
   type RPageInitialBalanceItemVO_ = {
     current?: number;
     data?: InitialBalanceItemVO[];
+    pageSize?: number;
+    success?: boolean;
+    total?: number;
+  };
+
+  type RPageSubjectVO_ = {
+    current?: number;
+    data?: SubjectVO[];
     pageSize?: number;
     success?: boolean;
     total?: number;
@@ -965,6 +1032,22 @@ declare namespace API {
     num?: number;
   };
 
+  type SubjectVO = {
+    assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
+    hasLeaf?: boolean;
+    id?: number;
+    industry?: string;
+    industryId?: number;
+    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
+    level?: number;
+    name?: string;
+    number?: string;
+    parentId?: number;
+    parentNumber?: string;
+    remark?: string;
+    type?: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
+  };
+
   type switchProxyCustomerUsingPUTParams = {
     /** Authorization */
     Authorization: string;
@@ -1021,29 +1104,6 @@ declare namespace API {
     name?: string;
     parentId?: string;
     sortNum?: number;
-  };
-
-  type treeSubjectUsingGETParams = {
-    industryId?: number;
-    name?: string;
-    number?: string;
-  };
-
-  type TreeSubjectVO = {
-    assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
-    children?: TreeSubjectVO[];
-    hasLeaf?: boolean;
-    id?: number;
-    industry?: string;
-    industryId?: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
-    level?: number;
-    name?: string;
-    number?: string;
-    parentId?: number;
-    parentNumber?: string;
-    remark?: string;
-    type?: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
 
   type unAuditingCurrencyUsingPUTParams = {
@@ -1121,18 +1181,18 @@ declare namespace API {
     'items[0].billAmount': number;
     'items[0].endTime': string;
     'items[0].id'?: number;
-    'items[0].name': string;
     'items[0].numOfBill': number;
     'items[0].remark'?: string;
     'items[0].subjectId': number;
+    'items[0].subjectNumber': string;
     'items[0].subsidies[0].amount': number;
     'items[0].subsidies[0].amountForDay': number;
     'items[0].subsidies[0].days': number;
     'items[0].subsidies[0].id'?: number;
-    'items[0].subsidies[0].name': string;
     'items[0].subsidies[0].subjectId': number;
+    'items[0].subsidies[0].subjectNumber': string;
     'items[0].subsidyAmount'?: number;
-    'items[0].subtotalAmount': number;
+    'items[0].subtotalAmount'?: number;
     'items[0].summary': string;
     'items[0].travelPlace': string;
     position: string;
@@ -1153,7 +1213,6 @@ declare namespace API {
     lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
     rate: number;
     subjectId: number;
-    subjectName: string;
     subjectNumber: string;
   };
 
@@ -1256,12 +1315,26 @@ declare namespace API {
     attachmentNum?: number;
     currencyId?: number;
     currencyName?: string;
+    expenseBillId?: number;
     id?: number;
     items?: Item0[];
     rate?: number;
     serialNumber?: number;
+    source?: 'EXPENSE_BILL' | 'MANUAL';
     unit?: string;
+  };
+
+  type voucherItemBySubjectUsingGETParams = {
+    subjectId: number;
+    yearMonth: string;
+  };
+
+  type VoucherItemVO = {
+    localCreditAmount?: number;
+    localDebitAmount?: number;
+    summary?: string;
     voucherDate?: string;
+    voucherSerialNumber?: number;
   };
 
   type VoucherPrintContentVO = {
@@ -1287,11 +1360,13 @@ declare namespace API {
     currencyType?: 'FOREIGN' | 'LOCAL';
     current?: number;
     customerNumber?: string;
+    expenseBillId?: number;
     id?: number;
     pageSize?: number;
     serialNumber?: number;
+    source?: 'EXPENSE_BILL' | 'MANUAL';
     unit?: string;
-    voucherTime?: string;
+    voucherDate?: string;
     yearMonthNum?: string;
   };
 }

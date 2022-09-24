@@ -30,7 +30,7 @@ export default ({dataSource, voucherId, print = {}}) => {
         <h2 style={{textAlign: "center", margin: 0}}>记账凭证单</h2>
         <div className="ant-row ant-row-space-between">
           <div>凭证号：{data.serialNumber}</div>
-          <div>凭证日期：{data.voucherTime}</div>
+          <div>凭证日期：{data.voucherDate}</div>
           <div>核算单位：{data.customerName}</div>
           <div>币别：{isLocalCurrency ? '人民币' : data.currencyName}</div>
         </div>

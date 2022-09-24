@@ -1,57 +1,185 @@
-# Ant Design Pro
-
-This project is initialized with [Ant Design Pro](https://pro.ant.design). Follow is the quick guide for how to use.
-
-## Environment Prepare
-
-Install `node_modules`:
-
-```bash
-npm install
-```
-
-or
-
-```bash
-yarn
-```
-
-## Provided Scripts
-
-Ant Design Pro provides some useful script to help you quick start and build with web project, code style check and test.
-
-Scripts provided in `package.json`. It's safe to modify or add additional script:
-
-### Start project
-
-```bash
-npm start
-```
-
-### Build project
-
-```bash
-npm run build
-```
-
-### Check code style
-
-```bash
-npm run lint
-```
-
-You can also use script to auto fix some lint error:
-
-```bash
-npm run lint:fix
-```
-
-### Test code
-
-```bash
-npm test
-```
-
-## More
-
-You can view full document on our [official website](https://pro.ant.design). And welcome any feedback in our [github](https://github.com/ant-design/ant-design-pro).
+(0, 2, '1001','1001', '现金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1002','1002', '银行存款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '100201','100201', '农行', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '10020101','10020101', '19626200460001316', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1009','1009', '其他货币资金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '100901','100901', '银行汇票', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '100902','100902', '信用证保证金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1101','1101', '短期投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '110101','110101', 'ABC公司', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1102','1102', '短期投资跌价准备', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1111','1111', '应收票据', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1121','1121', '应收账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1122','1122', '其他应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '122201','122201', '单位其他应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '122202','122202', '个人其他应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1131','1131', '坏账准备', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1141','1141', '预付账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1201','1201', '存货', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1202','1202', '存货跌价准备', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1301','1301', '待摊费用', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1401','1401', '长期股权投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1402','1402', '长期债权投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1421','1421', '长期投资减值准备', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1501','1501', '固定资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1502','1502', '累计折旧', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1505','1505', '在建工程', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1506','1506', '文物文化资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1509','1509', '固定资产清理', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1601','1601', '无形资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '1701','1701', '受托代理资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2101','2101', '短期借款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2201','2201', '应付票据', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2202','2202', '应付账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2203','2203', '预收账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2204','2204', '应付工资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2206','2206', '应交税金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2209','2209', '其他应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2301','2301', '预提费用', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2401','2401', '预计负债', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2501','2501', '长期借款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2502','2502', '长期应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '2601','2601', '受托代理负债', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '3101','3101', '非限定性净资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '3102','3102', '限定性净资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4101','4101', '捐赠收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4201','4201', '会费收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4301','4301', '提供服务收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4401','4401', '政府补助收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4501','4501', '商品销售收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4601','4601', '投资收益', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '4901','4901', '其他收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '5101','5101', '业务活动成本', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '5201','5201', '管理费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '5301','5301', '筹资费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 2, '5401','5401', '其他费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '101','101', '库存现金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '102','102', '银行存款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '113','113', '应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '114','114', '成员往来', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '121','121', '产品物资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '124','124', '委托加工物资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '125','125', '委托代销商品', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '127','127', '受托代购商品', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '128','128', '受托代销商品', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '131','131', '对外投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '141','141', '消耗性生物资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '142','142', '生产性生物资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '143','143', '生产性生物资产累计折旧', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '144','144', '公益性生物资产24', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '151','151', '固定资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '152','152', '累计折旧', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '153','153', '在建工程', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '154','154', '固定资产清理', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '161','161', '无形资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '162','162', '累计摊销', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '171','171', '长期待摊费用', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '181','181', '待处理财产损溢', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '201','201', '短期借款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '211','211', '应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '212','212', '应付工资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '213','213', '应付劳务费', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '214','214', '应交税费', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '215','215', '应付利息', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '221','221', '应付盈余返还', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '222','222', '应付剩余盈余', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '231','231', '长期借款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '235','235', '专项应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '301','301', '股金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '311','311', '专项基金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '321','321', '资本公积', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '322','322', '盈余公积', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '331','331', '本年盈余', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '332','332', '盈余分配', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '401','401', '生产成本', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '501','501', '经营收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '502','502', '其他收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '511','511', '投资收益', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '521','521', '经营支出', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '522','522', '税金及附加', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '523','523', '管理费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '524','524', '财务费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '529','529', '其他支出', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 3, '531','531', '所得税费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1001','1001', '库存现金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1002','1002', '银行存款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '100201','100201', '农行', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '10020101','10020101', '19626200460001316', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1012','1012', '其他货币资金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '101201','101201', '银行汇票', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '101202','101202', '信用证保证金', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1101','1101', '短期投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '110101','110101', 'ABC公司', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1121','1121', '应收票据', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1122','1122', '应收账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1123','1123', '预付账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1131','1131', '应收股利', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1132','1132', '应收利息', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1221','1221', '其他应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '122101','122101', '单位其他应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '122102','122102', '个人其他应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1401','1401', '材料采购', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1402','1402', '在途物资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1403','1403', '原材料', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1404','1404', '材料成本差异', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1405','1405', '库存商品', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1407','1407', '商品进销差价', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1408','1408', '委托加工物资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1411','1411', '周转材料', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1421','1421', '消耗性生物资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1501','1501', '长期债权投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1511','1511', '长期股权投资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1601','1601', '固定资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1602','1602', '累计折旧', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1604','1604', '在建工程', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1605','1605', '工程物资', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1606','1606', '固定资产清理', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1621','1621', '生产性生物资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1622','1622', '生产性生物资产累计折旧', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1701','1701', '无形资产', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1702','1702', '累计摊销', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1801','1801', '长期待摊费用', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '1901','1901', '待处理财产损溢', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '190101','190101', '待处理流动资产损溢', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '190102','190102', '待处理固定资产损溢', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2001','2001', '短期借款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '200101','200101', '农行', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '20010101','20010101', '19-626200460001316', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2201','2201', '应付票据', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2202','2202', '应付账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2203','2203', '预收账款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2211','2211', '应付职工薪酬', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2221','2221', '应交税费', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2231','2231', '应付利息', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2232','2232', '应付利润', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2241','2241', '其他应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '224101','224101', '单位其他应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '224102','224102', '个人其他应付款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2401','2401', '递延收益', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2501','2501', '长期借款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '2701','2701', '长期应收款', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '3001','3001', '实收资本', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '3002','3002', '资本公积', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '3101','3101', '盈余公积', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '3103','3103', '本年利润', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '3104','3104', '利润分配', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '4001','4001', '生产成本', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '400101','400101', '直接材料', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '400102','400102', '直接人工', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '400103','400103', '制造费用', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '4101','4101', '制造费用', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '4301','4301', '研发支出', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '4401','4401', '工程施工', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '4403','4403', '机械作业', 'DEFAULT', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5001','5001', '主营业务收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5051','5051', '其他业务收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5111','5111', '投资收益', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5301','5301', '营业外收入', 'LOAN', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5401','5401', '主营业务成本', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5402','5402', '其他业务成本', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5403','5403', '营业税金及附加', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5601','5601', '销售费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5602','5602', '管理费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5603','5603', '财务费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5711','5711', '营业外支出', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),
+(0, 4, '5801','5801', '所得税费用', 'BORROW', 'SUBJECT', 'NOTHING', 0, '0'),

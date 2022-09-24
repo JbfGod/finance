@@ -1,7 +1,10 @@
 package org.finance.business.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.finance.business.entity.InitialBalanceItem;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2022-07-21
  */
 public interface InitialBalanceItemMapper extends BaseMapper<InitialBalanceItem> {
+
+    List<InitialBalanceItem> summaryGroupBySubjectId(@Param("initialBalanceId") long initialBalanceId);
 
 }

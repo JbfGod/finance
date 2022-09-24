@@ -2,4 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.finance.business.mapper.InitialBalanceItemMapper">
 
+    <select id="summaryGroupBySubjectId" resultType="org.finance.business.entity.InitialBalanceItem">
+        select subject_id, sum(debit_amount) debit_amount, sum(credit_amount) credit_amount
+        from initial_balance_item ibi
+        where ibi.initial_balance_id = #{initialBalanceId}
+        group by subject_id
+    </select>
 </mapper>

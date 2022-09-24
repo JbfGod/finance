@@ -8,7 +8,10 @@ import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -87,4 +90,22 @@ public class IndustryService extends ServiceImpl<IndustryMapper, Industry> {
             .le(Industry::getRightValue, industry.getRightValue())
         ).stream().map(Industry::getId).collect(Collectors.toList());
     }
+
+    public Function<Long, String> geNameFunction() {
+        Map<Long, String> nameById = new HashMap<>(10);
+        return (Long industryId) -> {
+            if (nameById.containsKey(industryId)) {
+                return nameById.get(industryId);
+            }
+            Industry industry = baseMapper.selectOne(Wrappers.<Industry>lambdaQuery()
+                    .select(Industry::getName)
+                    .eq(Industry::getId, industryId)
+            );
+            if (industry == null) {
+                return "行业已被删除";
+            }
+            return industry.getName();
+        };
+    }
+
 }

@@ -10,6 +10,6 @@ const Settings = {
   title: '慧记账平台',
   pwa: false,
   logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
-  iconfontUrl: '//at.alicdn.com/t/font_3303162_v3obbh9q5oe.js',
+  iconfontUrl: '//at.alicdn.com/t/c/font_3303162_am6zxvk6v7n.js',
 };
 export default Settings;

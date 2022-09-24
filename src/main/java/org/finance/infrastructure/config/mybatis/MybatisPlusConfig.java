@@ -17,8 +17,9 @@ public class MybatisPlusConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+        // 注意顺序
         interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(new CustomerTenantLineHandler()));
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
         // 开启动态表
         /*DynamicTableNameInnerInterceptor dynamicTableNameInnerInterceptor = new DynamicTableNameInnerInterceptor();
         dynamicTableNameInnerInterceptor.setTableNameHandler(new CustomerDynamicTableNameHandler());
