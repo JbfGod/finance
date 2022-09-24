@@ -80,7 +80,7 @@ public class SubjectWeb {
                 .in(request.getIndustryId() != null, Subject::getIndustryId, industryWithChildrenIds)
                 .likeRight(StringUtils.isNotBlank(request.getNumber()), Subject::getNumber,request.getNumber())
                 .likeRight(StringUtils.isNotBlank(request.getName()), Subject::getName, request.getName())
-                .orderByAsc(Subject::getRootNumber, Subject::getLeftValue)
+                .orderByAsc(Subject::getIndustryId, Subject::getRootNumber, Subject::getLeftValue)
         ).convert(subject -> {
             SubjectVO subjectVO = SubjectConvert.INSTANCE.toSubjectVO(subject);
             subjectVO.setIndustry(industryNameFunc.apply(subject.getIndustryId()));

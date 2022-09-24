@@ -402,6 +402,115 @@ create table if not exists `account_close_list` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='关账列表';
 
+CREATE TABLE if not exists `approval_flow` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null comment '客户ID',
+    `business_module` enum('EXPENSE_BILL') not null comment '所属业务模块',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='审批流';
+
+CREATE TABLE if not exists `approval_flow_item` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `approval_flow_id` bigint(20) not null comment '审批流程ID',
+    `department` varchar(255) not null default '' comment '部门',
+    `level` int not null comment '审批级别，从1开始',
+    `lasted` bit not null default false comment '是否是末级审批',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='审批流的审批项';
+
+CREATE TABLE if not exists `approval_flow_approver` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `flow_id` bigint(20) not null comment '审批流程ID',
+    `item_id` bigint(20) not null comment '审批流的审批项ID',
+    `approver_id` bigint(20) not null comment '审批人ID',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='审批流相关的审核人员';
+
+CREATE TABLE if not exists `approval_instance` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null,
+    `business_module` enum('EXPENSE_BILL') not null comment '所属业务模块',
+    `module_id` bigint(20) not null comment '被审批的记录的ID',
+    `approval_flow_id` bigint(20) not null comment '审批流程ID',
+    `current_item_id` bigint(20) not null default 0 comment '当前所处审批项',
+    `current_level` int not null default 1 comment '当前所处审批级别',
+    `ended` bit not null default false comment '审批实例是否结束',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='审批实例';
+
+CREATE TABLE if not exists `approval_instance_item` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `instance_id` bigint(20) not null comment '审批流程实例',
+    `module_id` bigint(20) not null comment '被审批的记录的ID',
+    `level` int not null comment '审批级别，从1开始',
+    `approver` varchar(50) not null default '' comment '审批人',
+    `approver_id` bigint(20) not null default 0 comment '审批人ID',
+    `approval_time` datetime comment '审批时间',
+    `passed` bit not null default false comment '是否通过',
+    `lasted` bit not null default false comment '是否是末级审批',
+    `remark` varchar(500) default '' comment '备注',
+    `create_by` bigint(20) not null default 1,
+    `creator_name` varchar(50) not null default '管理员',
+    `create_time` datetime not null default current_timestamp,
+    `modify_by` bigint(20) not null default 1,
+    `modify_name` varchar(50) not null default '管理员',
+    `modify_time` datetime not null default current_timestamp,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='审批实例的审批项';
+
+create index approval_instance_item_approver_id_index
+    on approval_instance_item (approver_id);
+
+CREATE TABLE if not exists `approval_instance_approver` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null,
+    `instance_id` bigint(20) not null comment '审批流实例ID',
+    `module_id` bigint(20) not null comment '被审批的记录的ID',
+    `item_id` bigint(20) not null comment '审批流的审批项ID',
+    `approver_id` bigint(20) not null comment '审批人ID',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='审批实例相关的审核人员';
+create index approval_instance_approver_approver_id_index
+    on approval_instance_approver (approver_id);
+create index approval_instance_approver_customer_id_index
+    on approval_instance_approver (customer_id);
+
+CREATE TABLE if not exists `account_balance` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `customer_id` bigint(20) not null,
+    `year` int(11) not null comment '年份:yyyy',
+    `year_month_num` int(11) not null comment '月份:yyyyMM',
+    `subject_id` bigint(20) not null,
+    `subject_number` varchar(50) not null,
+    `debit_opening_amount` decimal(12, 5) default 0 not null comment '期初金额(借)',
+    `credit_opening_amount` decimal(12, 5) default 0 not null comment '期初金额(贷)',
+    `debit_closing_amount` decimal(12, 5) default 0 not null comment '期末金额(借)',
+    `credit_closing_amount` decimal(12, 5) default 0 not null comment '期末金额(贷)',
+    `debit_current_amount` decimal(12, 5) default 0 not null comment '本期金额(借)',
+    `credit_current_amount` decimal(12, 5) default 0 not null comment '本期金额(贷)',
+    `debit_annual_amount` decimal(12, 5) default 0 not null comment '年累计金额(借)',
+    `credit_annual_amount` decimal(12, 5) default 0 not null comment '年累计金额(贷)',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='科目余额(月关帐的时候生成)';
+
 truncate table resource;
 replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level,
                          type, url, icon, business_code,permit_code, sort_num, super_customer)values
