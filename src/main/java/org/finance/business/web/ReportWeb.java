@@ -2,7 +2,10 @@ package org.finance.business.web;
 
 import org.finance.business.manage.ReportManage;
 import org.finance.business.web.request.QueryAccountBalanceRequest;
+import org.finance.business.web.request.QueryGeneralLedgerRequest;
+import org.finance.business.web.request.QuerySubLedgerRequest;
 import org.finance.business.web.vo.AccountBalanceVO;
+import org.finance.business.web.vo.GeneralLedgerVO;
 import org.finance.infrastructure.common.R;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,13 +31,13 @@ public class ReportWeb {
     }
 
     @GetMapping("/generalLedger")
-    public R generalLedger() {
-        return R.ok();
+    public R<List<GeneralLedgerVO>> generalLedger(@Valid QueryGeneralLedgerRequest request) {
+        return R.ok(reportManage.listGeneralLedger(request.getStartMonth(), request.getEndMonth(), request.getCurrencyName()));
     }
 
     @GetMapping("/subLedger")
-    public R subLedger() {
-        return R.ok();
+    public R subLedger(@Valid QuerySubLedgerRequest request) {
+        return R.ok(reportManage.listSubLedger(request));
     }
 
     @GetMapping("/dailyCash")

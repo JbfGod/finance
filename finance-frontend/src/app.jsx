@@ -76,7 +76,6 @@ export const layout = ({ initialState, setInitialState }) => {
       }
       const {customer, proxyCustomer, role} = currentUser
       const isSuperCustomer = customer.number === "HX_TOP"
-
       // 如果用户存在双重含义的身份，跳转身份选择页面
       const isAdvanceApprover = ["ADVANCED_APPROVER", "ADMIN"].includes(role)
       const userIdentity = getUserIdentity()

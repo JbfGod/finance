@@ -36,6 +36,8 @@ public interface AccountBalanceConvert {
         BigDecimal currentCreditAmount = voucherItem.getLocalCreditAmount();
         return AccountBalance.newInstance()
                 .setSubjectId(voucherItem.getSubjectId())
+                .setSubjectNumber(voucherItem.getSubjectNumber())
+                .setMaxVoucherNumber(voucherItem.getVoucherNumber())
                 .setDebitAnnualAmount(currentDebitAmount)
                 .setCreditAnnualAmount(currentCreditAmount)
                 .setDebitCurrentAmount(currentDebitAmount)

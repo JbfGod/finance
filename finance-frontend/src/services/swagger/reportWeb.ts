@@ -34,17 +34,31 @@ export async function dailyCashUsingGET(options?: { [key: string]: any }) {
 }
 
 /** generalLedger GET /api/report/generalLedger */
-export async function generalLedgerUsingGET(options?: { [key: string]: any }) {
-  return request<API.R>('/api/report/generalLedger', {
+export async function generalLedgerUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.generalLedgerUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RListGeneralLedgerVO_>('/api/report/generalLedger', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
 
 /** subLedger GET /api/report/subLedger */
-export async function subLedgerUsingGET(options?: { [key: string]: any }) {
+export async function subLedgerUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.subLedgerUsingGETParams,
+  options?: { [key: string]: any },
+) {
   return request<API.R>('/api/report/subLedger', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

@@ -71,7 +71,7 @@ export default function () {
         <Col span={selectedSubjectId.length > 0 ? 16 : 24}>
           <ExProTable actionRef={actionRef} columns={balanceColumns}
                       pagination={false} bordered
-                      search={{filterType: 'light'}}
+                      toolBarRender={false}
                       scroll={{y: window.innerHeight - 330}}
                       rowKey="subjectId" size="small"
                       request={async (params) => {
@@ -103,10 +103,10 @@ export default function () {
         </Col>
         {selectedSubjectId.length > 0 && (
           <Col span={8}>
-            <ExProTable columns={voucherColumns}
+            <ExProTable columns={voucherColumns} toolBarRender={false}
                         pagination={false} bordered size="small"
                         search={false} params={{subjectId: selectedSubjectId[0], yearMonth}}
-                        scroll={{y: window.innerHeight - 330}}
+                        scroll={{y: window.innerHeight - 280}}
                         request={voucherItemBySubjectUsingGET}
                         onRow={(record) => ({
                           onClick: (e) => {

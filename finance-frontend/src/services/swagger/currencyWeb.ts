@@ -89,6 +89,14 @@ export async function currencyOfYearMonthUsingGET(
   });
 }
 
+/** listGroupByCurrencyName GET /api/currency/listGroupByCurrency */
+export async function listGroupByCurrencyNameUsingGET(options?: { [key: string]: any }) {
+  return request<API.RListString_>('/api/currency/listGroupByCurrency', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 /** pageCurrency GET /api/currency/page */
 export async function pageCurrencyUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

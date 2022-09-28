@@ -7,13 +7,14 @@ import {useModel} from "@/.umi/plugin-model/useModel";
 
 export function AdvancedSubjectSelect({disableFilter, onChange, value, ...props}) {
     const {subjectById} = useModel("useSubjectModel")
+    const [selectedSubjectId, setSelectedSubjectId] = useState(value)
     const modal = useModalWithParam()
     const triggerChange = (newValue) => {
+        setSelectedSubjectId(newValue)
         onChange && onChange(newValue)
     }
-    const subjectId = value
+    const subjectId = value || selectedSubjectId
     const selectedSubject = subjectById?.[subjectId]
-
     return (
         <>
             <Input value={selectedSubject ? `${selectedSubject.number}-${selectedSubject.name}` : ""}

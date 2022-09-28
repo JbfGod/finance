@@ -52,6 +52,8 @@ public class AccountBalance implements Serializable {
 
     private String subjectNumber;
 
+    private Integer maxVoucherNumber;
+
     /**
      * 期初金额(借)
      */

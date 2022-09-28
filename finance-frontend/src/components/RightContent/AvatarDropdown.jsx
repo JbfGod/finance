@@ -17,7 +17,7 @@ const AvatarDropdown = ({ menu }) => {
             const { key } = event;
 
             if (key === 'logout') {
-                setInitialState((s) => ({ ...s, currentUser: undefined }));
+                setInitialState((s) => ({ ...s, currentUser: null }));
                 loginOut()
                 return;
             } else if (key === "switchCustomer") {

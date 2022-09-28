@@ -24,6 +24,10 @@ import java.util.stream.Collectors;
 @Service
 public class CurrencyService extends ServiceImpl<CurrencyMapper, Currency> {
 
+    public List<String> listGroupByCurrencyName() {
+        return baseMapper.listGroupByCurrencyName();
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void copyCurrencyByMonth(int targetYearMonth, int sourceYearMonth, boolean isOverride) {
         List<Currency> currencyOfTargetMonth = baseMapper.selectList(Wrappers.<Currency>lambdaQuery()

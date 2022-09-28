@@ -14,7 +14,7 @@ const DEFAULT_CHAR = ""
 
 export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
   const actionRef = useRef()
-  const {subjects, subjectById} = useModel("useSubjectModel")
+  const {subjectById} = useModel("useSubjectModel")
   const columns = [
     {
       title: "开始时间", width: 90,
@@ -50,7 +50,7 @@ export default function ExpenseBillItemTable({formRef, isViewMode, ...props}) {
     {
       title: "费用名称", dataIndex: "subjectId", width: 150,
       renderFormItem: () => (
-        <AdvancedSubjectSelect subjects={subjects} placeholder="只能选择费用类科目"
+        <AdvancedSubjectSelect placeholder="只能选择费用类科目"
                                fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
                                disableFilter={(subject) => {
                                  return subject.hasLeaf

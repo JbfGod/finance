@@ -110,4 +110,5 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
             .le(Subject::getRightValue, dbSubject.getRightValue())
         ).stream().map(Subject::getId).collect(Collectors.toList());
     }
+
 }

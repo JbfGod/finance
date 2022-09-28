@@ -1,7 +1,9 @@
 package org.finance.business.mapper;
 
-import org.finance.business.entity.Currency;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.finance.business.entity.Currency;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface CurrencyMapper extends BaseMapper<Currency> {
 
+    List<String> listGroupByCurrencyName();
 }

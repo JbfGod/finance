@@ -15,4 +15,6 @@ public class Constants {
 
     public final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
 
+    public final static DateTimeFormatter YMD_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 }

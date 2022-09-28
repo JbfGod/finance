@@ -37,9 +37,8 @@ export function useModalWithParam(visible = false, state = {}) {
 
 export function useCurrentUser() {
   const {initialState = {}} = useModel('@@initialState')
-  const {currentUser = {}} = initialState
-  const {customer = {}} = currentUser
-  const isSuperCustomer = customer.number === "HX_TOP"
+  const {currentUser} = initialState
+  const isSuperCustomer = currentUser?.customer?.number === "HX_TOP"
   const isAuth = !! currentUser
   return {
     isAuth,
@@ -52,7 +51,7 @@ export function useSecurity(permissionPrefix = "") {
   const {initialState = {}} = useModel('@@initialState')
   const access = useAccess()
   const {currentUser = {}} = initialState || {}
-  const {customer = {}, role} = currentUser
+  const {customer = {}, role} = currentUser || {}
   const isAuth = !! initialState.currentUser
   const isAdmin = role === "ADMIN"
   const hasMultipleIdentities = ["ADMIN", "ADVANCED_APPROVER"].includes(role)

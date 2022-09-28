@@ -1,9 +1,10 @@
-import {AutoComplete, Button, Input} from "antd";
+import {Button, DatePicker} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import ProTable from "@ant-design/pro-table";
 import ProProvider from "@ant-design/pro-provider";
 import React, {useContext} from "react";
 import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
+import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 
 export default function ExProTable({columns, pagination, ...props}) {
   const values = useContext(ProProvider);
@@ -40,10 +41,21 @@ export default function ExProTable({columns, pagination, ...props}) {
         valueTypeMap: {
           autoComplete: {
             render: (v) => <span>{v}</span>,
-            renderFormItem: (text, fieldProps = {}) => (
+            renderFormItem: (text, {fieldProps}) => (
               <AutoCompleteInput placeholder="请输入" {...fieldProps} />
             ),
           },
+          dateMonthRange: {
+            renderFormItem: (_, {fieldProps}) => (
+              <DatePicker.RangePicker picker="month" format="YYYY-MM" {...fieldProps}/>
+            )
+          },
+          advancedSubjectSelect: {
+            renderFormItem: (_, {fieldProps}) => (
+              <AdvancedSubjectSelect fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
+                                     {...fieldProps}/>
+            )
+          }
         },
       }}
     >

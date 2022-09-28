@@ -64,6 +64,12 @@ public class VoucherItem implements Serializable {
     private Integer voucherNumber;
 
     /**
+     * 原币名称
+     */
+    private String currencyName;
+
+
+    /**
      * 摘要
      */
     private String summary;

@@ -7,7 +7,11 @@ export default function SwitchUserIdentity() {
   const onOk = () => {
     switchUserIdentity(identity)
     setTimeout(() => {
-      window.location.href = "/"
+      if (identity === "NORMAL") {
+        window.location.href = "/user/switchCustomer"
+        return
+      }
+      window.location.href = "/approval/expenseBill"
     }, 100)
   }
   return (

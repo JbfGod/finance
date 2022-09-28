@@ -3,9 +3,36 @@
 <mapper namespace="org.finance.business.mapper.VoucherItemMapper">
 
     <select id="summaryGroupBySubjectId" resultType="org.finance.business.entity.VoucherItem">
-        select vi.subject_id, sum(vi.local_debit_amount) local_debit_amount, sum(vi.local_credit_amount) local_credit_amount
+        select vi.subject_id,
+               any_value(vi.subject_number) subject_number,
+               max(vi.voucher_number) voucher_number,
+               sum(vi.local_debit_amount) local_debit_amount,
+               sum(vi.local_credit_amount) local_credit_amount
         from voucher_item vi
         where vi.year_month_num = #{yearMonthNum}
         group by vi.subject_id
+    </select>
+    <select id="summaryByCurrencyGroupBySubjectId" resultType="org.finance.business.entity.VoucherItem">
+        select vi.subject_id,
+            any_value(vi.subject_number) subject_number,
+            max(vi.voucher_number) voucher_number,
+            sum(vi.local_debit_amount) local_debit_amount,
+            sum(vi.local_credit_amount) local_credit_amount
+        from voucher_item vi
+        where vi.year_month_num = #{yearMonthNum}
+          and vi.currency_name = #{currencyName}
+        group by vi.subject_id
+    </select>
+    <select id="listByMonthAndCurrency" resultType="org.finance.business.entity.VoucherItem">
+        select vi.subject_id, vi.voucher_number, vi.local_debit_amount, vi.local_credit_amount,
+               vi.voucher_date, vi.summary
+        from voucher_item vi
+        where vi.year_month_num = #{param.yearMonthNum}
+          and vi.currency_name = #{param.currencyName}
+          and exists (
+            select 1 from subject s
+            where left_value >= #{param.leftValue} and right_value &lt;= #{param.rightValue}
+            and s.id = vi.subject_id
+         )
     </select>
 </mapper>

@@ -12,6 +12,10 @@ import org.finance.business.web.vo.VoucherVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * @author jiangbangfa
  */
@@ -33,4 +37,17 @@ public interface VoucherConvert {
     VoucherPrintContentVO toVoucherPrintContentVO(Voucher voucher);
 
     VoucherItemVO toVoucherItem(VoucherItem item);
+
+    default VoucherItem summary(List<VoucherItem> voucherItems) {
+        VoucherItem voucherItem = new VoucherItem();
+        BigDecimal zero = new BigDecimal("0");
+        for (VoucherItem item : voucherItems) {
+            voucherItem.setSubjectId(item.getSubjectId())
+                .setSubjectNumber(item.getSubjectNumber())
+                .setVoucherNumber(item.getVoucherNumber())
+                .setLocalDebitAmount(Optional.ofNullable(voucherItem.getLocalDebitAmount()).orElse(zero).add(item.getLocalDebitAmount()))
+                .setLocalCreditAmount(Optional.ofNullable(voucherItem.getLocalCreditAmount()).orElse(zero).add(item.getLocalCreditAmount()));
+        }
+        return voucherItem;
+    }
 }

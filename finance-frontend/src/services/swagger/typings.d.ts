@@ -400,6 +400,27 @@ declare namespace API {
     customerId: number;
   };
 
+  type generalLedgerUsingGETParams = {
+    currencyName: string;
+    endMonth: string;
+    startMonth: string;
+  };
+
+  type GeneralLedgerVO = {
+    balance?: number;
+    creditAmount?: number;
+    debitAmount?: number;
+    id?: string;
+    lendingDirection?: '借' | '平' | '贷';
+    maxVoucherNumber?: number;
+    month?: number;
+    rowSpan?: number;
+    subjectId?: number;
+    subjectName?: string;
+    subjectNumber?: string;
+    summary?: string;
+  };
+
   type GrantResourcesToCustomerRequest = {
     customerId: number;
     resourceIds?: number[];
@@ -451,11 +472,9 @@ declare namespace API {
   };
 
   type Item0 = {
-    amount?: number;
     creditAmount?: number;
     debitAmount?: number;
     id?: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
     serialNumber?: number;
     subjectId?: number;
     subjectName?: string;
@@ -743,6 +762,17 @@ declare namespace API {
 
   type RListCustomerCueVO_ = {
     data?: CustomerCueVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
+  type RListGeneralLedgerVO_ = {
+    data?: GeneralLedgerVO[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -1048,6 +1078,13 @@ declare namespace API {
     type?: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
 
+  type subLedgerUsingGETParams = {
+    currencyName: string;
+    endMonth: string;
+    startMonth: string;
+    subjectId: number;
+  };
+
   type switchProxyCustomerUsingPUTParams = {
     /** Authorization */
     Authorization: string;
@@ -1330,11 +1367,13 @@ declare namespace API {
   };
 
   type VoucherItemVO = {
+    id?: number;
     localCreditAmount?: number;
     localDebitAmount?: number;
     summary?: string;
     voucherDate?: string;
-    voucherSerialNumber?: number;
+    voucherId?: number;
+    voucherNumber?: number;
   };
 
   type VoucherPrintContentVO = {

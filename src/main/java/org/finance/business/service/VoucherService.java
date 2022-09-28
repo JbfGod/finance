@@ -68,7 +68,8 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
             item.setLocalDebitAmount(item.getDebitAmount().multiply(voucher.getRate()))
                 .setLocalCreditAmount(item.getCreditAmount().multiply(voucher.getRate()))
                 .setVoucherNumber(voucher.getSerialNumber())
-                .setVoucherDate(voucher.getVoucherDate());
+                .setVoucherDate(voucher.getVoucherDate())
+                .setCurrencyName(voucher.getCurrencyName());
             this.addOrUpdateItem(voucher, item);
         }
     }

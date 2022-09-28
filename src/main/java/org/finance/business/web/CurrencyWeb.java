@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,9 +41,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/currency")
 public class CurrencyWeb {
 
-    private final static DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
     @Resource
     private CurrencyService baseService;
+
+    @GetMapping("/listGroupByCurrency")
+    public R<List<String>> listGroupByCurrencyName() {
+        return R.ok(baseService.listGroupByCurrencyName());
+    }
 
     @GetMapping("/listAuditedOfYearMonth")
     public R<List<CurrencyVO>> currencyOfYearMonth(int yearMonthNum) {

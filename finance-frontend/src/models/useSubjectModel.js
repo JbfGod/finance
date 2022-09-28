@@ -17,15 +17,25 @@ export default function useSubjectModel() {
       return result
     })
   }, [])
-  const getSubjects = useCallback(({name, number, industryId}) => {
-    return subjects.filter(sub => (
+  const getSubjects = useCallback(async (params) => {
+    const {name, number, industryId} = params
+    const filter = sub => (
       (!industryId || sub.industryId === industryId)
       &&
       (!name || sub.name.startsWith(name))
       &&
       (!number || sub.number.startsWith(number))
-    ))
+    )
+    if (subjects.length === 0) {
+      return fetchSubjects().then(result => result.data.filter(filter))
+    }
+    return subjects.filter(filter)
   }, [subjects])
+
+  // 现金科目
+  const cashSubjects = useMemo(() => treeSubjects.filter(sub => sub.name.contains("现金")), [])
+  // 银行科目
+  const bankSubjects = useMemo(() => treeSubjects.filter(sub => sub.name.contains("银行")), [])
 
   useEffect(() => {
     isAuth && fetchSubjects()
@@ -34,6 +44,8 @@ export default function useSubjectModel() {
     subjects,
     getSubjects,
     treeSubjects,
+    cashSubjects,
+    bankSubjects,
     subjectById,
     fetchSubjects
   }

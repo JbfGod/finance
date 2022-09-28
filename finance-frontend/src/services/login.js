@@ -1,5 +1,6 @@
 import {history, request} from "umi";
 import * as common from "@/utils/common";
+import {removeCurrCustomer} from "@/utils/common";
 
 export async function login(body) {
   return request('/api/login', {
@@ -18,4 +19,5 @@ export async function logout() {
 export const loginOut = async () => {
   await logout();
   history.replace('/user/login')
+  removeCurrCustomer()
 };
