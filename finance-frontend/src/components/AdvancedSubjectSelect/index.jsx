@@ -3,7 +3,7 @@ import {Input, Modal} from "antd";
 import SubjectList from "@/pages/SubjectList";
 import {useModalWithParam} from "@/utils/hooks";
 import styles from "./index.less"
-import {useModel} from "@/.umi/plugin-model/useModel";
+import {useModel} from "umi";
 
 export function AdvancedSubjectSelect({disableFilter, onChange, value, ...props}) {
     const {subjectById} = useModel("useSubjectModel")

@@ -6,7 +6,7 @@ import moment from "moment";
 import {listGroupByCurrencyNameUsingGET} from "@/services/swagger/currencyWeb";
 import commonColumn from "@/pages/Report/commonColumn";
 import commonNumberColumn from "@/pages/Report/commonNumberColumn";
-import {useModel} from "@/.umi/plugin-model/useModel";
+import {useModel} from "umi";
 
 const DEFAULT_CURRENCY = [
   {label:'原币和本位币', value:''},

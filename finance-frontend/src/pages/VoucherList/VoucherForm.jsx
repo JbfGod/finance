@@ -18,7 +18,7 @@ import {
 } from "@/services/swagger/voucherWeb";
 import {flatArrayToMap} from "@/utils/common";
 import {currencyOfYearMonthUsingGET} from "@/services/swagger/currencyWeb";
-import {history} from "umi";
+import {history, useModel} from "umi";
 import ProCard from "@ant-design/pro-card";
 import {EditableProTable} from "@ant-design/pro-table";
 import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
@@ -26,7 +26,6 @@ import {searchExpenseItemCueUsingGET} from "@/services/swagger/expenseBillWeb";
 import moment from "moment";
 import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 import {ClearOutlined} from "@ant-design/icons";
-import {useModel} from "@/.umi/plugin-model/useModel";
 
 const CAPACITY = 5
 export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {

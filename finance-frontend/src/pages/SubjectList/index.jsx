@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Button, Col, Empty, message, Tree} from "antd";
-import {history} from "umi"
+import {history, useModel} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import {pageSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import * as hooks from "@/utils/hooks";
@@ -13,7 +13,6 @@ import * as industryWeb from "@/services/swagger/industryWeb";
 import {LENDING_DIRECTION, SUBJECT_ASSIST_SETTLEMENT, SUBJECT_TYPE} from "@/constants";
 import styles from "@/global.less"
 import GlobalPageContainer from "@/components/PageContainer";
-import {useModel} from "@/.umi/plugin-model/useModel";
 
 export default ({mode, formModalProps = {}}) => {
   const isFormModal = mode === "formModal"

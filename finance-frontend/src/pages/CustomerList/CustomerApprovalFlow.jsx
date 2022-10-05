@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import PageContainer from "@/components/PageContainer";
 import {Badge, Button, Card, Col, Empty, message, Modal, Row, Space, Transfer, Tree} from "antd";
-import {history} from "umi"
+import {history, useModel} from "umi"
 import ProCard from "@ant-design/pro-card";
 import ExProTable from "@/components/Table/ExtProTable";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
@@ -10,7 +10,6 @@ import {flowItemsUsingGET, saveFlowItemUsingPOST} from "@/services/swagger/appro
 import {useModalWithParam} from "@/utils/hooks";
 import {EditableProTable} from "@ant-design/pro-table";
 import {ApprovalBusinessModules} from "@/constants";
-import {useModel} from "@/.umi/plugin-model/useModel";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})

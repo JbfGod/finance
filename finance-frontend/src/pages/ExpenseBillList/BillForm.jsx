@@ -15,7 +15,7 @@ import AutoCompleteInput from "@/components/Common/AutoCompleteInput";
 import ExpenseBillItemTable from "@/pages/ExpenseBillList/tables/ExpenseBillItemTable";
 import ExpenseBillSubsidyTable from "@/pages/ExpenseBillList/tables/ExpenseBillSubsidyTable";
 import ExpenseBillAttachmentTable from "@/pages/ExpenseBillList/tables/ExpenseBillAttachmentTable";
-import {useModel} from "@/.umi/plugin-model/useModel";
+import {useModel} from "umi";
 import {
   approvalInstanceUsingGET,
   approvedUsingPUT,

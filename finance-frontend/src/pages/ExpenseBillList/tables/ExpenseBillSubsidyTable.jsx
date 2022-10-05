@@ -1,7 +1,7 @@
 import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 import {ClearOutlined} from "@ant-design/icons";
 import React, {useRef} from "react";
-import {useModel} from "@/.umi/plugin-model/useModel";
+import {useModel} from "umi";
 import ExtEditableProTable from "@/pages/ExpenseBillList/tables/EditableProTableItem";
 import MoneyColum from "@/pages/ExpenseBillList/tables/MomeyColumn";
 import NumberColumn from "@/pages/ExpenseBillList/tables/NumberColumn";

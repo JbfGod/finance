@@ -21,7 +21,7 @@ import {
 import {ModalForm, ProFormItem, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 import {InputNumber} from "antd/es";
-import {useModel} from "@/.umi/plugin-model/useModel";
+import {useModel} from "umi";
 
 export default () => {
   const actionRef = useRef()
