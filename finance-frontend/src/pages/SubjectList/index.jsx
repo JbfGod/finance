@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Button, Col, Empty, message, Tree} from "antd";
 import {history} from "umi"
 import * as subjectWeb from "@/services/swagger/subjectWeb";
-import {listSubjectUsingGET, pageSubjectUsingGET} from "@/services/swagger/subjectWeb";
+import {pageSubjectUsingGET} from "@/services/swagger/subjectWeb";
 import * as hooks from "@/utils/hooks";
 import {useModalWithParam, useSecurity, useTableExpandable} from "@/utils/hooks";
 import ProCard from "@ant-design/pro-card";

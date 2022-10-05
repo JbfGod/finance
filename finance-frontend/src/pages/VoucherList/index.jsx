@@ -20,7 +20,6 @@ import moment from "moment";
 import AutoDropdown from "@/components/Common/AutoDropdown";
 import {initialBalanceOutlineUsingGET} from "@/services/swagger/initialBalanceWeb";
 import {history} from 'umi';
-import {useModel} from "@/.umi/plugin-model/useModel";
 
 const renderBadge = (active = false) => {
   return (

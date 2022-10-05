@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react"
 import GlobalPageContainer from "@/components/PageContainer";
 import ExProTable from "@/components/Table/ExtProTable";
-import {dailyCashUsingGET, generalLedgerUsingGET} from "@/services/swagger/reportWeb";
+import {dailyCashUsingGET} from "@/services/swagger/reportWeb";
 import moment from "moment";
 import {listGroupByCurrencyNameUsingGET} from "@/services/swagger/currencyWeb";
 import commonColumn from "@/pages/Report/commonColumn";

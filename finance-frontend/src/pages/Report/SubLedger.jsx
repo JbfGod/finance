@@ -4,8 +4,6 @@ import ExProTable from "@/components/Table/ExtProTable";
 import {subLedgerUsingGET} from "@/services/swagger/reportWeb";
 import moment from "moment";
 import {listGroupByCurrencyNameUsingGET} from "@/services/swagger/currencyWeb";
-import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
-import {useModel} from "@/.umi/plugin-model/useModel";
 
 const commonColumn = (title, dataIndex, props) => ({
   title, dataIndex, align: "center", render: (_, row) => {

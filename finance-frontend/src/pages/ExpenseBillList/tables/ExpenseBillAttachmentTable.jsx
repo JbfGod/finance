@@ -1,4 +1,4 @@
-import {ClearOutlined, DownloadOutlined} from "@ant-design/icons";
+import {ClearOutlined} from "@ant-design/icons";
 import React, {useRef} from "react";
 import {IMG_ACCEPT} from "@/constants";
 import {Upload} from "antd";
