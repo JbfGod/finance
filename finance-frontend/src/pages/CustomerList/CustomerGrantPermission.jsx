@@ -115,7 +115,7 @@ export default () => {
         <ProCard colSpan={24} bordered>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
                  description={<span>暂无客户分类数据</span>}>
-            <Button type="primary" onClick={() => history.push("/system/customerCategory")}>前往客户分类管理添加客户分类</Button>
+            <Button type="primary" onClick={() => history.push("/base/customerCategory")}>前往客户分类管理添加客户分类</Button>
           </Empty>
         </ProCard>
       )}
