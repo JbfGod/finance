@@ -81,7 +81,14 @@ public class InitialBalanceItem implements Serializable {
      * 贷方金额
      */
     private BigDecimal creditAmount;
-
+    /**
+     * 借方金额(本币)
+     */
+    private BigDecimal localDebitAmount;
+    /**
+     * 贷方金额(本币)
+     */
+    private BigDecimal localCreditAmount;
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
 

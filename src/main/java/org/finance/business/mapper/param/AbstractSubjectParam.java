@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class AbstractSubjectParam {
 
+    private String rootNumber;
     private Integer leftValue;
     private Integer rightValue;
 

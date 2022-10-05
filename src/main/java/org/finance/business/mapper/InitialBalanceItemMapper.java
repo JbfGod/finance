@@ -16,6 +16,6 @@ import java.util.List;
  */
 public interface InitialBalanceItemMapper extends BaseMapper<InitialBalanceItem> {
 
-    List<InitialBalanceItem> summaryGroupBySubjectId(@Param("initialBalanceId") long initialBalanceId);
+    List<InitialBalanceItem> summaryGroupBySubject(@Param("initialBalanceId") long initialBalanceId);
 
 }

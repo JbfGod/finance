@@ -1,38 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.finance.business.mapper.VoucherItemMapper">
-
-    <select id="summaryGroupBySubjectId" resultType="org.finance.business.entity.VoucherItem">
+    <select id="summaryMonthGroupBySubject" resultType="org.finance.business.entity.VoucherItem">
         select vi.subject_id,
                any_value(vi.subject_number) subject_number,
                max(vi.voucher_number) voucher_number,
+               sum(vi.debit_amount) debit_amount,
+               sum(vi.credit_amount) credit_amount,
                sum(vi.local_debit_amount) local_debit_amount,
                sum(vi.local_credit_amount) local_credit_amount
         from voucher_item vi
         where vi.year_month_num = #{yearMonthNum}
         group by vi.subject_id
     </select>
-    <select id="summaryByCurrencyGroupBySubjectId" resultType="org.finance.business.entity.VoucherItem">
+    <select id="summaryMonthGroupBySubjectAndCurrency" resultType="org.finance.business.entity.VoucherItem">
+        select vi.subject_id,
+               any_value(vi.subject_number) subject_number,
+               max(vi.voucher_number) voucher_number,
+               sum(vi.debit_amount) debit_amount,
+               sum(vi.credit_amount) credit_amount,
+               sum(vi.local_debit_amount) local_debit_amount,
+               sum(vi.local_credit_amount) local_credit_amount
+        from voucher_item vi
+        where vi.year_month_num = #{yearMonthNum}
+        group by vi.subject_id, vi.currency_name
+    </select>
+    <select id="summaryByCurrencyGroupBySubject" resultType="org.finance.business.entity.VoucherItem">
         select vi.subject_id,
             any_value(vi.subject_number) subject_number,
             max(vi.voucher_number) voucher_number,
+            sum(vi.debit_amount) debit_amount,
+            sum(vi.credit_amount) credit_amount,
             sum(vi.local_debit_amount) local_debit_amount,
             sum(vi.local_credit_amount) local_credit_amount
         from voucher_item vi
         where vi.year_month_num = #{yearMonthNum}
-          and vi.currency_name = #{currencyName}
+          <if test="currencyName != null and currencyName != ''">
+            and vi.currency_name = #{currencyName}
+          </if>
         group by vi.subject_id
     </select>
     <select id="listByMonthAndCurrency" resultType="org.finance.business.entity.VoucherItem">
-        select vi.subject_id, vi.voucher_number, vi.local_debit_amount, vi.local_credit_amount,
+        select vi.subject_id, vi.voucher_number,
+               vi.debit_amount, vi.credit_amount,
+               vi.local_debit_amount, vi.local_credit_amount,
                vi.voucher_date, vi.summary
         from voucher_item vi
         where vi.year_month_num = #{param.yearMonthNum}
           and vi.currency_name = #{param.currencyName}
           and exists (
             select 1 from subject s
-            where left_value >= #{param.leftValue} and right_value &lt;= #{param.rightValue}
-            and s.id = vi.subject_id
+            where s.root_number = #{param.rootNumber}
+                and s.left_value >= #{param.leftValue} and s.right_value &lt;= #{param.rightValue}
+                and s.id = vi.subject_id
          )
     </select>
+    <select id="summaryGroupBySubjectAndCurrency" resultType="org.finance.business.entity.VoucherItem">
+        select vi.subject_id, vi.currency_name,
+            any_value(vi.voucher_number) voucher_number,
+            any_value(vi.summary) summary,
+            sum(vi.debit_amount) debit_amount, sum(vi.credit_amount) credit_amount,
+            sum(vi.local_debit_amount) local_debit_amount,
+            sum(vi.local_credit_amount) local_credit_amount
+        from voucher_item vi
+        where vi.year_month_num = #{yearMonthNum}
+        <if test="voucherDate != null">
+            and vi.voucher_date &lt;= #{voucherDate}
+        </if>
+        <if test="currency != null and currency != ''">
+            and vi.currency_name = #{currency}
+        </if>
+        group by vi.subject_id, vi.currency_name
+    </select>
+    <select id="summaryDailyGroupBySubjectAndCurrency" resultType="org.finance.business.mapper.dto.DailyVoucherItemDTO">
+        select vi.subject_id, vi.currency_name currency,
+            any_value(vi.summary) summary,
+            any_value(vi.subject_number) subject_number,
+            sum(vi.debit_amount) debit_amount_of_today, sum(vi.credit_amount) credit_amount_of_today,
+            sum(vi.local_debit_amount) local_debit_amount_of_today,
+            sum(vi.local_credit_amount) local_credit_amount_of_today,
+            sum(case when vi.debit_amount > vi.credit_amount then 1 else 0 end) debitTotal,
+            sum(case when vi.debit_amount > vi.credit_amount then 0 else 1 end) creditTotal
+        from voucher_item vi
+        where vi.voucher_date = #{voucherDate}
+        <if test="currency != null and currency != ''">
+            and vi.currency_name = #{currency}
+        </if>
+        group by vi.subject_id, vi.currency_name
+    </select>
+
 </mapper>

@@ -1,9 +1,9 @@
 package org.finance.business.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.finance.business.entity.AccountBalance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,34 +24,8 @@ public class SubLedgerVO {
     private String summary;
     private BigDecimal debitAmount;
     private BigDecimal creditAmount;
-    private LendingDirection lendingDirection;
+    private AccountBalance.LendingDirection lendingDirection;
     private BigDecimal balance;
-
-    public enum LendingDirection {
-        /**
-         * 借
-         */
-        DEBIT("借"),
-        /**
-         * 平
-         */
-        BALANCE("平"),
-        /**
-         * 贷
-         */
-        CREDIT("贷")
-        ;
-
-        private String label;
-        LendingDirection(String label) {
-            this.label = label;
-        }
-
-        @JsonValue
-        public String getLabel() {
-            return this.label;
-        }
-    }
 
     public String getId() {
         return UUID.randomUUID().toString();
@@ -60,9 +34,9 @@ public class SubLedgerVO {
     public SubLedgerVO setBalance(BigDecimal balance) {
         int direction = balance.compareTo(BigDecimal.ZERO);
         this.balance = direction > 0 ? balance : balance.abs();
-        this.lendingDirection = direction > 0 ? LendingDirection.DEBIT
-                : direction == 0 ? LendingDirection.BALANCE
-                : LendingDirection.CREDIT;
+        this.lendingDirection = direction > 0 ? AccountBalance.LendingDirection.DEBIT
+                : direction == 0 ? AccountBalance.LendingDirection.BALANCE
+                : AccountBalance.LendingDirection.CREDIT;
         return this;
     }
 }

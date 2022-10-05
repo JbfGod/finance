@@ -1,9 +1,7 @@
-import {Select, Space} from "antd";
-import styles from "@/components/RightContent/index.less";
+import {Select} from "antd";
 import React, {useEffect, useMemo, useState} from "react";
-import {flatArrayToMap, getCurrCustomer, removeCurrCustomer, setCurrCustomer} from "@/utils/common";
+import {flatArrayToMap} from "@/utils/common";
 import {debounce} from "lodash";
-import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
 
 
 export default function AutoCompleteSelect({

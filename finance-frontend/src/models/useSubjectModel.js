@@ -11,6 +11,11 @@ export default function useSubjectModel() {
     curr[next.id] = next
     return curr
   }, {}), [subjects])
+  // 现金科目
+  const cashSubjects = useMemo(() => subjects.filter(sub => sub.level === 1 && sub?.name.includes("现金")), [subjects])
+  // 银行科目
+  const bankSubjects = useMemo(() => subjects.filter(sub => sub.level === 1 && sub?.name.includes("银行")), [subjects])
+
   const fetchSubjects = useCallback((params) => {
     return listSubjectUsingGET(params).then(result => {
       setSubjects(result.data)
@@ -27,15 +32,13 @@ export default function useSubjectModel() {
       (!number || sub.number.startsWith(number))
     )
     if (subjects.length === 0) {
-      return fetchSubjects().then(result => result.data.filter(filter))
+      return listSubjectUsingGET(params).then(result => {
+        setSubjects(result.data.filter(filter))
+        return result
+      })
     }
     return subjects.filter(filter)
   }, [subjects])
-
-  // 现金科目
-  const cashSubjects = useMemo(() => treeSubjects.filter(sub => sub.name.contains("现金")), [])
-  // 银行科目
-  const bankSubjects = useMemo(() => treeSubjects.filter(sub => sub.name.contains("银行")), [])
 
   useEffect(() => {
     isAuth && fetchSubjects()

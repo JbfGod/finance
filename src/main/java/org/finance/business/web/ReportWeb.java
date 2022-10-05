@@ -2,9 +2,13 @@ package org.finance.business.web;
 
 import org.finance.business.manage.ReportManage;
 import org.finance.business.web.request.QueryAccountBalanceRequest;
+import org.finance.business.web.request.QueryDailyBankRequest;
+import org.finance.business.web.request.QueryDailyCashRequest;
 import org.finance.business.web.request.QueryGeneralLedgerRequest;
 import org.finance.business.web.request.QuerySubLedgerRequest;
 import org.finance.business.web.vo.AccountBalanceVO;
+import org.finance.business.web.vo.DailyBankVO;
+import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
 import org.finance.infrastructure.common.R;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,13 +45,13 @@ public class ReportWeb {
     }
 
     @GetMapping("/dailyCash")
-    public R dailyCash() {
-        return R.ok();
+    public R<List<DailyCashVO>> dailyCash(@Valid QueryDailyCashRequest request) {
+        return R.ok(reportManage.listDailyCash(request));
     }
 
     @GetMapping("/dailyBank")
-    public R dailyBank() {
-        return R.ok();
+    public R<List<DailyBankVO>> dailyBank(@Valid QueryDailyBankRequest request) {
+        return R.ok(reportManage.listDailyBank(request));
     }
 
 }

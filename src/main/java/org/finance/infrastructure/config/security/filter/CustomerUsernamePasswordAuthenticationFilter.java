@@ -1,12 +1,13 @@
 package org.finance.infrastructure.config.security.filter;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
+import org.finance.business.entity.Customer;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
 import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.constants.MessageEnum;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,7 +36,7 @@ public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthen
         customerNumber = request.getParameter("customerNumber");
         account = request.getParameter("account");
         password = request.getParameter("password");
-        customerNumber = customerNumber == null ? "" : customerNumber;
+        customerNumber = StringUtils.isBlank(customerNumber) ? Customer.DEFAULT_NUMBER : customerNumber;
         account = account == null ? "" : account;
         password = password == null ? "" : password;
 

@@ -77,6 +77,7 @@ public class InitialBalanceWeb {
         ).convert(item -> {
             InitialBalanceItemVO initialBalanceItemVO = InitialBalanceConvert.INSTANCE.toInitialBalanceItemVO(item);
             initialBalanceItemVO.setAmount(item.getLendingDirection() == LendingDirection.BORROW ? item.getDebitAmount() : item.getCreditAmount());
+            initialBalanceItemVO.setLocalAmount(item.getLendingDirection() == LendingDirection.BORROW ? item.getLocalDebitAmount() : item.getLocalCreditAmount());
             initialBalanceItemVO.setSubjectName(nameBySubjectId.apply(item.getSubjectId()));
             return initialBalanceItemVO;
         });

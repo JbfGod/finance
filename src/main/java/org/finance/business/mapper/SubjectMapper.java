@@ -1,7 +1,10 @@
 package org.finance.business.mapper;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.entity.Subject;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface SubjectMapper extends BaseMapper<Subject> {
 
+    default List<Subject> listOrderByTree() {
+        return this.selectList(Wrappers.<Subject>lambdaQuery().orderByAsc(Subject::getRootNumber, Subject::getLeftValue));
+    }
 }

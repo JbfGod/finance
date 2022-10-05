@@ -83,9 +83,10 @@ public class VoucherWeb {
 
     @GetMapping("/bySubject/{subjectId}")
     public R<List<VoucherItemVO>> voucherItemBySubject(@Valid QuerySummaryVoucherRequest request) {
-        List<Long> subjectIds = subjectService.listChildrenIds(request.getSubjectId());
+        List<Long> subjectIds = subjectService.listTogetherChildrenIds(request.getSubjectId());
         List<VoucherItemVO> voucherItemVOs = itemService.list(Wrappers.<VoucherItem>lambdaQuery()
                 .in(VoucherItem::getSubjectId, subjectIds)
+                .eq(VoucherItem::getYearMonthNum, request.getYearMonthNum())
             ).stream().map(VoucherConvert.INSTANCE::toVoucherItem)
             .collect(Collectors.toList());
         return R.ok(voucherItemVOs);

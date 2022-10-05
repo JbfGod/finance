@@ -8,14 +8,9 @@ import {voucherItemBySubjectUsingGET} from "@/services/swagger/voucherWeb";
 import styles from "@/global.less";
 import VoucherForm from "@/pages/VoucherList/VoucherForm";
 import {useModalWithParam} from "@/utils/hooks";
+import commonColumn from "@/pages/Report/commonColumn";
+import commonNumberColumn from "@/pages/Report/commonNumberColumn";
 
-const commonColumn = (title, dataIndex, props) => ({
-  title, dataIndex, align: "center", render: (_, row) => {
-    const content = Number(row[dataIndex]) || ""
-    return <span title={content}>{content}</span>
-  },
-  valueType: "text", ...props
-})
 export default function () {
   const actionRef = useRef()
   const [data, setData] = useState([])
@@ -34,26 +29,26 @@ export default function () {
     {title: "科目名称", dataIndex: "subjectName", align: "center"},
     {
       title: "期初余额", children: [
-        commonColumn("借方", "debitOpeningAmount"),
-        commonColumn("贷方", "creditOpeningAmount")
+        commonNumberColumn("借方", "debitOpeningAmount"),
+        commonNumberColumn("贷方", "creditOpeningAmount")
       ], search: false
     },
     {
       title: "本期余额", children: [
-        commonColumn("借方", "debitCurrentAmount"),
-        commonColumn("贷方", "creditCurrentAmount")
+        commonNumberColumn("借方", "debitCurrentAmount"),
+        commonNumberColumn("贷方", "creditCurrentAmount")
       ], search: false
     },
     {
       title: "年累计金额", children: [
-        commonColumn("借方", "debitAnnualAmount"),
-        commonColumn("贷方", "creditAnnualAmount")
+        commonNumberColumn("借方", "debitAnnualAmount"),
+        commonNumberColumn("贷方", "creditAnnualAmount")
       ], search: false
     },
     {
       title: "期末余额", children: [
-        commonColumn("借方", "debitClosingAmount"),
-        commonColumn("贷方", "creditClosingAmount")
+        commonNumberColumn("借方", "debitClosingAmount"),
+        commonNumberColumn("贷方", "creditClosingAmount")
       ], search: false
     },
   ]
@@ -62,8 +57,8 @@ export default function () {
     {title: "凭证日期", dataIndex: "voucherDate", align: "center", width: 100},
     {title: "凭证号", dataIndex: "voucherNumber", align: "center", width: 50},
     commonColumn("摘要", "summary"),
-    commonColumn("借方金额", "localDebitAmount"),
-    commonColumn("贷方金额", "localCreditAmount"),
+    commonNumberColumn("借方金额", "localDebitAmount"),
+    commonNumberColumn("贷方金额", "localCreditAmount"),
   ]
   return (
     <GlobalPageContainer>

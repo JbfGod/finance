@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -52,27 +53,29 @@ public class AccountBalance implements Serializable {
 
     private String subjectNumber;
 
+    private String currency;
+
     private Integer maxVoucherNumber;
 
     /**
-     * 期初金额(借)
+     * 期初余额(原币)
      */
-    private BigDecimal debitOpeningAmount;
+    private BigDecimal openingBalance;
 
     /**
-     * 期初金额(贷)
+     * 期初余额(本币)
      */
-    private BigDecimal creditOpeningAmount;
+    private BigDecimal localOpeningBalance;
 
     /**
-     * 期末金额(借)
+     * 期末余额(原币)
      */
-    private BigDecimal debitClosingAmount;
+    private BigDecimal closingBalance;
 
     /**
-     * 期末金额(贷)
+     * 期末余额(本币)
      */
-    private BigDecimal creditClosingAmount;
+    private BigDecimal localClosingBalance;
 
     /**
      * 本期金额(借)
@@ -94,17 +97,50 @@ public class AccountBalance implements Serializable {
      */
     private BigDecimal creditAnnualAmount;
 
+    public enum LendingDirection {
+        /**
+         * 借
+         */
+        DEBIT("借"),
+        /**
+         * 平
+         */
+        BALANCE("平"),
+        /**
+         * 贷
+         */
+        CREDIT("贷")
+        ;
+
+        private String label;
+        LendingDirection(String label) {
+            this.label = label;
+        }
+
+        @JsonValue
+        public String getLabel() {
+            return this.label;
+        }
+    }
+
     public static AccountBalance newInstance() {
         BigDecimal zero = new BigDecimal("0");
         return new AccountBalance()
-                .setDebitOpeningAmount(zero)
-                .setDebitClosingAmount(zero)
+                .setCurrency("人民币")
+                .setOpeningBalance(zero)
+                .setLocalOpeningBalance(zero)
                 .setDebitCurrentAmount(zero)
                 .setDebitAnnualAmount(zero)
-                .setCreditOpeningAmount(zero)
-                .setCreditClosingAmount(zero)
+                .setClosingBalance(zero)
+                .setLocalClosingBalance(zero)
                 .setCreditCurrentAmount(zero)
                 .setCreditAnnualAmount(zero);
+    }
+
+    public static AccountBalance newInstance(Subject subject) {
+        return newInstance()
+                .setSubjectId(subject.getId())
+                .setSubjectNumber(subject.getNumber());
     }
 
     public AccountBalance mergeLastPeriod(AccountBalance accountBalance) {
@@ -117,26 +153,52 @@ public class AccountBalance implements Serializable {
                 .setCreditAnnualAmount(this.creditCurrentAmount.add(accountBalance.getCreditAnnualAmount()));
         }
 
-        return this.setDebitOpeningAmount(accountBalance.getDebitClosingAmount())
-                .setCreditOpeningAmount(accountBalance.getCreditClosingAmount())
-                .calcClosingBalance(accountBalance.getDebitClosingAmount(), accountBalance.getCreditClosingAmount());
+        return this.setOpeningBalance(accountBalance.getClosingBalance())
+                .setLocalOpeningBalance(accountBalance.getLocalClosingBalance())
+                .calcClosingBalance(accountBalance.getClosingBalance(), accountBalance.getLocalClosingBalance());
     }
 
-    public AccountBalance calcOpeningBalance(BigDecimal debitAmount, BigDecimal creditAmount) {
-        BigDecimal balance = this.debitOpeningAmount.subtract(this.creditOpeningAmount)
-                .add(debitAmount.subtract(creditAmount));
-        if (balance.compareTo(BigDecimal.ZERO) > 0) {
-            return this.setDebitOpeningAmount(balance);
-        }
-        return this.setCreditOpeningAmount(balance.abs());
+    public AccountBalance calcOpeningBalance(BigDecimal openingBalance, BigDecimal localOpeningBalance) {
+        this.setOpeningBalance(openingBalance.add(this.openingBalance));
+        return this.setLocalOpeningBalance(localOpeningBalance.add(this.localOpeningBalance));
     }
 
-    public AccountBalance calcClosingBalance(BigDecimal debitAmount, BigDecimal creditAmount) {
-        BigDecimal balance = this.debitClosingAmount.subtract(this.creditClosingAmount)
-                .add(debitAmount.subtract(creditAmount));
-        if (balance.compareTo(BigDecimal.ZERO) > 0) {
-            return this.setDebitClosingAmount(balance);
-        }
-        return this.setCreditClosingAmount(balance.abs());
+    public AccountBalance calcClosingBalance(BigDecimal closingBalance, BigDecimal localClosingBalance) {
+        this.setClosingBalance(closingBalance.add(this.closingBalance));
+        return this.setLocalClosingBalance(localClosingBalance.add(this.localClosingBalance));
+    }
+
+    public BigDecimal getDebitOpeningAmount() {
+        return this.openingBalance.compareTo(BigDecimal.ZERO) > 0? this.openingBalance : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getCreditOpeningAmount() {
+        return this.openingBalance.compareTo(BigDecimal.ZERO) < 0? this.openingBalance.abs() : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getDebitClosingAmount() {
+        return this.closingBalance.compareTo(BigDecimal.ZERO) > 0? this.closingBalance : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getCreditClosingAmount() {
+        return this.closingBalance.compareTo(BigDecimal.ZERO) < 0? this.closingBalance.abs() : BigDecimal.ZERO;
+    }
+
+    public LendingDirection getOpeningBalanceLendingDirection() {
+        int direction = this.openingBalance.compareTo(BigDecimal.ZERO);
+        return direction > 0 ? LendingDirection.DEBIT
+                : direction == 0 ? LendingDirection.BALANCE
+                : LendingDirection.CREDIT;
+    }
+
+    public LendingDirection getClosingBalanceLendingDirection() {
+        int direction = this.closingBalance.compareTo(BigDecimal.ZERO);
+        return direction > 0 ? LendingDirection.DEBIT
+                : direction == 0 ? LendingDirection.BALANCE
+                : LendingDirection.CREDIT;
+    }
+
+    public String getKey() {
+        return String.format("%s-%s", this.currency, this.subjectId);
     }
 }

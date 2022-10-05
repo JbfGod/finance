@@ -4,23 +4,10 @@ import ExProTable from "@/components/Table/ExtProTable";
 import {generalLedgerUsingGET} from "@/services/swagger/reportWeb";
 import moment from "moment";
 import {listGroupByCurrencyNameUsingGET} from "@/services/swagger/currencyWeb";
+import commonColumn from "@/pages/Report/commonColumn";
+import commonNumberColumn from "@/pages/Report/commonNumberColumn";
 
-const commonColumn = (title, dataIndex, props) => ({
-  title, dataIndex, align: "center", render: (_, row) => {
-    const content = row[dataIndex] || ""
-    return <span title={content}>{content}</span>
-  },
-  valueType: "text", search: false, ...props
-})
-
-const commonNumberColumn = (title, dataIndex, props) => ({
-  title, dataIndex, align: "center", render: (_, row) => {
-    const content = Number(row[dataIndex]) || ""
-    return <span title={content}>{content}</span>
-  },
-  valueType: "text", search: false, ...props
-})
-const DEFAULT_CURRENCY = {label:'人民币', value:'人民币'}
+const DEFAULT_CURRENCY = {label:'本位币', value:'人民币'}
 export default function () {
   const actionRef = useRef()
   const [currencyNames, setCurrencyNames] = useState([DEFAULT_CURRENCY])

@@ -16,4 +16,7 @@ public class QuerySummaryVoucherRequest {
     @NotNull(message = "科目ID不能为空！")
     private Long subjectId;
 
+    public Integer getYearMonthNum() {
+        return yearMonth.getYear() * 100 + yearMonth.getMonthValue();
+    }
 }

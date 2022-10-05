@@ -101,6 +101,7 @@ export default ({mode, formModalProps = {}}) => {
           <ExtConfirmDel key="del" onConfirm={async () => {
             await subjectWeb.deleteSubjectUsingDELETE({id: row.id})
             fetchSubjects()
+            actionRef.current?.reload()
           }}/>,
         ]
       }
@@ -183,6 +184,7 @@ export default ({mode, formModalProps = {}}) => {
                          }).then(() => {
                            createModal.close()
                            fetchSubjects()
+                           actionRef.current?.reload()
                          })
                        }}
             >

@@ -102,13 +102,22 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
         };
     }
 
-    public List<Long> listChildrenIds(long subjectId) {
+    public List<Long> listTogetherChildrenIds(long subjectId) {
         Subject dbSubject = baseMapper.selectById(subjectId);
         return baseMapper.selectList(Wrappers.<Subject>lambdaQuery()
             .select(Subject::getId)
             .ge(Subject::getLeftValue, dbSubject.getLeftValue())
             .le(Subject::getRightValue, dbSubject.getRightValue())
+            .eq(Subject::getRootNumber, dbSubject.getRootNumber())
         ).stream().map(Subject::getId).collect(Collectors.toList());
     }
 
+    public List<Subject> listChildren(long subjectId) {
+        Subject dbSubject = baseMapper.selectById(subjectId);
+        return baseMapper.selectList(Wrappers.<Subject>lambdaQuery()
+                .eq(Subject::getRootNumber, dbSubject.getRootNumber())
+                .gt(Subject::getLeftValue, dbSubject.getLeftValue())
+                .lt(Subject::getRightValue, dbSubject.getRightValue())
+        );
+    }
 }

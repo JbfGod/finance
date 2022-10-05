@@ -14,7 +14,7 @@ const Login = () => {
   const handleSubmit = async (values) => {
     const resp = await login({ ...values })
     common.setAccessToken(resp.data)
-    localStorage.setItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT, values.customerNumber)
+    localStorage.setItem(constants.LAST_LOGIN_CUSTOMER_ACCOUNT, values.customerNumber || "")
     message.success("登录成功！");
     /** 此方法会跳转到 redirect 参数所在的位置 */
     if (!history) {
@@ -49,12 +49,12 @@ const Login = () => {
               prefix: <MyIcon type="icon-danwei1" />,
             }}
             placeholder="请输入单位编号"
-            rules={[
+            /*rules={[
               {
                 required: true,
                 message: "请输入单位编号！"
               },
-            ]}
+            ]}*/
           />
           <ProFormText
             name="account"

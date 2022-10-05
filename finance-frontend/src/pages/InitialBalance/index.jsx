@@ -59,7 +59,10 @@ export default () => {
       title: "币别", dataIndex: "currencyName", search: false
     },
     {
-      title: "金额", dataIndex: "amount", search: false
+      title: "金额(原币)", dataIndex: "amount", search: false
+    },
+    {
+      title: "金额(本币)", dataIndex: "localAmount", search: false
     },
     ...(security.canOperating && auditStatus === AuditStatus.TO_BE_AUDITED ? [{
       title: '操作', dataIndex: 'id',
@@ -158,13 +161,13 @@ export default () => {
   )
 }
 
-function FormModal({modal, yearMonthDate, subjectById}) {
+function FormModal({modal, yearMonthDate, subjectById, onSuccess}) {
   const {visible, handleVisible, state} = modal
   const {mode = "add"} = state
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   return (
     <ModalForm title="新增初始余额" width="420px" visible={visible}
-               initialValues={{lendingDirection: "BORROW"}}
+               initialValues={{lendingDirection: "BORROW", currencyName: "人民币"}}
                modalProps={{destroyOnClose: true}}
                onVisibleChange={handleVisible}
                onFinish={async (value) => {
@@ -200,7 +203,10 @@ function FormModal({modal, yearMonthDate, subjectById}) {
       <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
                      allowClear={false} label="方向" options={Object.values(LENDING_DIRECTION).filter(v => v.value !== "DEFAULT")}/>
       <ProFormText label="币别" name="currencyName"/>
-      <ProFormItem name="amount" label="初期余额">
+      <ProFormItem name="amount" label="初期余额(原币)">
+        <InputNumber min={0}/>
+      </ProFormItem>
+      <ProFormItem name="localAmount" label="初期余额(本币)">
         <InputNumber min={0}/>
       </ProFormItem>
     </ModalForm>

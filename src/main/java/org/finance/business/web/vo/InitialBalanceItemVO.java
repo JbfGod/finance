@@ -20,5 +20,6 @@ public class InitialBalanceItemVO {
     private String lendingDirection;
     private String currencyName;
     private BigDecimal amount;
+    private BigDecimal localAmount;
 
 }

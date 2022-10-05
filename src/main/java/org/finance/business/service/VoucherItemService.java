@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.convert.VoucherConvert;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.mapper.VoucherItemMapper;
+import org.finance.business.mapper.dto.DailyVoucherItemDTO;
 import org.finance.business.mapper.param.QueryVoucherItemOfSubLegerParam;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,16 +27,12 @@ import java.util.stream.Collectors;
 @Service
 public class VoucherItemService extends ServiceImpl<VoucherItemMapper, VoucherItem> {
 
-    public List<VoucherItem> summaryGroupBySubjectId(int yearMonthNum) {
-        return baseMapper.summaryGroupBySubjectId(yearMonthNum);
+    public List<VoucherItem> summaryByMonthGroupBySubject(int yearMonthNum) {
+        return baseMapper.summaryMonthGroupBySubject(yearMonthNum);
     }
 
-    public List<VoucherItem> summaryByCurrencyGroupBySubjectId(int yearMonthNum, String currencyName) {
-        return baseMapper.summaryByCurrencyGroupBySubjectId(yearMonthNum, currencyName);
-    }
-
-    public  List<VoucherItem> listByMonthAndCurrency(QueryVoucherItemOfSubLegerParam param) {
-        return baseMapper.listByMonthAndCurrency(param);
+    public List<VoucherItem> summaryByCurrencyGroupBySubject(int yearMonthNum, String currencyName) {
+        return baseMapper.summaryByCurrencyGroupBySubject(yearMonthNum, currencyName);
     }
 
     public List<VoucherItem> summaryVoucherItem(QueryVoucherItemOfSubLegerParam param, Consumer<VoucherItem> forEachItem) {
@@ -54,5 +52,13 @@ public class VoucherItemService extends ServiceImpl<VoucherItemMapper, VoucherIt
         }).forEach(forEachItem);
 
         return summaryVoucherItems;
+    }
+
+    public List<VoucherItem> summaryGroupBySubjectAndCurrency(int yearMonthNum, LocalDate voucherDate, String currency) {
+        return baseMapper.summaryGroupBySubjectAndCurrency(yearMonthNum, voucherDate, currency);
+    }
+
+    public List<DailyVoucherItemDTO> summaryDailyGroupBySubjectAndCurrency(LocalDate voucherDate, String currency) {
+        return baseMapper.summaryDailyGroupBySubjectAndCurrency(voucherDate, currency);
     }
 }

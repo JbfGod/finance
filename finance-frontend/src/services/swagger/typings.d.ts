@@ -88,6 +88,7 @@ declare namespace API {
     amount: number;
     currencyName: string;
     lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
+    localAmount: number;
     subjectId: number;
     subjectNumber: string;
     yearMonthDate: string;
@@ -295,6 +296,53 @@ declare namespace API {
     telephone?: string;
     type?: 'PROXY' | 'RENT' | 'RENT_AND_PROXY';
     useForeignExchange?: boolean;
+  };
+
+  type dailyBankUsingGETParams = {
+    currencyName?: string;
+    subjectId?: number;
+    voucherDate: string;
+  };
+
+  type DailyBankVO = {
+    creditTotal?: number;
+    currency?: string;
+    debitTotal?: number;
+    id?: string;
+    key?: string;
+    localBalanceOfToday?: number;
+    localBalanceOfYesterday?: number;
+    localCreditAmountOfToday?: number;
+    localDebitAmountOfToday?: number;
+    subjectId?: number;
+    subjectName?: string;
+    subjectNumber?: string;
+    summary?: string;
+  };
+
+  type dailyCashUsingGETParams = {
+    currencyName?: string;
+    subjectId?: number;
+    voucherDate: string;
+  };
+
+  type DailyCashVO = {
+    balanceOfToday?: number;
+    balanceOfYesterday?: number;
+    creditAmountOfToday?: number;
+    creditTotal?: number;
+    currency?: string;
+    debitAmountOfToday?: number;
+    debitTotal?: number;
+    id?: string;
+    key?: string;
+    localBalanceOfToday?: number;
+    localBalanceOfYesterday?: number;
+    localCreditAmountOfToday?: number;
+    localDebitAmountOfToday?: number;
+    subjectId?: number;
+    subjectName?: string;
+    subjectNumber?: string;
   };
 
   type deleteCurrencyUsingDELETEParams = {
@@ -771,6 +819,28 @@ declare namespace API {
     traceId?: string;
   };
 
+  type RListDailyBankVO_ = {
+    data?: DailyBankVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
+  type RListDailyCashVO_ = {
+    data?: DailyCashVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
   type RListGeneralLedgerVO_ = {
     data?: GeneralLedgerVO[];
     errorCode?: string;
@@ -1082,7 +1152,7 @@ declare namespace API {
     currencyName: string;
     endMonth: string;
     startMonth: string;
-    subjectId: number;
+    subjectId?: number;
   };
 
   type switchProxyCustomerUsingPUTParams = {
@@ -1364,6 +1434,7 @@ declare namespace API {
   type voucherItemBySubjectUsingGETParams = {
     subjectId: number;
     yearMonth: string;
+    yearMonthNum?: number;
   };
 
   type VoucherItemVO = {

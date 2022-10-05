@@ -2,6 +2,8 @@ package org.finance.business.convert;
 
 import org.finance.business.entity.AccountBalance;
 import org.finance.business.entity.VoucherItem;
+import org.finance.business.web.vo.DailyBankVO;
+import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
 import org.finance.business.web.vo.SubLedgerVO;
 import org.mapstruct.Mapper;
@@ -11,6 +13,8 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author jiangbangfa
@@ -29,18 +33,13 @@ public interface ReportConvert {
                 .subjectNumber(accountBalance.getSubjectNumber())
                 .subjectName(subjectName)
                 .month(accountBalance.getYearMonthNum() % 100)
-                .lendingDirection(closingAmountDirection > 0 ? GeneralLedgerVO.LendingDirection.DEBIT
-                        : closingAmountDirection == 0 ? GeneralLedgerVO.LendingDirection.BALANCE
-                        : GeneralLedgerVO.LendingDirection.CREDIT)
+                .lendingDirection(accountBalance.getClosingBalanceLendingDirection())
                 .balance(closingAmountDirection > 0 ? debitClosingAmount
                         : closingAmountDirection == 0 ? BigDecimal.ZERO
                         : creditClosingAmount);
         List<GeneralLedgerVO> list = new ArrayList<>(3);
         if (visibleOpeningBalance) {
-            BigDecimal debitOpeningAmount = accountBalance.getDebitOpeningAmount();
-            BigDecimal creditOpeningAmount = accountBalance.getCreditOpeningAmount();
-            list.add(builder.build().setSummary("期初余额")
-                    .setBalance(debitOpeningAmount.subtract(creditOpeningAmount))
+            list.add(builder.build().setSummary("期初余额").setBalance(accountBalance.getOpeningBalance())
             );
         }
         list.add(builder.build().setSummary("本期合计")
@@ -85,4 +84,53 @@ public interface ReportConvert {
                 .setCreditAmount(creditAmount)
                 .setBalance(balance);
     }
+
+    default List<DailyCashVO> toDailyCashVOList(List<DailyCashVO> dailyCashesOfToday, Map<String, AccountBalance> balanceOfYesterdayByKey) {
+        DailyCashVO subtotal = DailyCashVO.newInstance("小计");
+        List<DailyCashVO> results = new ArrayList<>();
+        for (DailyCashVO dailyCashOfToday : dailyCashesOfToday) {
+            BigDecimal balance = dailyCashOfToday.getDebitAmountOfToday().subtract(dailyCashOfToday.getCreditAmountOfToday());
+            BigDecimal localBalance = dailyCashOfToday.getLocalDebitAmountOfToday().subtract(dailyCashOfToday.getLocalCreditAmountOfToday());
+            AccountBalance balanceOfYesterday = Optional.ofNullable(balanceOfYesterdayByKey.get(dailyCashOfToday.getKey())).orElseGet(AccountBalance::newInstance);
+            dailyCashOfToday.setBalanceOfYesterday(balanceOfYesterday.getClosingBalance())
+                    .setLocalBalanceOfYesterday(balanceOfYesterday.getLocalClosingBalance())
+                    .setBalanceOfToday(balance.add(balanceOfYesterday.getClosingBalance()))
+                    .setLocalBalanceOfToday(localBalance.add(balanceOfYesterday.getLocalClosingBalance()));
+            results.add(dailyCashOfToday);
+            // 累计
+            subtotal.add(dailyCashOfToday);
+        }
+        results.add(subtotal);
+        return results;
+    }
+
+    default DailyCashVO toSummaryTotalDailyCashVO(List<DailyCashVO> dailyCashes) {
+        return dailyCashes.stream().filter(dailyCashVO -> "小计".equals(dailyCashVO.getSubjectName()))
+                .reduce(DailyCashVO.newInstance("合计"), DailyCashVO::add)
+                .setCurrency("本位币").setDebitAmountOfToday(null).setCreditAmountOfToday(null)
+                .setBalanceOfYesterday(null).setBalanceOfToday(null);
+    }
+
+    default List<DailyBankVO> toDailyBankVOList(List<DailyBankVO> dailyCashesOfToday, Map<String, AccountBalance> balanceOfYesterdayByKey) {
+        DailyBankVO subtotal = DailyBankVO.newInstance("小计");
+        List<DailyBankVO> results = new ArrayList<>();
+        for (DailyBankVO dailyCashOfToday : dailyCashesOfToday) {
+            BigDecimal localBalance = dailyCashOfToday.getLocalDebitAmountOfToday().subtract(dailyCashOfToday.getLocalCreditAmountOfToday());
+            AccountBalance balanceOfYesterday = Optional.ofNullable(balanceOfYesterdayByKey.get(dailyCashOfToday.getKey())).orElseGet(AccountBalance::newInstance);
+            dailyCashOfToday.setLocalBalanceOfYesterday(balanceOfYesterday.getLocalClosingBalance())
+                    .setLocalBalanceOfToday(localBalance.add(balanceOfYesterday.getLocalClosingBalance()));
+            results.add(dailyCashOfToday);
+            // 累计
+            subtotal.add(dailyCashOfToday);
+        }
+        results.add(subtotal);
+        return results;
+    }
+
+    default DailyBankVO toSummaryTotalDailyBankVO(List<DailyBankVO> dailyBanks) {
+        return dailyBanks.stream().filter(dailyBankVO -> "小计".equals(dailyBankVO.getSubjectName()))
+                .reduce(DailyBankVO.newInstance("合计"), DailyBankVO::add)
+                .setCurrency("本位币");
+    }
+
 }

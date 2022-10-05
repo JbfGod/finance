@@ -18,17 +18,31 @@ export async function accountBalanceUsingGET(
 }
 
 /** dailyBank GET /api/report/dailyBank */
-export async function dailyBankUsingGET(options?: { [key: string]: any }) {
-  return request<API.R>('/api/report/dailyBank', {
+export async function dailyBankUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.dailyBankUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RListDailyBankVO_>('/api/report/dailyBank', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
 
 /** dailyCash GET /api/report/dailyCash */
-export async function dailyCashUsingGET(options?: { [key: string]: any }) {
-  return request<API.R>('/api/report/dailyCash', {
+export async function dailyCashUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.dailyCashUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RListDailyCashVO_>('/api/report/dailyCash', {
     method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

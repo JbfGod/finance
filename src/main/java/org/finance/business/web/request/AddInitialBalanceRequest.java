@@ -26,6 +26,8 @@ public class AddInitialBalanceRequest {
     private LendingDirection lendingDirection;
     @NotNull(message = "请输入原币金额！")
     private BigDecimal amount;
+    @NotNull(message = "请输入本币金额！")
+    private BigDecimal localAmount;
 
     public Integer getYear() {
         return yearMonthDate.getYear();
@@ -41,5 +43,13 @@ public class AddInitialBalanceRequest {
 
     public BigDecimal getCreditAmount() {
         return lendingDirection == LendingDirection.LOAN? amount : new BigDecimal("0");
+    }
+
+    public BigDecimal getLocalDebitAmount() {
+        return lendingDirection == LendingDirection.BORROW? localAmount : new BigDecimal("0");
+    }
+
+    public BigDecimal getLocalCreditAmount() {
+        return lendingDirection == LendingDirection.LOAN? localAmount : new BigDecimal("0");
     }
 }
