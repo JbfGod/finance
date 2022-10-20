@@ -94,7 +94,7 @@ export default ({mode, formModalProps = {}}) => {
         return [
           <a key="addSub" onClick={(e) => {
             e.stopPropagation()
-            createModal.open({parentId : row.id, industryId: row.industryId})
+            createModal.open({parent: row})
           }}>新增子级</a>,
           <a key="edit" onClick={() => action?.startEditable(row.id)}>编辑</a>,
           <ExtConfirmDel key="del" onConfirm={async () => {
@@ -168,45 +168,56 @@ export default ({mode, formModalProps = {}}) => {
                           }
                         }:{})}
             />
-            <ModalForm title="新增科目" width="420px" visible={createModal.visible}
-                       initialValues={{type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
-                       modalProps={{destroyOnClose: true}}
-                       onVisibleChange={createModal.handleVisible}
-                       layout="inline"
-                       grid={true}
-                       rowProps={{gutter: [0,12]}}
-                       onFinish={async (value) => {
-                         await subjectWeb.addSubjectUsingPOST({
-                           ...value,
-                           industryId: selectedIndustry.id || createModal.state.industryId,
-                           parentId: createModal.state.parentId
-                         }).then(() => {
-                           createModal.close()
-                           fetchSubjects()
-                           actionRef.current?.reload()
-                         })
-                       }}
-            >
-              <ProFormText name="number" label="科目编号"
-                           rules={[
-                             {required: true, message: "科目编号不能为空！"},
-                           ]}
-              />
-              <ProFormText name="name" label="科目名称"
-                           rules={[
-                             {required: true, message: "科目名称不能为空！"},
-                           ]}
-              />
-              <ProFormSelect name="type"
-                             allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
-              <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
-                             allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
-              <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
-                             options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
-              <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>
-            </ModalForm>
+            {createModal.visible && (
+              <SubjectFormModal modal={createModal} tblActionRef={actionRef}/>
+            )}
           </Col>
         </ProCard>
       </GlobalPageContainer>
   );
 };
+
+function SubjectFormModal({modal, tblActionRef}) {
+  const {fetchSubjects} = useModel("useSubjectModel")
+  const {handleVisible, state} = modal
+  const {industryId, id: parentId, number: parentNumber} = state.parent || {}
+  return (
+    <ModalForm title="新增科目" width="420px" visible={true}
+               initialValues={{number: parentNumber, type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
+               modalProps={{destroyOnClose: true}}
+               onVisibleChange={handleVisible}
+               layout="inline"
+               grid={true}
+               rowProps={{gutter: [0,12]}}
+               onFinish={async (value) => {
+                 await subjectWeb.addSubjectUsingPOST({
+                   ...value,
+                   industryId: industryId || industryId,
+                   parentId: parentId
+                 }).then(() => {
+                   modal.close()
+                   fetchSubjects()
+                   tblActionRef.current?.reload()
+                 })
+               }}
+    >
+      <ProFormText name="number" label="科目编号"
+                   rules={[
+                     {required: true, message: "科目编号不能为空！"},
+                   ]}
+      />
+      <ProFormText name="name" label="科目名称"
+                   rules={[
+                     {required: true, message: "科目名称不能为空！"},
+                   ]}
+      />
+      <ProFormSelect name="type"
+                     allowClear={false} label="类型" options={Object.values(SUBJECT_TYPE)}/>
+      <ProFormSelect name="lendingDirection" labelCol={{span: 6}}
+                     allowClear={false} label="科目方向" options={Object.values(LENDING_DIRECTION)}/>
+      <ProFormSelect name="assistSettlement" allowClear={false} label="辅助结算"
+                     options={Object.values(SUBJECT_ASSIST_SETTLEMENT)}/>
+      <ProFormTextArea name="remark" fieldProps={{showCount: true, maxLength: 255}} label="备注"/>
+    </ModalForm>
+  )
+}

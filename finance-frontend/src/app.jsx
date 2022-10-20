@@ -13,8 +13,6 @@ import {getUserIdentity} from "@/utils/common";
 
 moment.locale('zh-cn');
 
-
-const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
 export {request} from "@/extend-config/request"

@@ -1,7 +1,13 @@
 import {message, notification} from "antd";
-import {ErrorShowType} from "@/.umi/plugin-request/request";
 import * as common from "@/utils/common";
 
+const ErrorShowType = {
+  SILENT : 0,
+  WARN_MESSAGE : 1,
+  ERROR_MESSAGE : 2,
+  NOTIFICATION : 4,
+  REDIRECT : 9,
+}
 const DEFAULT_ERROR_PAGE = '/exception'
 const IGNORE_URL = ["/api/login"]
 const authHeaderInterceptor = (url, options) => {

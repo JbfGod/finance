@@ -38,32 +38,17 @@ export default () => {
   const actionRef = useRef()
   const security = useSecurity("voucher")
   const [defaultVoucherDate, setDefaultVoucherDate] = useState()
-  const [initialBalance, setInitialBalance] = useState({})
-  const {bookkeeping} = initialBalance
   const formModal = useModalWithParam()
   const [print, onPrint] = usePrint()
   const [currencyType, setCurrencyType] = useState(CURRENCY_TYPE.LOCAL)
 
-  const fetchInitialBalanceOutline = () => {
-    initialBalanceOutlineUsingGET().then(({data}) => data && setInitialBalance({...data, yearMonthDate: moment(data.yearMonthDate, "YYYY-MM")}))
-  }
   const getDefaultVoucherDate = () => {
     defaultVoucherDateUsingGET().then(({data}) => setDefaultVoucherDate(data))
   }
 
   useEffect(() => {
-    fetchInitialBalanceOutline()
     getDefaultVoucherDate()
   }, [])
-  if (!bookkeeping) {
-    return (
-      <Card>
-        <Empty description="初始余额未关账，请先创建初始余额且关账！">
-          <Button type="primary" onClick={() => history.push('/base/initialBalance')}>去创建初始余额</Button>
-        </Empty>
-      </Card>
-    )
-  }
   const toolbar = {
     menu: {
       type: 'tab',
