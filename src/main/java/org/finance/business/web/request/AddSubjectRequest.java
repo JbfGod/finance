@@ -33,7 +33,6 @@ public class AddSubjectRequest {
 
     private Subject.AssistSettlement assistSettlement;
 
-    @NotNull(message = "请填写父级ID")
     private Long parentId;
 
     @Size(max = 255, message = "备注信息不能超出255个字符")

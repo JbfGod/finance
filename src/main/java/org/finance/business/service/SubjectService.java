@@ -28,7 +28,7 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
     @Transactional(rollbackFor = Exception.class)
     public void add(Subject subject) {
         Long parentId = subject.getParentId();
-        if (parentId == 0) {
+        if (parentId == null || parentId == 0) {
             subject.setHasLeaf(false);
             subject.setParentNumber("0");
             subject.setLevel(1);
