@@ -540,7 +540,10 @@ replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, l
 (220, '220', '总分类账', 200, '200', false, 2, 'MENU', '/report/generalLedger', '', '', '', 50, false),
 (230, '230', '明细分类账', 200, '200', false, 2, 'MENU', '/report/subLedger', '', '', '', 50, false),
 (240, '240', '现金日报表', 200, '200', false, 2, 'MENU', '/report/dailyCash', '', '', '', 50, false),
-(250, '250', '银行存款日报表', 200, '200', false, 2, 'MENU', '/report/dailyBank', '', '', '', 50, false)
+(250, '250', '银行存款日报表', 200, '200', false, 2, 'MENU', '/report/dailyBank', '', '', '', 50, false),
+(260, '260', '利润报表', 200, '200', false, 2, 'MENU', '/report/profit', '', '', '', 50, false),
+(270, '270', '现金流量表', 200, '200', false, 2, 'MENU', '/report/cashFlow', '', '', '', 50, false),
+(280, '280', '资产负债表', 200, '200', false, 2, 'MENU', '/report/balanceSheet', '', '', '', 50, false)
 
 ;
 

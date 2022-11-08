@@ -54,7 +54,7 @@ export function switchUserIdentity(identity) {
 
 export function arrayToTree(array, {keyField = "id", parentKeyField = "parentId", childrenField = "children"} = {}) {
   const eleByKey = array.reduce((curr, next) => {
-    curr[next[keyField]] = next
+    curr[next[keyField]] = {...next}
     return {...curr}
   }, {})
   const treeData = []
@@ -239,4 +239,22 @@ export function getHasChildNode(treeData, childrenField = "children") {
   }
   recursion(treeData)
   return hasChildNodes
+}
+
+export function copyStr(str){
+  const el = document.createElement('textarea');
+  el.value = str;
+  el.setAttribute("readonly", "");
+  el.style.position = "absolute";
+  el.style.left = "-9999px";
+  document.body.appendChild(el);
+  const selected =
+    document.getSelection().rangeCount > 0 ? document.getSelection().getRangeAt(0) : false;
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
+  if (selected) {
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(selected);
+  }
 }

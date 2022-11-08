@@ -100,7 +100,7 @@ declare namespace API {
     lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
     name: string;
     number: string;
-    parentId: number;
+    parentId?: number;
     remark?: string;
     type: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
@@ -495,6 +495,7 @@ declare namespace API {
     id?: number;
     initialBalanceId?: number;
     lendingDirection?: string;
+    localAmount?: number;
     subjectId?: number;
     subjectName?: string;
     subjectNumber?: string;
@@ -548,6 +549,10 @@ declare namespace API {
   };
 
   type Json = true;
+
+  type listProfitOfMonthUsingGETParams = {
+    yearMonth: string;
+  };
 
   type listSubjectUsingGETParams = {
     current?: number;
@@ -662,6 +667,13 @@ declare namespace API {
   type printContentOfVoucherUsingGETParams = {
     /** id */
     id: number;
+  };
+
+  type ProfitOfMonthVO = {
+    annualAmount?: number;
+    monthlyAmount?: number;
+    name?: string;
+    rowNumber?: number;
   };
 
   type R = {
@@ -874,6 +886,17 @@ declare namespace API {
     traceId?: string;
   };
 
+  type RListProfitOfMonthVO_ = {
+    data?: ProfitOfMonthVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
   type RListResourceIdentifiedVO_ = {
     data?: ResourceIdentifiedVO[];
     errorCode?: string;
@@ -995,6 +1018,12 @@ declare namespace API {
     traceId?: string;
   };
 
+  type Row = {
+    formula?: string;
+    name?: string;
+    rowNumber?: number;
+  };
+
   type RPageCurrencyVO_ = {
     current?: number;
     data?: CurrencyVO[];
@@ -1107,6 +1136,11 @@ declare namespace API {
     businessModule: 'EXPENSE_BILL';
     customerId: number;
     flowItems: FlowItem[];
+  };
+
+  type SaveProfitReportRequest = {
+    rows: Row[];
+    yearMonthNum: number;
   };
 
   type searchCustomerCueUsingGETParams = {
@@ -1314,11 +1348,10 @@ declare namespace API {
 
   type UpdateInitialBalanceRequest = {
     amount: number;
-    currencyId: number;
     currencyName: string;
     id: number;
     lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
-    rate: number;
+    localAmount: number;
     subjectId: number;
     subjectNumber: string;
   };

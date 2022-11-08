@@ -5,20 +5,31 @@ import org.finance.business.convert.AccountBalanceConvert;
 import org.finance.business.convert.ReportConvert;
 import org.finance.business.convert.VoucherConvert;
 import org.finance.business.entity.AccountBalance;
+import org.finance.business.entity.ProfitReport;
 import org.finance.business.entity.Subject;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.mapper.param.QueryVoucherItemOfSubLegerParam;
 import org.finance.business.service.AccountBalanceService;
+import org.finance.business.service.BalanceSheetReportService;
+import org.finance.business.service.CashFlowReportService;
+import org.finance.business.service.ProfitReportService;
 import org.finance.business.service.SubjectService;
 import org.finance.business.service.VoucherItemService;
+import org.finance.business.web.request.QueryBalanceSheetReportRequest;
+import org.finance.business.web.request.QueryCashFlowReportRequest;
 import org.finance.business.web.request.QueryDailyBankRequest;
 import org.finance.business.web.request.QueryDailyCashRequest;
+import org.finance.business.web.request.QueryProfitReportRequest;
 import org.finance.business.web.request.QuerySubLedgerRequest;
 import org.finance.business.web.vo.AccountBalanceVO;
+import org.finance.business.web.vo.BalanceSheetOfMonthVO;
+import org.finance.business.web.vo.CashFlowOfMonthVO;
 import org.finance.business.web.vo.DailyBankVO;
 import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
+import org.finance.business.web.vo.ProfitOfMonthVO;
 import org.finance.business.web.vo.SubLedgerVO;
+import org.finance.infrastructure.util.CommonUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,6 +60,12 @@ public class ReportManage {
     private SubjectService subjectService;
     @Resource
     private VoucherItemService voucherItemService;
+    @Resource
+    private ProfitReportService profitReportService;
+    @Resource
+    private CashFlowReportService cashFlowReportService;
+    @Resource
+    private BalanceSheetReportService balanceSheetReportService;
 
     public List<AccountBalanceVO> listAccountBalance(YearMonth yearMonth) {
         Function<Long, String> nameBySubjectId = subjectService.getNameFunction();
@@ -249,4 +266,34 @@ public class ReportManage {
         result.add(ReportConvert.INSTANCE.toSummaryTotalDailyBankVO(result));
         return result;
     }
+
+    public List<ProfitOfMonthVO> listProfit(QueryProfitReportRequest request) {
+        YearMonth yearMonth = request.getYearMonth();
+        int yearMonthNum = CommonUtil.getYearMonthNum(yearMonth);
+
+        List<ProfitReport> profits = profitReportService.list(yearMonthNum);
+        if (profits.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Subject> subjects = subjectService.list();
+
+        Map<Long, List<AccountBalance>> balancesBySubjectId = accountBalanceService.summaryGroupBySubject(
+            yearMonth, subjects, voucherItemService::summaryByMonthGroupBySubject
+        );
+        Map<String, AccountBalance> balanceBySubjectId = balancesBySubjectId.values().stream().flatMap(Collection::stream)
+                .collect(Collectors.toMap(AccountBalance::getSubjectNumber, v -> v));
+        Map<Integer, ProfitReport.ProfitParam> profitByRowNum = profitReportService.calcProfit(profits, balanceBySubjectId);
+        return ReportConvert.INSTANCE.toProfitOfMonthVO(profits, profitByRowNum);
+    }
+
+    public List<CashFlowOfMonthVO> listCashFlow(QueryCashFlowReportRequest request) {
+
+        return null;
+    }
+
+    public List<BalanceSheetOfMonthVO> listBalanceSheet(QueryBalanceSheetReportRequest request) {
+        return null;
+    }
+
+
 }

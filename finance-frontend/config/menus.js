@@ -217,6 +217,13 @@ const menus = [
         component: './Report/DailyBank',
       },
       {
+        path: '/report/profit',
+        name: '利润表',
+        icon: 'smile',
+        access: 'MENU:/report/profit',
+        component: './Report/Profit',
+      },
+      {
         component: './404',
       },
     ]

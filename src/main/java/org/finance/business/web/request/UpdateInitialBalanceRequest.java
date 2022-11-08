@@ -18,12 +18,8 @@ public class UpdateInitialBalanceRequest {
 
     @NotNull(message = "ID不能为空！")
     private Long id;
-    @NotNull(message = "请选择币别！")
-    private Long currencyId;
     @NotNull(message = "币别名称不能为空！")
     private String currencyName;
-    @NotNull(message = "汇率不能为空！")
-    private BigDecimal rate;
     @NotNull(message = "请选择科目！")
     private Long subjectId;
     @NotBlank(message = "请选择科目！")
@@ -32,4 +28,22 @@ public class UpdateInitialBalanceRequest {
     private LendingDirection lendingDirection;
     @NotNull(message = "请输入原币金额！")
     private BigDecimal amount;
+    @NotNull(message = "请输入本币金额！")
+    private BigDecimal localAmount;
+
+    public BigDecimal getDebitAmount() {
+        return lendingDirection == LendingDirection.BORROW? amount : new BigDecimal("0");
+    }
+
+    public BigDecimal getCreditAmount() {
+        return lendingDirection == LendingDirection.LOAN? amount : new BigDecimal("0");
+    }
+
+    public BigDecimal getLocalDebitAmount() {
+        return lendingDirection == LendingDirection.BORROW? localAmount : new BigDecimal("0");
+    }
+
+    public BigDecimal getLocalCreditAmount() {
+        return lendingDirection == LendingDirection.LOAN? localAmount : new BigDecimal("0");
+    }
 }

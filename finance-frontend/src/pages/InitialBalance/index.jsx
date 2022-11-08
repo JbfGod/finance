@@ -53,7 +53,11 @@ export default () => {
       title: "科目名称", dataIndex: "subjectName", search: false
     },
     {
-      title: "科目方向", dataIndex: "lendingDirection", search: false
+      title: "科目方向", dataIndex: "lendingDirection", search: false, valueType: "select",
+      fieldProps: {
+        allowClear: false,
+        options: Object.values(LENDING_DIRECTION)
+      }
     },
     {
       title: "币别", dataIndex: "currencyName", search: false
@@ -66,11 +70,11 @@ export default () => {
     },
     ...(security.canOperating && auditStatus === AuditStatus.TO_BE_AUDITED ? [{
       title: '操作', dataIndex: 'id',
-      width: 200, valueType: 'option',
+      width: 125, valueType: 'option',
       render: (dom, row) => (
         <AutoDropdown overlay={[
           <a key="edit"
-             onClick={() => formModal.open({mode: "edit", voucherId: row.id})}>
+             onClick={() => formModal.open({mode: "edit", initialValue: row})}>
             编辑
           </a>,
           <Popconfirm key="delete" title="确认删除该记录？"
@@ -163,11 +167,11 @@ export default () => {
 
 function FormModal({modal, yearMonthDate, subjectById, onSuccess}) {
   const {visible, handleVisible, state} = modal
-  const {mode = "add"} = state
+  const {mode = "add", initialValue = {}} = state
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   return (
     <ModalForm title="新增初始余额" width="420px" visible={visible}
-               initialValues={{lendingDirection: "BORROW", currencyName: "人民币"}}
+               initialValues={{lendingDirection: "BORROW", currencyName: "人民币", ...initialValue}}
                modalProps={{destroyOnClose: true}}
                onVisibleChange={handleVisible}
                onFinish={async (value) => {
@@ -183,7 +187,7 @@ function FormModal({modal, yearMonthDate, subjectById, onSuccess}) {
                      onSuccess?.()
                    })
                  } else if (isEditMode) {
-                   return await updateInitialBalanceUsingPUT.then(() => {
+                   return await updateInitialBalanceUsingPUT({...initialValue, ...newValues}).then(() => {
                      handleVisible(false)
                      onSuccess?.()
                    })
@@ -194,9 +198,6 @@ function FormModal({modal, yearMonthDate, subjectById, onSuccess}) {
       <ProFormItem label="科目" name="subjectId">
         <AdvancedSubjectSelect placeholder="只能选择费用类科目"
                                fieldsName={{key: "id", title: (v) => `${v.number}-${v.name}`}}
-                               disableFilter={(subject) => {
-                                 return subject.hasLeaf
-                               }}
                                onlySelectedLeaf={true} disabled={isViewMode}
                                style={{width: '100%'}} />
       </ProFormItem>

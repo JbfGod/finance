@@ -201,4 +201,12 @@ public class AccountBalance implements Serializable {
     public String getKey() {
         return String.format("%s-%s", this.currency, this.subjectId);
     }
+
+    public BigDecimal getCurrentAmount() {
+        return this.debitCurrentAmount.subtract(this.creditCurrentAmount);
+    }
+
+    public BigDecimal getAnnualAmount() {
+        return this.debitAnnualAmount.subtract(this.creditAnnualAmount);
+    }
 }

@@ -69,7 +69,8 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
         );
     }
 
-    public Map<Long, List<AccountBalance>> summaryGroupBySubject(YearMonth yearMonth, List<Subject> subjects, Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
+    public Map<Long, List<AccountBalance>> summaryGroupBySubject(YearMonth yearMonth, List<Subject> subjects,
+                                                                 Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
         InitialBalance initialBalance = initialBalanceMapper.selectOne(null);
         return summaryByYearMonth(yearMonth, subjects, initialBalance, voucherItemsByYearMonth);
     }
@@ -85,13 +86,13 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
                                                          Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
         int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
 
-        // 根据科目分组查询统计 YearMonth时期的 借贷总和
+        // 1. 根据科目分组查询统计 YearMonth时期的 借贷总和
         Map<Long, List<AccountBalance>> balanceOfCurrentBySubjectId = listAccountBalanceByYearMonth(yearMonthNum, initialBalance, voucherItemsByYearMonth);
 
-        // 获取上一个月的科目余额
+        // 2. 获取上一个月的科目余额
         YearMonth lastYearMonth = yearMonth.minusMonths(1);
         int lastYearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(lastYearMonth));
-        // 先查询科目余额表
+        // 2.1. 先查询科目余额表
         List<AccountBalance> balancesOfLastPeriod = baseMapper.listByYearMonth(lastYearMonthNum);
         Map<Long, List<AccountBalance>> balanceOfLastPeriodBySubjectId;
         if (balancesOfLastPeriod.isEmpty() && isAfterInitialBalanceDate(lastYearMonth, initialBalance)) {
@@ -102,10 +103,10 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
 
         Map<Integer, List<Subject>> subjectsByLevel = subjects.stream().collect(Collectors.groupingBy(Subject::getLevel));
 
-        // 获取树形科目最大深度
+        // 3. 获取树形科目最大深度
         Integer maxLevel = subjectsByLevel.keySet().stream().max(Integer::compareTo).get();
 
-        // 从科目最底层，一级一级往上合计相关余额信息
+        // 4. 从科目最底层，一级一级往上合计相关余额信息
         for (int i = maxLevel; i >= 1; i--) {
             List<Subject> subjectByLevel = subjectsByLevel.get(i);
             if (subjectByLevel == null) {

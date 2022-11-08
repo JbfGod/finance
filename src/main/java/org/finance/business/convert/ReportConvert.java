@@ -1,10 +1,17 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.AccountBalance;
+import org.finance.business.entity.BalanceSheetReport;
+import org.finance.business.entity.CashFlowReport;
+import org.finance.business.entity.ProfitReport;
 import org.finance.business.entity.VoucherItem;
+import org.finance.business.web.request.SaveBalanceSheetReportRequest;
+import org.finance.business.web.request.SaveCashFlowReportRequest;
+import org.finance.business.web.request.SaveProfitReportRequest;
 import org.finance.business.web.vo.DailyBankVO;
 import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
+import org.finance.business.web.vo.ProfitOfMonthVO;
 import org.finance.business.web.vo.SubLedgerVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -15,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author jiangbangfa
@@ -133,4 +142,56 @@ public interface ReportConvert {
                 .setCurrency("本位币");
     }
 
+    default List<ProfitOfMonthVO> toProfitOfMonthVO(List<ProfitReport> profits, Map<Integer, ProfitReport.ProfitParam> profitByRowNum) {
+        return profits.stream().map(profit -> {
+            Integer rowNumber = profit.getRowNumber();
+            ProfitOfMonthVO profitOfMonthVO = new ProfitOfMonthVO();
+            profitOfMonthVO.setId(profit.getId())
+                    .setName(profit.getName())
+                    .setRowNumber(rowNumber)
+                    .setFormula(profit.getFormula());
+            if (rowNumber != null && rowNumber > 0) {
+                ProfitReport.ProfitParam profitParam = profitByRowNum.get(rowNumber);
+                profitOfMonthVO.setMonthlyAmount(profitParam.getMonthlyAmount())
+                        .setAnnualAmount(profitParam.getAnnualAmount());
+            }
+            return profitOfMonthVO;
+        }).collect(Collectors.toList());
+    }
+
+    default List<ProfitReport> toProfitReports(SaveProfitReportRequest request) {
+        AtomicInteger atomicInteger = new AtomicInteger(1);
+        return request.getRows().stream().map(row -> new ProfitReport()
+                .setName(row.getName())
+                .setSerialNumber(atomicInteger.getAndIncrement())
+                .setRowNumber(row.getRowNumber())
+                .setYearMonthNum(request.getYearMonthNum())
+                .setFormula(row.getFormula())
+        ).collect(Collectors.toList());
+    }
+
+    default List<CashFlowReport> toCashFlowReports(SaveCashFlowReportRequest request) {
+        AtomicInteger atomicInteger = new AtomicInteger(1);
+        return request.getRows().stream().map(row -> new CashFlowReport()
+                .setName(row.getName())
+                .setSerialNumber(atomicInteger.getAndIncrement())
+                .setRowNumber(row.getRowNumber())
+                .setYearMonthNum(request.getYearMonthNum())
+                .setFormula(row.getFormula())
+        ).collect(Collectors.toList());
+    }
+
+    default List<BalanceSheetReport> toBalanceSheetReports(SaveBalanceSheetReportRequest request) {
+        AtomicInteger atomicInteger = new AtomicInteger(1);
+        return request.getRows().stream().map(row -> new BalanceSheetReport()
+                .setSerialNumber(atomicInteger.getAndIncrement())
+                .setAssetsName(row.getAssetsName())
+                .setAssetsRowNumber(row.getAssetsRowNumber())
+                .setAssetsFormula(row.getAssetsFormula())
+                .setEquityName(row.getEquityName())
+                .setEquityRowNumber(row.getEquityRowNumber())
+                .setEquityFormula(row.getEquityFormula())
+                .setYearMonthNum(request.getYearMonthNum())
+        ).collect(Collectors.toList());
+    }
 }

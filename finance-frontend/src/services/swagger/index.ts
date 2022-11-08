@@ -13,6 +13,7 @@ import * as expenseBillWeb from './expenseBillWeb';
 import * as industryWeb from './industryWeb';
 import * as initialBalanceWeb from './initialBalanceWeb';
 import * as minioWeb from './minioWeb';
+import * as profitReportWeb from './profitReportWeb';
 import * as reportWeb from './reportWeb';
 import * as resourceWeb from './resourceWeb';
 import * as subjectWeb from './subjectWeb';
@@ -30,6 +31,7 @@ export default {
   industryWeb,
   initialBalanceWeb,
   minioWeb,
+  profitReportWeb,
   reportWeb,
   resourceWeb,
   subjectWeb,

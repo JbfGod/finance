@@ -129,7 +129,8 @@ public class InitialBalanceWeb {
     public R bookkeepingInitialBalance(@PathVariable("id") long id) {
         baseService.bookkeepingById(id, initialBalance -> {
             // 初始余额4月份，则关账关的是3月份的
-            YearMonth yearMonth = YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT).minusMonths(1);
+            YearMonth yearMonth = YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT)
+                    .minusMonths(1);
             AccountCloseList accountCloseList = AccountCloseListConvert.INSTANCE.toAccountCloseList(yearMonth);
             accountCloseListService.closeAccount(accountCloseList);
         });

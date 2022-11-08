@@ -39,7 +39,8 @@ public class CustomerTenantLineHandler implements TenantLineHandler {
     private final List<String> includeTables = Arrays.asList(
             "expense_bill", "expense_item", "expense_item_attachment", "expense_item_subsidy",
             "subject", "voucher", "voucher_item", "currency", "account_close_list",
-            "initial_balance", "initial_balance_item"
+            "initial_balance", "initial_balance_item", "profit_report",
+            "cash_flow_report", "balance_sheet_report"
     );
 
     private final List<String> ignoreUrls = Arrays.asList(
