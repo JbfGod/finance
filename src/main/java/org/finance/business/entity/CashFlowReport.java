@@ -5,10 +5,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -75,21 +75,12 @@ public class CashFlowReport implements Serializable {
     private String formula;
 
     @TableField(exist = false)
-    private Row row;
-
-    @Data
-    public static class Row {
-        private BigDecimal annualAmount;
-        private BigDecimal monthlyAmount;
-
-        public Row() {
-            BigDecimal defaultValue = new BigDecimal("0");
-            this.annualAmount = defaultValue;
-            this.monthlyAmount = defaultValue;
-        }
-    }
+    private BigDecimal amount;
 
     public static List<String> splitFormula(String formula) {
+        if (StringUtils.isBlank(formula)) {
+            return Collections.emptyList();
+        }
         Matcher matcher = formulaPattern.matcher(formula);
         if (matcher.matches()) {
             return Arrays.asList(matcher.group(2).split(formulaPartPattern));

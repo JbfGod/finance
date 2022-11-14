@@ -73,14 +73,14 @@ public class ProfitReport implements Serializable {
     private String formula;
 
     @TableField(exist = false)
-    private ProfitParam profitParam;
+    private Row row;
 
     @Data
-    public static class ProfitParam {
+    public static class Row {
         private BigDecimal annualAmount;
         private BigDecimal monthlyAmount;
 
-        public ProfitParam() {
+        public Row() {
             BigDecimal defaultValue = new BigDecimal("0");
             this.annualAmount = defaultValue;
             this.monthlyAmount = defaultValue;
@@ -97,6 +97,9 @@ public class ProfitReport implements Serializable {
     }
 
     public static List<String> splitFormula(String formula) {
+        if (StringUtils.isBlank(formula)) {
+            return Collections.emptyList();
+        }
         Matcher matcher = formulaPattern.matcher(formula);
         if (matcher.matches()) {
             return Arrays.asList(matcher.group(2).split(formulaPartPattern));

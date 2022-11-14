@@ -5,10 +5,13 @@ import commonNumberColumn from "@/pages/Report/commonNumberColumn";
 import styles from "@/pages/VoucherList/index.less";
 import {EditableProTable} from "@ant-design/pro-table";
 import commonColumn from "@/pages/Report/commonColumn";
-import {Badge, Button, DatePicker, Modal, Space, Table, Tabs, Tag, message} from "antd";
+import {Badge, Button, Col, DatePicker, Modal, Row, Space, Table, Tabs, Tag} from "antd";
 import {useModalWithParam} from "@/utils/hooks";
 import {useModel} from "umi"
-import {listProfitOfMonthUsingGET, saveProfitReportUsingPOST} from "@/services/swagger/profitReportWeb";
+import {listCashFlowOfMonthUsingGET, saveCashFlowReportUsingPOST} from "@/services/swagger/cashFlowReportWeb";
+import ExProTable from "@/components/Table/ExtProTable";
+import {voucherItemBySubjectUsingGET} from "@/services/swagger/voucherWeb";
+import VoucherForm from "@/pages/VoucherList/VoucherForm";
 
 export default function () {
   const actionRef = useRef()
@@ -28,8 +31,7 @@ export default function () {
     commonColumn("行次", "rowNumber", {
       width: 95, valueType: "digital"
     }),
-    commonNumberColumn("本年累积金额", "annualAmount", {editable: false, width: 155}),
-    commonNumberColumn("本月金额", "monthlyAmount", {editable: false, width: 155}),
+    commonNumberColumn("金额", "amount", {editable: false, width: 155}),
     {
       title: "操作", editable: false, width: 125,
       render: (_, row) => (
@@ -57,24 +59,24 @@ export default function () {
   }))
   const onSave = () => {
     setSaving(true)
-    saveProfitReportUsingPOST({
+    saveCashFlowReportUsingPOST({
       yearMonthNum: yearMonth.format("YYYYMM"),
       rows: dataSource
     }).finally(_ => {
       setSaving(false)
       setEditableRowKeys([])
-      loadProfit()
+      loadCashFlow()
     })
   }
-  const loadProfit = () => {
+  const loadCashFlow = () => {
     setLoading(true)
-    listProfitOfMonthUsingGET({yearMonth: yearMonth.format("YYYY-MM")})
+    listCashFlowOfMonthUsingGET({yearMonth: yearMonth.format("YYYY-MM")})
       .then(res => setDataSource(res.data))
       .finally(() => setLoading(false))
   }
 
   useEffect(() => {
-    loadProfit()
+    loadCashFlow()
   }, [yearMonth])
   return (
     <GlobalPageContainer>
@@ -82,19 +84,20 @@ export default function () {
                         controlled size="small" className={styles.voucherTbl} rowKey="id"
                         scroll={{y: window.innerHeight - 325}}
                         headerTitle={(
-                          <Space>月份：<DatePicker picker="month" value={yearMonth} onChange={setYearMonth} allowClear={false}/></Space>
+                          <Space>月份：<DatePicker picker="month" value={yearMonth} onChange={setYearMonth}
+                                                allowClear={false}/></Space>
                         )}
                         toolBarRender={() => {
                           return [
                             <Button type="primary" key="copy" onClick={() => {
-                                window.localStorage.setItem("profitTemplate", JSON.stringify(dataSource))
+                              window.localStorage.setItem("cashFlowTemplate", JSON.stringify(dataSource))
                             }}>复制本月模板</Button>,
                             <Button type="primary" key="paste" onClick={() => {
-                              const tpl = window.localStorage.getItem("profitTemplate")
+                              const tpl = window.localStorage.getItem("cashFlowTemplate")
                               tpl && setDataSource(JSON.parse(tpl))
                             }}>粘贴模板</Button>,
                             <Button type="primary" key="save" loading={saving}
-                              onClick={onSave}
+                                    onClick={onSave}
                             >保存</Button>
                           ];
                         }}
@@ -124,19 +127,21 @@ export default function () {
                           },
                         }}
       />
-      <SetFormulaModal modal={formulaModal} records={dataSource}/>
+      <SetFormulaModal yearMonth={yearMonth} modal={formulaModal} records={dataSource}/>
     </GlobalPageContainer>
   )
 }
 
-const formulaPattern = /(rowNum|subjectId):([+\d\-]+)/
+const formulaPattern = /(rowNum|voucherItemId):([+\d\-]+)/
 
-function SetFormulaModal({modal, records}) {
+function SetFormulaModal({modal, records, yearMonth}) {
   const {state = {}} = modal
   const {rowNum, changeFormula, formulaValue} = state
   const {subjects} = useModel('useSubjectModel')
   const [activeKey, setActiveKey] = useState("rowNum")
   const [formula, setFormula] = useState("")
+  const [selectedSubjectId, setSelectedSubjectId] = useState([])
+
   const rowNumDataSource = records.map((ele, idx) => ({rowNum: idx + 1, formula: ele.formula}))
     .filter(ele => ele.rowNum !== rowNum
       && (
@@ -165,7 +170,7 @@ function SetFormulaModal({modal, records}) {
       setActiveKey('rowNum')
       setFormula('')
     } else {
-      setActiveKey(formulaValue?.startsWith("subjectId") ? "subjectId" : "rowNum")
+      setActiveKey(formulaValue?.startsWith("voucherItemId") ? "voucherItemId" : "rowNum")
       setFormula(formulaValue || "")
     }
   }, [modal.visible])
@@ -173,7 +178,7 @@ function SetFormulaModal({modal, records}) {
     return null
   }
   return (
-    <Modal open={true} onCancel={modal.close} onOk={onOk}>
+    <Modal width={900} open={true} onCancel={modal.close} onOk={onOk}>
       <Tabs activeKey={activeKey} onChange={onTabChange}
             items={[
               {
@@ -196,31 +201,68 @@ function SetFormulaModal({modal, records}) {
                 )
               },
               {
-                label: `科目`, key: 'subjectId',
+                label: `凭证`, key: 'voucherItemId',
                 children: (
-                  <Table size="small" rowKey="id" pagination={false} scroll={{y: 325}}
-                         dataSource={subjects} columns={[
-                    {title: "行号编号", dataIndex: "number"},
-                    {title: "科目名称", dataIndex: "name"},
-                    {
-                      title: "操作", dataIndex: "operate",
-                      render: (_, row) => (
-                        <Space size={12}>
-                          <a onClick={() => onAdd(row.number)}>加</a>
-                          <a onClick={() => onSubtract(row.number)}>减</a>
-                        </Space>
-                      )
-                    },
-                  ]}/>
+                  <Row>
+                    <Col span={12}>
+                      <Table size="small" rowKey="id" pagination={false} scroll={{y: 325}}
+                             rowSelection={{
+                               type: "radio",
+                               selectedRowKeys: selectedSubjectId,
+                               onChange: (keys => setSelectedSubjectId(keys))
+                             }}
+                             onRow={(record) => ({
+                               onClick: (e) => {
+                                 e.stopPropagation()
+                                 setSelectedSubjectId([record.id])
+                               }
+                             })}
+                             dataSource={subjects} columns={[
+                        {title: "行号编号", dataIndex: "number", width: 125},
+                        {title: "科目名称", dataIndex: "name", width: 150},
+                      ]}/>
+                    </Col>
+                    <Col span={12}>
+                      {selectedSubjectId.length > 0 && (
+                        <ExProTable columns={[
+                          {title: "凭证日期", dataIndex: "voucherDate", align: "center", width: 100},
+                          {title: "凭证号", dataIndex: "voucherNumber", align: "center", width: 50},
+                          commonColumn("摘要", "summary"),
+                          commonColumn("金额", "amount", {
+                            render: (_, row) => {
+                              const amount = row.localDebitAmount - row.localCreditAmount
+                              const content = amount || ""
+                              return <span title={content}>{content}</span>
+                            }
+                          }),
+                          {
+                            title: "操作", dataIndex: "operate",
+                            render: (_, row) => (
+                              <Space size={12}>
+                                <a onClick={() => onAdd(row.id)}>加</a>
+                                <a onClick={() => onSubtract(row.id)}>减</a>
+                              </Space>
+                            )
+                          }
+                        ]} toolBarRender={false}
+                                    pagination={false} bordered size="small"
+                                    search={false} scroll={{y: 325}}
+                                    params={{subjectId: selectedSubjectId[0], yearMonth: yearMonth.format("YYYY-MM")}}
+                                    request={voucherItemBySubjectUsingGET}
+                        />
+                      )}
+                    </Col>
+                  </Row>
                 )
               },
             ]}
       />
       <br/>
+
       {formulaParts.map((part, index) => (
         <Tag key={formulaParts.filter((_, i) => i <= index).join("")} closable
              onClose={() => setFormula(`${activeKey}:${formulaParts.filter((_, i) => i !== index).join("")}`)}
-             style={{userSelect: "none"}} color={part.startsWith("+") ? "success" : "processing"} >
+             style={{userSelect: "none"}} color={part.startsWith("+") ? "success" : "processing"}>
           {part}
         </Tag>
       ))}

@@ -5,10 +5,13 @@ import commonNumberColumn from "@/pages/Report/commonNumberColumn";
 import styles from "@/pages/VoucherList/index.less";
 import {EditableProTable} from "@ant-design/pro-table";
 import commonColumn from "@/pages/Report/commonColumn";
-import {Badge, Button, DatePicker, Modal, Space, Table, Tabs, Tag, message} from "antd";
+import {Badge, Button, DatePicker, Modal, Space, Table, Tabs, Tag} from "antd";
 import {useModalWithParam} from "@/utils/hooks";
 import {useModel} from "umi"
-import {listProfitOfMonthUsingGET, saveProfitReportUsingPOST} from "@/services/swagger/profitReportWeb";
+import {
+  listBalanceSheetOfMonthUsingGET,
+  saveBalanceSheetReportUsingPOST
+} from "@/services/swagger/balanceSheetReportWeb";
 
 export default function () {
   const actionRef = useRef()
@@ -19,62 +22,123 @@ export default function () {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
   const columns = [
-    commonColumn("项目", "name", {
+    commonColumn("资产", "assetsName", {
       render: (_, row) => {
-        const content = row.name || ""
+        const content = row.assetsName || ""
         return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
       }
     }),
-    commonColumn("行次", "rowNumber", {
+    commonColumn("行次", "assetsRowNumber", {
       width: 95, valueType: "digital"
     }),
-    commonNumberColumn("本年累积金额", "annualAmount", {editable: false, width: 155}),
-    commonNumberColumn("本月金额", "monthlyAmount", {editable: false, width: 155}),
+    commonNumberColumn("年初余额", "assetsOpeningAmount", {editable: false, width: 155}),
+    commonNumberColumn("年末余额", "assetsClosingAmount", {editable: false, width: 155}),
     {
       title: "操作", editable: false, width: 125,
-      render: (_, row) => (
+      render: (_, row, idx) => (
         <Space size={12}>
-          <Badge dot={row.formula}>
+          <Badge dot={row.assetsFormula}>
             <a onClick={() => formulaModal.open({
-              rowNum: row.rowNumber, changeFormula: formulaHandler(row.id),
-              formulaValue: row.formula
+              rowNum: idx + 1, changeFormula: formulaHandler(row.id, "assetsFormula"),
+              formulaValue: row.assetsFormula
             })}>设置公式</a>
           </Badge>
-          <a onClick={() => delById(row.id)}>删除</a>
+          <a onClick={() => delById(row.id, "assets")}>删除</a>
+        </Space>
+      )
+    },
+    commonColumn("负债及所有者权益", "equityName", {
+      render: (_, row) => {
+        const content = row.equityName || ""
+        return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
+      }
+    }),
+    commonColumn("行次", "equityRowNumber", {
+      width: 95, valueType: "digital"
+    }),
+    commonNumberColumn("年初余额", "equityOpeningAmount", {editable: false, width: 155}),
+    commonNumberColumn("年末余额", "equityClosingAmount", {editable: false, width: 155}),
+    {
+      title: "操作", editable: false, width: 125,
+      render: (_, row, idx) => (
+        <Space size={12}>
+          <Badge dot={row.equityFormula}>
+            <a onClick={() => formulaModal.open({
+              rowNum: idx + 1, changeFormula: formulaHandler(row.id, "equityFormula"),
+              formulaValue: row.equityFormula
+            })}>设置公式</a>
+          </Badge>
+          <a onClick={() => delById(row.id, "equity")}>删除</a>
         </Space>
       )
     }
   ]
 
-  const delById = (id) => {
-    setDataSource(oldDs => oldDs.filter(ele => ele.id !== id))
+  const delById = (id, type) => {
+    setDataSource(oldDs => {
+      let isUpdate = false
+      let newDs = oldDs.filter(ele => {
+        if (ele.id === id) {
+          if (type === "equity" && !ele.assetsName && ele.assetsRowNumber == null && ele.assetsFormula == null) {
+            return false
+          } else if (type === "assets" && !ele.equityName && ele.equityRowNumber == null && ele.equityFormula == null) {
+            return false
+          }
+          isUpdate = true
+        }
+        return true
+      })
+      if (isUpdate) {
+        return oldDs.map(ele => {
+          if (ele.id !== id) {
+            return ele
+          }
+          const newEle = {...ele}
+          if (type === "assets") {
+            newEle.assetsName = null
+            newEle.assetsRowNumber = null
+            newEle.assetsFormula = null
+            newEle.assetsOpeningAmount = null
+            newEle.assetsClosingAmount = null
+          } else {
+            newEle.equityName = null
+            newEle.equityRowNumber = null
+            newEle.equityFormula = null
+            newEle.equityOpeningAmount = null
+            newEle.equityClosingAmount = null
+          }
+          return newEle
+        })
+      }
+      return newDs
+    })
   }
-  const formulaHandler = (id) => (formula) => setDataSource(dataSource.map(ele => {
+  const formulaHandler = (id, formulaKey) => (formula) => setDataSource(dataSource.map(ele => {
     if (ele.id === id) {
-      return {...ele, formula}
+      return {...ele, [formulaKey]: formula}
     }
     return ele
   }))
   const onSave = () => {
     setSaving(true)
-    saveProfitReportUsingPOST({
+    saveBalanceSheetReportUsingPOST({
       yearMonthNum: yearMonth.format("YYYYMM"),
       rows: dataSource
     }).finally(_ => {
       setSaving(false)
       setEditableRowKeys([])
-      loadProfit()
+      loadBalanceSheet()
     })
   }
-  const loadProfit = () => {
+  const loadBalanceSheet = () => {
     setLoading(true)
-    listProfitOfMonthUsingGET({yearMonth: yearMonth.format("YYYY-MM")})
+    listBalanceSheetOfMonthUsingGET({yearMonth: yearMonth.format("YYYY-MM")})
       .then(res => setDataSource(res.data))
       .finally(() => setLoading(false))
   }
 
   useEffect(() => {
-    loadProfit()
+    loadBalanceSheet()
   }, [yearMonth])
   return (
     <GlobalPageContainer>
@@ -87,10 +151,10 @@ export default function () {
                         toolBarRender={() => {
                           return [
                             <Button type="primary" key="copy" onClick={() => {
-                                window.localStorage.setItem("profitTemplate", JSON.stringify(dataSource))
+                              window.localStorage.setItem("balanceSheetTemplate", JSON.stringify(dataSource))
                             }}>复制本月模板</Button>,
                             <Button type="primary" key="paste" onClick={() => {
-                              const tpl = window.localStorage.getItem("profitTemplate")
+                              const tpl = window.localStorage.getItem("balanceSheetTemplate")
                               tpl && setDataSource(JSON.parse(tpl))
                             }}>粘贴模板</Button>,
                             <Button type="primary" key="save" loading={saving}

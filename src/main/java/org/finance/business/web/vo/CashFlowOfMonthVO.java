@@ -16,7 +16,6 @@ public class CashFlowOfMonthVO {
     private String name;
     private Integer rowNumber;
     private String formula;
-    private BigDecimal annualAmount;
-    private BigDecimal monthlyAmount;
+    private BigDecimal amount;
 
 }

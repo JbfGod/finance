@@ -35,37 +35,33 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
         );
     }
 
-    public Map<Integer, ProfitReport.ProfitParam> calcProfit(List<ProfitReport> profits, Map<String, AccountBalance> balanceBySubjectNumber) {
+    public Map<Integer, ProfitReport.Row> calcProfit(List<ProfitReport> profits, Map<String, AccountBalance> balanceBySubjectNumber) {
         Map<Integer, String> formulaByRowNum = profits.stream()
                 .filter(profitReport -> StringUtils.isNotBlank(profitReport.getFormula()))
                 .collect(Collectors.toMap(ProfitReport::getRowNumber, ProfitReport::getFormula));
 
-        Map<Integer, ProfitReport.ProfitParam> valueByRowNum = new HashMap<>();
+        Map<Integer, ProfitReport.Row> valueByRowNum = new HashMap<>();
         for (ProfitReport profit : profits) {
             Integer rowNumber = profit.getRowNumber();
-            if (rowNumber == null || rowNumber == 0) {
-                valueByRowNum.put(rowNumber, new ProfitReport.ProfitParam());
-                continue;
-            }
-            calcByRowNum(rowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum);
+            profit.setRow(calcByRowNum(rowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
         }
 
         return valueByRowNum;
     }
 
-    public ProfitReport.ProfitParam calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
-                                                 Map<String, AccountBalance> balanceBySubjectNumber,
-                                                 Map<Integer, ProfitReport.ProfitParam> valueByRowNum) {
-        ProfitReport.ProfitParam profitParam = valueByRowNum.get(rowNumber);
-        if (profitParam != null) {
-            return profitParam;
+    public ProfitReport.Row calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
+                                         Map<String, AccountBalance> balanceBySubjectNumber,
+                                         Map<Integer, ProfitReport.Row> valueByRowNum) {
+        ProfitReport.Row row = valueByRowNum.get(rowNumber);
+        if (row != null) {
+            return row;
         }
-        profitParam = new ProfitReport.ProfitParam();
+        row = new ProfitReport.Row();
         String formula = formulaByRowNum.get(rowNumber);
         List<String> parts = ProfitReport.splitFormula(formula);
         if (parts.isEmpty()) {
-            valueByRowNum.put(rowNumber, profitParam);
-            return profitParam;
+            valueByRowNum.put(rowNumber, row);
+            return row;
         }
         int partLen = parts.size();
         boolean isRowNumExpression = ProfitReport.isRowNumFormula(formula);
@@ -79,17 +75,17 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
                     : BigDecimal::subtract;
 
             if (isRowNumExpression) {
-                ProfitReport.ProfitParam profitParamByRowNum = calcByRowNum(Integer.valueOf(partValue), formulaByRowNum, balanceBySubjectNumber, valueByRowNum);
-                profitParam.setMonthlyAmount(calcFunc.apply(profitParam.getMonthlyAmount(), profitParamByRowNum.getMonthlyAmount()))
-                        .setAnnualAmount(calcFunc.apply(profitParam.getAnnualAmount(), profitParamByRowNum.getAnnualAmount()));
+                ProfitReport.Row rowByRowNum = calcByRowNum(Integer.valueOf(partValue), formulaByRowNum, balanceBySubjectNumber, valueByRowNum);
+                row.setMonthlyAmount(calcFunc.apply(row.getMonthlyAmount(), rowByRowNum.getMonthlyAmount()))
+                        .setAnnualAmount(calcFunc.apply(row.getAnnualAmount(), rowByRowNum.getAnnualAmount()));
             } else {
                 AccountBalance accountBalance = Optional.ofNullable(balanceBySubjectNumber.get(partValue)).orElseGet(AccountBalance::newInstance);
-                profitParam.setMonthlyAmount(calcFunc.apply(profitParam.getMonthlyAmount(), accountBalance.getCurrentAmount()))
-                        .setAnnualAmount(calcFunc.apply(profitParam.getAnnualAmount(), accountBalance.getAnnualAmount()));
+                row.setMonthlyAmount(calcFunc.apply(row.getMonthlyAmount(), accountBalance.getCurrentAmount()))
+                        .setAnnualAmount(calcFunc.apply(row.getAnnualAmount(), accountBalance.getAnnualAmount()));
             }
         }
-        valueByRowNum.put(rowNumber, profitParam);
-        return profitParam;
+        valueByRowNum.put(rowNumber, row);
+        return row;
     }
 
     @Transactional(rollbackFor = Exception.class)

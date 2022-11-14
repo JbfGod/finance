@@ -8,6 +8,8 @@ import org.finance.business.entity.VoucherItem;
 import org.finance.business.web.request.SaveBalanceSheetReportRequest;
 import org.finance.business.web.request.SaveCashFlowReportRequest;
 import org.finance.business.web.request.SaveProfitReportRequest;
+import org.finance.business.web.vo.BalanceSheetOfMonthVO;
+import org.finance.business.web.vo.CashFlowOfMonthVO;
 import org.finance.business.web.vo.DailyBankVO;
 import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
@@ -142,7 +144,7 @@ public interface ReportConvert {
                 .setCurrency("本位币");
     }
 
-    default List<ProfitOfMonthVO> toProfitOfMonthVO(List<ProfitReport> profits, Map<Integer, ProfitReport.ProfitParam> profitByRowNum) {
+    default List<ProfitOfMonthVO> toProfitOfMonthVO(List<ProfitReport> profits, Map<Integer, ProfitReport.Row> profitByRowNum) {
         return profits.stream().map(profit -> {
             Integer rowNumber = profit.getRowNumber();
             ProfitOfMonthVO profitOfMonthVO = new ProfitOfMonthVO();
@@ -150,11 +152,9 @@ public interface ReportConvert {
                     .setName(profit.getName())
                     .setRowNumber(rowNumber)
                     .setFormula(profit.getFormula());
-            if (rowNumber != null && rowNumber > 0) {
-                ProfitReport.ProfitParam profitParam = profitByRowNum.get(rowNumber);
-                profitOfMonthVO.setMonthlyAmount(profitParam.getMonthlyAmount())
-                        .setAnnualAmount(profitParam.getAnnualAmount());
-            }
+            ProfitReport.Row row = Optional.ofNullable(profit.getRow()).orElse(profitByRowNum.get(rowNumber));
+            profitOfMonthVO.setMonthlyAmount(row.getMonthlyAmount())
+                    .setAnnualAmount(row.getAnnualAmount());
             return profitOfMonthVO;
         }).collect(Collectors.toList());
     }
@@ -180,6 +180,18 @@ public interface ReportConvert {
                 .setFormula(row.getFormula())
         ).collect(Collectors.toList());
     }
+    default List<CashFlowOfMonthVO> toCashFlowOfMonthVO(List<CashFlowReport> cashFlows, Map<Integer, BigDecimal> cashFlowByRowNum) {
+        return cashFlows.stream().map(cashFlow -> {
+            Integer rowNumber = cashFlow.getRowNumber();
+            CashFlowOfMonthVO cashFlowVO = new CashFlowOfMonthVO();
+            cashFlowVO.setId(cashFlow.getId())
+                    .setName(cashFlow.getName())
+                    .setRowNumber(rowNumber)
+                    .setFormula(cashFlow.getFormula());
+            cashFlowVO.setAmount(Optional.ofNullable(cashFlow.getAmount()).orElse(cashFlowByRowNum.get(rowNumber)));
+            return cashFlowVO;
+        }).collect(Collectors.toList());
+    }
 
     default List<BalanceSheetReport> toBalanceSheetReports(SaveBalanceSheetReportRequest request) {
         AtomicInteger atomicInteger = new AtomicInteger(1);
@@ -193,5 +205,29 @@ public interface ReportConvert {
                 .setEquityFormula(row.getEquityFormula())
                 .setYearMonthNum(request.getYearMonthNum())
         ).collect(Collectors.toList());
+    }
+
+    default List<BalanceSheetOfMonthVO> toBalanceSheetOfMonthVO(List<BalanceSheetReport> sheetReports,
+                                                                Map<Integer, BalanceSheetReport.Row> sheetRowByRowNum) {
+        return sheetReports.stream().map(sheetReport -> {
+            Integer assetsRowNumber = sheetReport.getAssetsRowNumber();
+            Integer equityRowNumber = sheetReport.getEquityRowNumber();
+            BalanceSheetOfMonthVO balanceSheetOfMonthVO = new BalanceSheetOfMonthVO();
+            balanceSheetOfMonthVO.setId(sheetReport.getId())
+                    .setAssetsName(sheetReport.getAssetsName())
+                    .setAssetsRowNumber(assetsRowNumber)
+                    .setAssetsFormula(sheetReport.getAssetsFormula())
+                    .setEquityName(sheetReport.getEquityName())
+                    .setEquityRowNumber(equityRowNumber)
+                    .setEquityFormula(sheetReport.getEquityFormula());
+            BalanceSheetReport.Row assetsRow = Optional.ofNullable(sheetReport.getAssetsRow()).orElse(sheetRowByRowNum.get(assetsRowNumber));
+            balanceSheetOfMonthVO.setAssetsOpeningAmount(assetsRow.getOpeningAmount())
+                    .setAssetsClosingAmount(assetsRow.getClosingAmount());
+
+            BalanceSheetReport.Row equityRow = Optional.ofNullable(sheetReport.getEquityRow()).orElse(sheetRowByRowNum.get(equityRowNumber));
+            balanceSheetOfMonthVO.setEquityOpeningAmount(equityRow.getOpeningAmount())
+                    .setEquityClosingAmount(equityRow.getClosingAmount());
+            return balanceSheetOfMonthVO;
+        }).collect(Collectors.toList());
     }
 }

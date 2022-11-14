@@ -35,33 +35,33 @@ public class CashFlowReportService extends ServiceImpl<CashFlowReportMapper, Cas
         );
     }
 
-    public Map<Integer, CashFlowReport.Row> calcBalanceSheet(List<CashFlowReport> cashFlows,
-                                                             Map<Long, VoucherItem> balanceByVoucherItemId) {
+    public Map<Integer, BigDecimal> calcCashFlow(List<CashFlowReport> cashFlows,
+                                                 Map<Long, VoucherItem> voucherItemById) {
         Map<Integer, String> formulaByRowNum = cashFlows.stream()
                 .filter(cashFlow -> StringUtils.isNotBlank(cashFlow.getFormula()))
                 .collect(Collectors.toMap(CashFlowReport::getRowNumber, CashFlowReport::getFormula));
 
-        Map<Integer, CashFlowReport.Row> valueByRowNum = new HashMap<>();
+        Map<Integer, BigDecimal> valueByRowNum = new HashMap<>();
         for (CashFlowReport cashFlow : cashFlows) {
-            calcByRowNum(cashFlow.getRowNumber(), formulaByRowNum, balanceByVoucherItemId, valueByRowNum);
+            cashFlow.setAmount(calcByRowNum(cashFlow.getRowNumber(), formulaByRowNum, voucherItemById, valueByRowNum));
         }
 
         return valueByRowNum;
     }
 
-    public CashFlowReport.Row calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
-                                               Map<Long, VoucherItem> balanceByVoucherItemId,
-                                               Map<Integer, CashFlowReport.Row> valueByRowNum) {
-        CashFlowReport.Row row = valueByRowNum.get(rowNumber);
-        if (row != null) {
-            return row;
+    public BigDecimal calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
+                                               Map<Long, VoucherItem> voucherItemById,
+                                               Map<Integer, BigDecimal> valueByRowNum) {
+        BigDecimal amount = valueByRowNum.get(rowNumber);
+        if (amount != null) {
+            return amount;
         }
-        row = new CashFlowReport.Row();
+        amount = new BigDecimal("0");
         String formula = formulaByRowNum.get(rowNumber);
         List<String> parts = CashFlowReport.splitFormula(formula);
         if (parts.isEmpty()) {
-            valueByRowNum.put(rowNumber, row);
-            return row;
+            valueByRowNum.put(rowNumber, amount);
+            return amount;
         }
         int partLen = parts.size();
         boolean isRowNumExpression = CashFlowReport.isRowNumFormula(formula);
@@ -75,20 +75,18 @@ public class CashFlowReportService extends ServiceImpl<CashFlowReportMapper, Cas
                     : BigDecimal::subtract;
 
             if (isRowNumExpression) {
-                CashFlowReport.Row rowByRowNum = calcByRowNum(
-                        Integer.valueOf(partValue), formulaByRowNum, balanceByVoucherItemId, valueByRowNum
+                BigDecimal rowByRowNum = calcByRowNum(
+                        Integer.valueOf(partValue), formulaByRowNum, voucherItemById, valueByRowNum
                 );
-                row.setMonthlyAmount(calcFunc.apply(row.getMonthlyAmount(), rowByRowNum.getMonthlyAmount()))
-                    .setAnnualAmount(calcFunc.apply(row.getAnnualAmount(), rowByRowNum.getAnnualAmount()));
+                amount = calcFunc.apply(amount, rowByRowNum);
             } else {
-                VoucherItem voucherItem = Optional.ofNullable(balanceByVoucherItemId.get(Long.valueOf(partValue)))
+                VoucherItem voucherItem = Optional.ofNullable(voucherItemById.get(Long.valueOf(partValue)))
                         .orElseGet(VoucherItem::new);
-                row.setMonthlyAmount(calcFunc.apply(row.getMonthlyAmount(), voucherItem.getCreditAmount()))
-                    .setAnnualAmount(calcFunc.apply(row.getAnnualAmount(), voucherItem.getCreditAmount()));
+                amount = calcFunc.apply(amount, voucherItem.getLocalDebitAmount().subtract(voucherItem.getCreditAmount()));
             }
         }
-        valueByRowNum.put(rowNumber, row);
-        return row;
+        valueByRowNum.put(rowNumber, amount);
+        return amount;
     }
 
     @Transactional(rollbackFor = Exception.class)

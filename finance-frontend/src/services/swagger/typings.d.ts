@@ -181,6 +181,20 @@ declare namespace API {
     id: number;
   };
 
+  type BalanceSheetOfMonthVO = {
+    assetsClosingAmount?: number;
+    assetsFormula?: string;
+    assetsName?: string;
+    assetsOpeningAmount?: number;
+    assetsRowNumber?: number;
+    equityClosingAmount?: number;
+    equityFormula?: string;
+    equityName?: string;
+    equityOpeningAmount?: number;
+    equityRowNumber?: number;
+    id?: number;
+  };
+
   type batchAuditingVoucherUsingPUTParams = {
     beginSerialNum?: number;
     endSerialNum?: number;
@@ -218,6 +232,14 @@ declare namespace API {
   type cancelClosedAccountUsingPOSTParams = {
     yearMonthDate: string;
     yearMonthNum?: number;
+  };
+
+  type CashFlowOfMonthVO = {
+    amount?: number;
+    formula?: string;
+    id?: number;
+    name?: string;
+    rowNumber?: number;
   };
 
   type closeAccountUsingPOSTParams = {
@@ -550,6 +572,14 @@ declare namespace API {
 
   type Json = true;
 
+  type listBalanceSheetOfMonthUsingGETParams = {
+    yearMonth: string;
+  };
+
+  type listCashFlowOfMonthUsingGETParams = {
+    yearMonth: string;
+  };
+
   type listProfitOfMonthUsingGETParams = {
     yearMonth: string;
   };
@@ -671,6 +701,8 @@ declare namespace API {
 
   type ProfitOfMonthVO = {
     annualAmount?: number;
+    formula?: string;
+    id?: number;
     monthlyAmount?: number;
     name?: string;
     rowNumber?: number;
@@ -789,6 +821,28 @@ declare namespace API {
 
   type RListApprovalFlowItemVO_ = {
     data?: ApprovalFlowItemVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
+  type RListBalanceSheetOfMonthVO_ = {
+    data?: BalanceSheetOfMonthVO[];
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
+  };
+
+  type RListCashFlowOfMonthVO_ = {
+    data?: CashFlowOfMonthVO[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -1136,6 +1190,16 @@ declare namespace API {
     businessModule: 'EXPENSE_BILL';
     customerId: number;
     flowItems: FlowItem[];
+  };
+
+  type SaveBalanceSheetReportRequest = {
+    rows: Row[];
+    yearMonthNum: number;
+  };
+
+  type SaveCashFlowReportRequest = {
+    rows: Row[];
+    yearMonthNum: number;
   };
 
   type SaveProfitReportRequest = {

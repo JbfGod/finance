@@ -35,7 +35,8 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
         );
     }
 
-    public Map<Integer, BalanceSheetReport.Row> calcBalanceSheet(List<BalanceSheetReport> balanceSheets, Map<String, AccountBalance> balanceBySubjectNumber) {
+    public Map<Integer, BalanceSheetReport.Row> calcBalanceSheet(List<BalanceSheetReport> balanceSheets,
+                                                                 Map<String, AccountBalance> balanceBySubjectNumber) {
         Map<Integer, String> formulaByRowNum = new HashMap<>();
         balanceSheets.forEach(balanceSheet -> {
             String assetsFormula = balanceSheet.getAssetsFormula();
@@ -52,8 +53,8 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
         for (BalanceSheetReport balanceSheet : balanceSheets) {
             Integer assetsRowNumber = balanceSheet.getAssetsRowNumber();
             Integer equityRowNumber = balanceSheet.getEquityRowNumber();
-            calcByRowNum(assetsRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum);
-            calcByRowNum(equityRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum);
+            balanceSheet.setAssetsRow(calcByRowNum(assetsRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
+            balanceSheet.setEquityRow(calcByRowNum(equityRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
         }
 
         return valueByRowNum;

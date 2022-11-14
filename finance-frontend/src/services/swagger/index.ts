@@ -5,6 +5,8 @@
 import * as accountCloseListWeb from './accountCloseListWeb';
 import * as approvalFlowWeb from './approvalFlowWeb';
 import * as approvalInstanceWeb from './approvalInstanceWeb';
+import * as balanceSheetReportWeb from './balanceSheetReportWeb';
+import * as cashFlowReportWeb from './cashFlowReportWeb';
 import * as currencyWeb from './currencyWeb';
 import * as customerWeb from './customerWeb';
 import * as customerCategoryWeb from './customerCategoryWeb';
@@ -23,6 +25,8 @@ export default {
   accountCloseListWeb,
   approvalFlowWeb,
   approvalInstanceWeb,
+  balanceSheetReportWeb,
+  cashFlowReportWeb,
   currencyWeb,
   customerWeb,
   customerCategoryWeb,

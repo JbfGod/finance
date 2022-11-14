@@ -224,6 +224,20 @@ const menus = [
         component: './Report/Profit',
       },
       {
+        path: '/report/cashFlow',
+        name: '现金流量表',
+        icon: 'smile',
+        access: 'MENU:/report/cashFlow',
+        component: './Report/CashFlow',
+      },
+      {
+        path: '/report/balanceSheet',
+        name: '资产负债表',
+        icon: 'smile',
+        access: 'MENU:/report/balanceSheet',
+        component: './Report/BalanceSheet',
+      },
+      {
         component: './404',
       },
     ]
