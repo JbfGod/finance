@@ -14,7 +14,7 @@ public class ProfitOfMonthVO {
 
     private Long id;
     private String name;
-    private Integer rowNumber;
+    private Integer rowNum;
     private String formula;
     private BigDecimal annualAmount;
     private BigDecimal monthlyAmount;

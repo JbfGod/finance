@@ -39,11 +39,11 @@ public class CashFlowReportService extends ServiceImpl<CashFlowReportMapper, Cas
                                                  Map<Long, VoucherItem> voucherItemById) {
         Map<Integer, String> formulaByRowNum = cashFlows.stream()
                 .filter(cashFlow -> StringUtils.isNotBlank(cashFlow.getFormula()))
-                .collect(Collectors.toMap(CashFlowReport::getRowNumber, CashFlowReport::getFormula));
+                .collect(Collectors.toMap(CashFlowReport::getRowNum, CashFlowReport::getFormula));
 
         Map<Integer, BigDecimal> valueByRowNum = new HashMap<>();
         for (CashFlowReport cashFlow : cashFlows) {
-            cashFlow.setAmount(calcByRowNum(cashFlow.getRowNumber(), formulaByRowNum, voucherItemById, valueByRowNum));
+            cashFlow.setAmount(calcByRowNum(cashFlow.getRowNum(), formulaByRowNum, voucherItemById, valueByRowNum));
         }
 
         return valueByRowNum;

@@ -21,7 +21,7 @@ public class SaveCashFlowReportRequest {
     @Data
     public static class Row {
         private String name;
-        private Integer rowNumber;
+        private Integer rowNum;
         private String formula;
     }
 }

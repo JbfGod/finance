@@ -28,7 +28,7 @@ export default function () {
         return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
       }
     }),
-    commonColumn("行次", "rowNumber", {
+    commonColumn("行次", "rowNum", {
       width: 95, valueType: "digital"
     }),
     commonNumberColumn("金额", "amount", {editable: false, width: 155}),
@@ -38,7 +38,7 @@ export default function () {
         <Space size={12}>
           <Badge dot={row.formula}>
             <a onClick={() => formulaModal.open({
-              rowNum: row.rowNumber, changeFormula: formulaHandler(row.id),
+              rowNum: row.rowNum, changeFormula: formulaHandler(row.id),
               formulaValue: row.formula
             })}>设置公式</a>
           </Badge>
@@ -142,8 +142,8 @@ function SetFormulaModal({modal, records, yearMonth}) {
   const [formula, setFormula] = useState("")
   const [selectedSubjectId, setSelectedSubjectId] = useState([])
 
-  const rowNumDataSource = records.map((ele, idx) => ({rowNum: idx + 1, formula: ele.formula}))
-    .filter(ele => ele.rowNum !== rowNum
+  const rowNumDataSource = records.map(ele => ({rowNum: ele.rowNum, formula: ele.formula}))
+    .filter(ele => ele.rowNum && ele.rowNum !== rowNum
       && (
         !ele.formula?.startsWith("rowNum") || !ele.formula?.match(new RegExp(`[+-]${rowNum}\\b`))
       )

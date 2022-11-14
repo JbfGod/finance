@@ -146,11 +146,11 @@ public interface ReportConvert {
 
     default List<ProfitOfMonthVO> toProfitOfMonthVO(List<ProfitReport> profits, Map<Integer, ProfitReport.Row> profitByRowNum) {
         return profits.stream().map(profit -> {
-            Integer rowNumber = profit.getRowNumber();
+            Integer rowNumber = profit.getRowNum();
             ProfitOfMonthVO profitOfMonthVO = new ProfitOfMonthVO();
             profitOfMonthVO.setId(profit.getId())
                     .setName(profit.getName())
-                    .setRowNumber(rowNumber)
+                    .setRowNum(rowNumber)
                     .setFormula(profit.getFormula());
             ProfitReport.Row row = Optional.ofNullable(profit.getRow()).orElse(profitByRowNum.get(rowNumber));
             profitOfMonthVO.setMonthlyAmount(row.getMonthlyAmount())
@@ -164,7 +164,7 @@ public interface ReportConvert {
         return request.getRows().stream().map(row -> new ProfitReport()
                 .setName(row.getName())
                 .setSerialNumber(atomicInteger.getAndIncrement())
-                .setRowNumber(row.getRowNumber())
+                .setRowNum(row.getRowNum())
                 .setYearMonthNum(request.getYearMonthNum())
                 .setFormula(row.getFormula())
         ).collect(Collectors.toList());
@@ -175,18 +175,18 @@ public interface ReportConvert {
         return request.getRows().stream().map(row -> new CashFlowReport()
                 .setName(row.getName())
                 .setSerialNumber(atomicInteger.getAndIncrement())
-                .setRowNumber(row.getRowNumber())
+                .setRowNum(row.getRowNum())
                 .setYearMonthNum(request.getYearMonthNum())
                 .setFormula(row.getFormula())
         ).collect(Collectors.toList());
     }
     default List<CashFlowOfMonthVO> toCashFlowOfMonthVO(List<CashFlowReport> cashFlows, Map<Integer, BigDecimal> cashFlowByRowNum) {
         return cashFlows.stream().map(cashFlow -> {
-            Integer rowNumber = cashFlow.getRowNumber();
+            Integer rowNumber = cashFlow.getRowNum();
             CashFlowOfMonthVO cashFlowVO = new CashFlowOfMonthVO();
             cashFlowVO.setId(cashFlow.getId())
                     .setName(cashFlow.getName())
-                    .setRowNumber(rowNumber)
+                    .setRowNum(rowNumber)
                     .setFormula(cashFlow.getFormula());
             cashFlowVO.setAmount(Optional.ofNullable(cashFlow.getAmount()).orElse(cashFlowByRowNum.get(rowNumber)));
             return cashFlowVO;
@@ -198,10 +198,10 @@ public interface ReportConvert {
         return request.getRows().stream().map(row -> new BalanceSheetReport()
                 .setSerialNumber(atomicInteger.getAndIncrement())
                 .setAssetsName(row.getAssetsName())
-                .setAssetsRowNumber(row.getAssetsRowNumber())
+                .setAssetsRowNum(row.getAssetsRowNum())
                 .setAssetsFormula(row.getAssetsFormula())
                 .setEquityName(row.getEquityName())
-                .setEquityRowNumber(row.getEquityRowNumber())
+                .setEquityRowNum(row.getEquityRowNum())
                 .setEquityFormula(row.getEquityFormula())
                 .setYearMonthNum(request.getYearMonthNum())
         ).collect(Collectors.toList());
@@ -210,15 +210,15 @@ public interface ReportConvert {
     default List<BalanceSheetOfMonthVO> toBalanceSheetOfMonthVO(List<BalanceSheetReport> sheetReports,
                                                                 Map<Integer, BalanceSheetReport.Row> sheetRowByRowNum) {
         return sheetReports.stream().map(sheetReport -> {
-            Integer assetsRowNumber = sheetReport.getAssetsRowNumber();
-            Integer equityRowNumber = sheetReport.getEquityRowNumber();
+            Integer assetsRowNumber = sheetReport.getAssetsRowNum();
+            Integer equityRowNumber = sheetReport.getEquityRowNum();
             BalanceSheetOfMonthVO balanceSheetOfMonthVO = new BalanceSheetOfMonthVO();
             balanceSheetOfMonthVO.setId(sheetReport.getId())
                     .setAssetsName(sheetReport.getAssetsName())
-                    .setAssetsRowNumber(assetsRowNumber)
+                    .setAssetsRowNum(assetsRowNumber)
                     .setAssetsFormula(sheetReport.getAssetsFormula())
                     .setEquityName(sheetReport.getEquityName())
-                    .setEquityRowNumber(equityRowNumber)
+                    .setEquityRowNum(equityRowNumber)
                     .setEquityFormula(sheetReport.getEquityFormula());
             BalanceSheetReport.Row assetsRow = Optional.ofNullable(sheetReport.getAssetsRow()).orElse(sheetRowByRowNum.get(assetsRowNumber));
             balanceSheetOfMonthVO.setAssetsOpeningAmount(assetsRow.getOpeningAmount())

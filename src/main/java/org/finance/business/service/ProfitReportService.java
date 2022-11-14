@@ -38,11 +38,11 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
     public Map<Integer, ProfitReport.Row> calcProfit(List<ProfitReport> profits, Map<String, AccountBalance> balanceBySubjectNumber) {
         Map<Integer, String> formulaByRowNum = profits.stream()
                 .filter(profitReport -> StringUtils.isNotBlank(profitReport.getFormula()))
-                .collect(Collectors.toMap(ProfitReport::getRowNumber, ProfitReport::getFormula));
+                .collect(Collectors.toMap(ProfitReport::getRowNum, ProfitReport::getFormula));
 
         Map<Integer, ProfitReport.Row> valueByRowNum = new HashMap<>();
         for (ProfitReport profit : profits) {
-            Integer rowNumber = profit.getRowNumber();
+            Integer rowNumber = profit.getRowNum();
             profit.setRow(calcByRowNum(rowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
         }
 

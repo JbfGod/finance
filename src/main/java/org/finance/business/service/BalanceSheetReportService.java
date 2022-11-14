@@ -42,17 +42,17 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
             String assetsFormula = balanceSheet.getAssetsFormula();
             String equityFormula = balanceSheet.getEquityFormula();
             if (StringUtils.isNotBlank(assetsFormula)) {
-                formulaByRowNum.put(balanceSheet.getAssetsRowNumber(), assetsFormula);
+                formulaByRowNum.put(balanceSheet.getAssetsRowNum(), assetsFormula);
             }
             if (StringUtils.isNotBlank(equityFormula)) {
-                formulaByRowNum.put(balanceSheet.getEquityRowNumber(), equityFormula);
+                formulaByRowNum.put(balanceSheet.getEquityRowNum(), equityFormula);
             }
         });
 
         Map<Integer, BalanceSheetReport.Row> valueByRowNum = new HashMap<>();
         for (BalanceSheetReport balanceSheet : balanceSheets) {
-            Integer assetsRowNumber = balanceSheet.getAssetsRowNumber();
-            Integer equityRowNumber = balanceSheet.getEquityRowNumber();
+            Integer assetsRowNumber = balanceSheet.getAssetsRowNum();
+            Integer equityRowNumber = balanceSheet.getEquityRowNum();
             balanceSheet.setAssetsRow(calcByRowNum(assetsRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
             balanceSheet.setEquityRow(calcByRowNum(equityRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
         }

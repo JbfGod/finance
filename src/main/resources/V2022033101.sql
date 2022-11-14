@@ -513,6 +513,51 @@ CREATE TABLE if not exists `account_balance` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='科目余额(月关帐的时候生成)';
 
+CREATE TABLE if not exists `profit_report` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int default 0 comment '序号',
+    `customer_id` bigint(20) not null default 0 comment '所属客户',
+    `year_month_num` int not null comment '月份',
+    `name` varchar(500) default '' comment '项目名称',
+    `row_num` int default 0 comment '行次',
+    `formula` varchar(2555) default '' comment '计算公式',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='利润报表';
+
+create index profit_report_customer_id_year_month_num_index
+    on profit_report (customer_id, `year_month_num`);
+
+CREATE TABLE if not exists `cash_flow_report` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int default 0 comment '序号',
+    `customer_id` bigint(20) not null default 0 comment '所属客户',
+    `year_month_num` int not null comment '月份',
+    `name` varchar(500) default '' comment '项目名称',
+    `row_num` int default 0 comment '行次',
+    `formula` varchar(2555) default '' comment '计算公式',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='现金流量报表';
+
+create index cash_flow_report_customer_id_year_month_num_index
+    on cash_flow_report (customer_id, `year_month_num`);
+
+CREATE TABLE if not exists `balance_sheet_report` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `serial_number` int default 0 comment '序号',
+    `customer_id` bigint(20) not null default 0 comment '所属客户',
+    `year_month_num` int not null comment '月份',
+    `assets_name` varchar(500) default '' comment '资产名称',
+    `assets_row_num` int default 0 comment '资产行次',
+    `assets_formula` varchar(2555) default '' comment '资产公式',
+    `equity_name` varchar(500) default '' comment '权益名称',
+    `equity_row_num` int default 0 comment '权益行次',
+    `equity_formula` varchar(2555) default '' comment '权益公式',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB collate = utf8mb4_bin COMMENT='利润报表';
+
+create index balance_sheet_report_customer_id_year_month_num_index
+    on balance_sheet_report (customer_id, `year_month_num`);
+
 truncate table resource;
 replace into `resource` (id, number, name, parent_id, parent_number, has_leaf, level,
                          type, url, icon, business_code,permit_code, sort_num, super_customer)values

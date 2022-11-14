@@ -18,10 +18,10 @@ public class BalanceSheetOfMonthVO {
     private BigDecimal equityOpeningAmount;
     private BigDecimal equityClosingAmount;
     private String assetsName;
-    private Integer assetsRowNumber;
+    private Integer assetsRowNum;
     private String assetsFormula;
     private String equityName;
-    private Integer equityRowNumber;
+    private Integer equityRowNum;
     private String equityFormula;
 
 }

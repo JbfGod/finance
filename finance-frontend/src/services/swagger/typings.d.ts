@@ -186,12 +186,12 @@ declare namespace API {
     assetsFormula?: string;
     assetsName?: string;
     assetsOpeningAmount?: number;
-    assetsRowNumber?: number;
+    assetsRowNum?: number;
     equityClosingAmount?: number;
     equityFormula?: string;
     equityName?: string;
     equityOpeningAmount?: number;
-    equityRowNumber?: number;
+    equityRowNum?: number;
     id?: number;
   };
 
@@ -239,7 +239,7 @@ declare namespace API {
     formula?: string;
     id?: number;
     name?: string;
-    rowNumber?: number;
+    rowNum?: number;
   };
 
   type closeAccountUsingPOSTParams = {
@@ -705,7 +705,7 @@ declare namespace API {
     id?: number;
     monthlyAmount?: number;
     name?: string;
-    rowNumber?: number;
+    rowNum?: number;
   };
 
   type R = {
@@ -1075,7 +1075,7 @@ declare namespace API {
   type Row = {
     formula?: string;
     name?: string;
-    rowNumber?: number;
+    rowNum?: number;
   };
 
   type RPageCurrencyVO_ = {

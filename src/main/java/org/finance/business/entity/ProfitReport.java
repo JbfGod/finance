@@ -65,7 +65,7 @@ public class ProfitReport implements Serializable {
     /**
      * 行次
      */
-    private Integer rowNumber;
+    private Integer rowNum;
 
     /**
      * 计算公式

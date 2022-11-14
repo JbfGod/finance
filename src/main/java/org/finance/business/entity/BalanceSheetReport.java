@@ -69,7 +69,7 @@ public class BalanceSheetReport implements Serializable {
     /**
      * 资产行次
      */
-    private Integer assetsRowNumber;
+    private Integer assetsRowNum;
 
     /**
      * 资产公式
@@ -84,7 +84,7 @@ public class BalanceSheetReport implements Serializable {
     /**
      * 权益行次
      */
-    private Integer equityRowNumber;
+    private Integer equityRowNum;
 
     /**
      * 权益公式

@@ -28,7 +28,7 @@ export default function () {
         return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
       }
     }),
-    commonColumn("行次", "assetsRowNumber", {
+    commonColumn("行次", "assetsRowNum", {
       width: 95, valueType: "digital"
     }),
     commonNumberColumn("年初余额", "assetsOpeningAmount", {editable: false, width: 155}),
@@ -39,7 +39,7 @@ export default function () {
         <Space size={12}>
           <Badge dot={row.assetsFormula}>
             <a onClick={() => formulaModal.open({
-              rowNum: idx + 1, changeFormula: formulaHandler(row.id, "assetsFormula"),
+              rowNum: row.assetsRowNum, changeFormula: formulaHandler(row.id, "assetsFormula"),
               formulaValue: row.assetsFormula
             })}>设置公式</a>
           </Badge>
@@ -53,7 +53,7 @@ export default function () {
         return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
       }
     }),
-    commonColumn("行次", "equityRowNumber", {
+    commonColumn("行次", "equityRowNum", {
       width: 95, valueType: "digital"
     }),
     commonNumberColumn("年初余额", "equityOpeningAmount", {editable: false, width: 155}),
@@ -64,7 +64,7 @@ export default function () {
         <Space size={12}>
           <Badge dot={row.equityFormula}>
             <a onClick={() => formulaModal.open({
-              rowNum: idx + 1, changeFormula: formulaHandler(row.id, "equityFormula"),
+              rowNum: row.equityRowNum, changeFormula: formulaHandler(row.id, "equityFormula"),
               formulaValue: row.equityFormula
             })}>设置公式</a>
           </Badge>
@@ -201,8 +201,10 @@ function SetFormulaModal({modal, records}) {
   const {subjects} = useModel('useSubjectModel')
   const [activeKey, setActiveKey] = useState("rowNum")
   const [formula, setFormula] = useState("")
-  const rowNumDataSource = records.map((ele, idx) => ({rowNum: idx + 1, formula: ele.formula}))
-    .filter(ele => ele.rowNum !== rowNum
+  const rowNumDataSource = records.flatMap(ele => [
+    {rowNum: ele.assetsRowNum, formula: ele.assetsFormula},
+    {rowNum: ele.equityRowNum, formula: ele.equityFormula}
+  ]).filter(ele => ele.rowNum && ele.rowNum !== rowNum
       && (
         !ele.formula?.startsWith("rowNum") || !ele.formula?.match(new RegExp(`[+-]${rowNum}\\b`))
       )
