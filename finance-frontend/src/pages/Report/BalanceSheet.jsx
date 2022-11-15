@@ -23,13 +23,14 @@ export default function () {
   const [loading, setLoading] = useState(false)
   const columns = [
     commonColumn("资产", "assetsName", {
+      width: 125,
       render: (_, row) => {
         const content = row.assetsName || ""
         return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
       }
     }),
     commonColumn("行次", "assetsRowNum", {
-      width: 95, valueType: "digital"
+      width: 90, valueType: "digital"
     }),
     commonNumberColumn("年初余额", "assetsOpeningAmount", {editable: false, width: 155}),
     commonNumberColumn("年末余额", "assetsClosingAmount", {editable: false, width: 155}),
@@ -48,13 +49,14 @@ export default function () {
       )
     },
     commonColumn("负债及所有者权益", "equityName", {
+      width: 125,
       render: (_, row) => {
         const content = row.equityName || ""
         return <div style={{textAlign: "left", whiteSpace: "pre"}} title={content}>{content}</div>
       }
     }),
     commonColumn("行次", "equityRowNum", {
-      width: 95, valueType: "digital"
+      width: 90, valueType: "digital"
     }),
     commonNumberColumn("年初余额", "equityOpeningAmount", {editable: false, width: 155}),
     commonNumberColumn("年末余额", "equityClosingAmount", {editable: false, width: 155}),
