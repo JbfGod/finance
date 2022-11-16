@@ -43,13 +43,14 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
         Map<Integer, ProfitReport.Row> valueByRowNum = new HashMap<>();
         for (ProfitReport profit : profits) {
             Integer rowNumber = profit.getRowNum();
-            profit.setRow(calcByRowNum(rowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
+            profit.setRow(calcByRowNum(rowNumber, profit.getFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
         }
 
         return valueByRowNum;
     }
 
-    public ProfitReport.Row calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
+    public ProfitReport.Row calcByRowNum(Integer rowNumber, String formula,
+                                         Map<Integer, String> formulaByRowNum,
                                          Map<String, AccountBalance> balanceBySubjectNumber,
                                          Map<Integer, ProfitReport.Row> valueByRowNum) {
         ProfitReport.Row row = valueByRowNum.get(rowNumber);
@@ -57,10 +58,11 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
             return row;
         }
         row = new ProfitReport.Row();
-        String formula = formulaByRowNum.get(rowNumber);
         List<String> parts = ProfitReport.splitFormula(formula);
         if (parts.isEmpty()) {
-            valueByRowNum.put(rowNumber, row);
+            if (rowNumber > 0) {
+                valueByRowNum.put(rowNumber, row);
+            }
             return row;
         }
         int partLen = parts.size();
@@ -75,7 +77,10 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
                     : BigDecimal::subtract;
 
             if (isRowNumExpression) {
-                ProfitReport.Row rowByRowNum = calcByRowNum(Integer.valueOf(partValue), formulaByRowNum, balanceBySubjectNumber, valueByRowNum);
+                int rowNum = Integer.parseInt(partValue);
+                ProfitReport.Row rowByRowNum = Optional.ofNullable(valueByRowNum.get(rowNum)).orElseGet(() ->
+                    calcByRowNum(rowNum, formulaByRowNum.get(rowNum), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
+                );
                 row.setMonthlyAmount(calcFunc.apply(row.getMonthlyAmount(), rowByRowNum.getMonthlyAmount()))
                         .setAnnualAmount(calcFunc.apply(row.getAnnualAmount(), rowByRowNum.getAnnualAmount()));
             } else {

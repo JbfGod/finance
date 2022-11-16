@@ -43,24 +43,26 @@ public class CashFlowReportService extends ServiceImpl<CashFlowReportMapper, Cas
 
         Map<Integer, BigDecimal> valueByRowNum = new HashMap<>();
         for (CashFlowReport cashFlow : cashFlows) {
-            cashFlow.setAmount(calcByRowNum(cashFlow.getRowNum(), formulaByRowNum, voucherItemById, valueByRowNum));
+            cashFlow.setAmount(calcByRowNum(cashFlow.getRowNum(), cashFlow.getFormula(), formulaByRowNum, voucherItemById, valueByRowNum));
         }
 
         return valueByRowNum;
     }
 
-    public BigDecimal calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
-                                               Map<Long, VoucherItem> voucherItemById,
-                                               Map<Integer, BigDecimal> valueByRowNum) {
+    public BigDecimal calcByRowNum(Integer rowNumber, String formula,
+                                   Map<Integer, String> formulaByRowNum,
+                                   Map<Long, VoucherItem> voucherItemById,
+                                   Map<Integer, BigDecimal> valueByRowNum) {
         BigDecimal amount = valueByRowNum.get(rowNumber);
         if (amount != null) {
             return amount;
         }
         amount = new BigDecimal("0");
-        String formula = formulaByRowNum.get(rowNumber);
         List<String> parts = CashFlowReport.splitFormula(formula);
         if (parts.isEmpty()) {
-            valueByRowNum.put(rowNumber, amount);
+            if (rowNumber > 0) {
+                valueByRowNum.put(rowNumber, amount);
+            }
             return amount;
         }
         int partLen = parts.size();
@@ -75,8 +77,11 @@ public class CashFlowReportService extends ServiceImpl<CashFlowReportMapper, Cas
                     : BigDecimal::subtract;
 
             if (isRowNumExpression) {
-                BigDecimal rowByRowNum = calcByRowNum(
-                        Integer.valueOf(partValue), formulaByRowNum, voucherItemById, valueByRowNum
+                int rowNum = Integer.parseInt(partValue);
+                BigDecimal rowByRowNum = Optional.ofNullable(valueByRowNum.get(rowNum)).orElseGet(() ->
+                    calcByRowNum(
+                        rowNum, formulaByRowNum.get(rowNum) , formulaByRowNum, voucherItemById, valueByRowNum
+                    )
                 );
                 amount = calcFunc.apply(amount, rowByRowNum);
             } else {

@@ -53,14 +53,18 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
         for (BalanceSheetReport balanceSheet : balanceSheets) {
             Integer assetsRowNumber = balanceSheet.getAssetsRowNum();
             Integer equityRowNumber = balanceSheet.getEquityRowNum();
-            balanceSheet.setAssetsRow(calcByRowNum(assetsRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
-            balanceSheet.setEquityRow(calcByRowNum(equityRowNumber, formulaByRowNum, balanceBySubjectNumber, valueByRowNum));
+            balanceSheet.setAssetsRow(
+                    calcByRowNum(assetsRowNumber, balanceSheet.getAssetsFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
+            );
+            balanceSheet.setEquityRow(
+                    calcByRowNum(equityRowNumber, balanceSheet.getEquityFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
+            );
         }
 
         return valueByRowNum;
     }
 
-    public BalanceSheetReport.Row calcByRowNum(Integer rowNumber, Map<Integer, String> formulaByRowNum,
+    public BalanceSheetReport.Row calcByRowNum(Integer rowNumber, String formula, Map<Integer, String> formulaByRowNum,
                                                Map<String, AccountBalance> balanceBySubjectNumber,
                                                Map<Integer, BalanceSheetReport.Row> valueByRowNum) {
         BalanceSheetReport.Row row = valueByRowNum.get(rowNumber);
@@ -68,10 +72,11 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
             return row;
         }
         row = new BalanceSheetReport.Row();
-        String formula = formulaByRowNum.get(rowNumber);
         List<String> parts = BalanceSheetReport.splitFormula(formula);
         if (parts.isEmpty()) {
-            valueByRowNum.put(rowNumber, row);
+            if (rowNumber > 0) {
+                valueByRowNum.put(rowNumber, row);
+            }
             return row;
         }
         int partLen = parts.size();
@@ -86,21 +91,23 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
                     : BigDecimal::subtract;
 
             if (isRowNumExpression) {
-                BalanceSheetReport.Row rowByRowNum = calcByRowNum(
-                        Integer.valueOf(partValue), formulaByRowNum, balanceBySubjectNumber, valueByRowNum
-                );
+                int rowNum = Integer.parseInt(partValue);
+                BalanceSheetReport.Row rowByRowNum = Optional.ofNullable(valueByRowNum.get(rowNum))
+                        .orElseGet(() -> calcByRowNum(
+                                rowNum, formulaByRowNum.get(rowNumber), formulaByRowNum, balanceBySubjectNumber, valueByRowNum
+                        ));
                 row.setOpeningAmount(calcFunc.apply(row.getOpeningAmount(), rowByRowNum.getOpeningAmount()))
-                    .setClosingAmount(calcFunc.apply(row.getClosingAmount(), rowByRowNum.getClosingAmount()));
+                        .setClosingAmount(calcFunc.apply(row.getClosingAmount(), rowByRowNum.getClosingAmount()));
             } else {
                 AccountBalance accountBalance = Optional.ofNullable(balanceBySubjectNumber.get(partValue)).orElseGet(AccountBalance::newInstance);
                 row.setOpeningAmount(calcFunc.apply(row.getOpeningAmount(), accountBalance.getLocalOpeningBalance()))
-                    .setClosingAmount(calcFunc.apply(row.getClosingAmount(), accountBalance.getLocalClosingBalance()));
+                        .setClosingAmount(calcFunc.apply(row.getClosingAmount(), accountBalance.getLocalClosingBalance()));
             }
         }
         valueByRowNum.put(rowNumber, row);
         return row;
     }
-    
+
     @Transactional(rollbackFor = Exception.class)
     public void save(int yearMonth, List<BalanceSheetReport> balanceSheetReports) {
         baseMapper.delete(Wrappers.<BalanceSheetReport>lambdaQuery()
