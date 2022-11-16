@@ -87,7 +87,7 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
         int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
 
         // 1. 根据科目分组查询统计 YearMonth时期的 借贷总和
-        Map<Long, List<AccountBalance>> balanceOfCurrentBySubjectId = listAccountBalanceByYearMonth(yearMonthNum, initialBalance, voucherItemsByYearMonth);
+        Map<Long, List<AccountBalance>> balanceOfCurrentBySubjectId = listAccountBalanceByYearMonth(yearMonth, initialBalance, voucherItemsByYearMonth);
 
         // 2. 获取上一个月的科目余额
         YearMonth lastYearMonth = yearMonth.minusMonths(1);
@@ -158,18 +158,17 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
         return balanceOfCurrentBySubjectId;
     }
 
-    private Map<Long, List<AccountBalance>> listAccountBalanceByYearMonth(int yearMonthNum, InitialBalance initialBalance,
+    private Map<Long, List<AccountBalance>> listAccountBalanceByYearMonth(YearMonth yearMonth, InitialBalance initialBalance,
                                                                     Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
+        int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
         List<AccountBalance> accountBalances = baseMapper.listByYearMonth(yearMonthNum);
         if (!accountBalances.isEmpty()) {
             return accountBalances.stream().collect(Collectors.groupingBy(AccountBalance::getSubjectId));
         }
-
         // 如果科目余额表没有数据，考虑可能是当月没有关账
         // 先判断当月是否在初始余额表前一个月(8月份的期末余额=9月份的初始余额)
         boolean equalsInitialBalanceDate = initialBalance != null
-                && yearMonthNum / 100 == initialBalance.getYear()
-                && yearMonthNum == initialBalance.getYearMonthNum() - 1;
+                && yearMonth.equals(YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT));
         if (equalsInitialBalanceDate) {
             return initialBalanceItemMapper.summaryGroupBySubject(initialBalance.getId())
                     .stream().map(AccountBalanceConvert.INSTANCE::toAccountBalance)
