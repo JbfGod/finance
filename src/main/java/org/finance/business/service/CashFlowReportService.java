@@ -90,7 +90,9 @@ public class CashFlowReportService extends ServiceImpl<CashFlowReportMapper, Cas
                 amount = calcFunc.apply(amount, voucherItem.getLocalDebitAmount().subtract(voucherItem.getCreditAmount()));
             }
         }
-        valueByRowNum.put(rowNumber, amount);
+        if (rowNumber > 0) {
+            valueByRowNum.put(rowNumber, amount);
+        }
         return amount;
     }
 

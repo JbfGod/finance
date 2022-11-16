@@ -54,10 +54,10 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
             Integer assetsRowNumber = balanceSheet.getAssetsRowNum();
             Integer equityRowNumber = balanceSheet.getEquityRowNum();
             balanceSheet.setAssetsRow(
-                    calcByRowNum(assetsRowNumber, balanceSheet.getAssetsFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
+                calcByRowNum(assetsRowNumber, balanceSheet.getAssetsFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
             );
             balanceSheet.setEquityRow(
-                    calcByRowNum(equityRowNumber, balanceSheet.getEquityFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
+                calcByRowNum(equityRowNumber, balanceSheet.getEquityFormula(), formulaByRowNum, balanceBySubjectNumber, valueByRowNum)
             );
         }
 
@@ -94,17 +94,20 @@ public class BalanceSheetReportService extends ServiceImpl<BalanceSheetReportMap
                 int rowNum = Integer.parseInt(partValue);
                 BalanceSheetReport.Row rowByRowNum = Optional.ofNullable(valueByRowNum.get(rowNum))
                         .orElseGet(() -> calcByRowNum(
-                                rowNum, formulaByRowNum.get(rowNumber), formulaByRowNum, balanceBySubjectNumber, valueByRowNum
+                                rowNum, formulaByRowNum.get(rowNum), formulaByRowNum, balanceBySubjectNumber, valueByRowNum
                         ));
                 row.setOpeningAmount(calcFunc.apply(row.getOpeningAmount(), rowByRowNum.getOpeningAmount()))
                         .setClosingAmount(calcFunc.apply(row.getClosingAmount(), rowByRowNum.getClosingAmount()));
             } else {
-                AccountBalance accountBalance = Optional.ofNullable(balanceBySubjectNumber.get(partValue)).orElseGet(AccountBalance::newInstance);
+                AccountBalance accountBalance = Optional.ofNullable(balanceBySubjectNumber.get(partValue))
+                        .orElseGet(AccountBalance::newInstance);
                 row.setOpeningAmount(calcFunc.apply(row.getOpeningAmount(), accountBalance.getLocalOpeningBalance()))
-                        .setClosingAmount(calcFunc.apply(row.getClosingAmount(), accountBalance.getLocalClosingBalance()));
+                    .setClosingAmount(calcFunc.apply(row.getClosingAmount(), accountBalance.getLocalClosingBalance()));
             }
         }
-        valueByRowNum.put(rowNumber, row);
+        if (rowNumber > 0) {
+            valueByRowNum.put(rowNumber, row);
+        }
         return row;
     }
 

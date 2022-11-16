@@ -220,11 +220,11 @@ public interface ReportConvert {
                     .setEquityName(sheetReport.getEquityName())
                     .setEquityRowNum(equityRowNumber)
                     .setEquityFormula(sheetReport.getEquityFormula());
-            BalanceSheetReport.Row assetsRow = Optional.ofNullable(sheetReport.getAssetsRow()).orElse(sheetRowByRowNum.get(assetsRowNumber));
+            BalanceSheetReport.Row assetsRow = sheetReport.getAssetsRow();
             balanceSheetOfMonthVO.setAssetsOpeningAmount(assetsRow.getOpeningAmount())
                     .setAssetsClosingAmount(assetsRow.getClosingAmount());
 
-            BalanceSheetReport.Row equityRow = Optional.ofNullable(sheetReport.getEquityRow()).orElse(sheetRowByRowNum.get(equityRowNumber));
+            BalanceSheetReport.Row equityRow = sheetReport.getEquityRow();
             balanceSheetOfMonthVO.setEquityOpeningAmount(equityRow.getOpeningAmount())
                     .setEquityClosingAmount(equityRow.getClosingAmount());
             return balanceSheetOfMonthVO;

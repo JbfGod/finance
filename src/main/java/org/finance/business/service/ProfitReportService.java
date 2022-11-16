@@ -89,7 +89,9 @@ public class ProfitReportService extends ServiceImpl<ProfitReportMapper, ProfitR
                         .setAnnualAmount(calcFunc.apply(row.getAnnualAmount(), accountBalance.getAnnualAmount()));
             }
         }
-        valueByRowNum.put(rowNumber, row);
+        if (rowNumber > 0) {
+            valueByRowNum.put(rowNumber, row);
+        }
         return row;
     }
 
