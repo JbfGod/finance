@@ -2,7 +2,9 @@ package org.finance.infrastructure.config.security.filter;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
+import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
+import org.finance.business.entity.User;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
 import org.finance.infrastructure.config.security.token.JwtAuthenticationToken;
@@ -19,6 +21,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author jiangbangfa
@@ -51,9 +55,11 @@ public class CustomerUsernamePasswordAuthenticationFilter extends AbstractAuthen
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authResult;
         String token = jwtAuth.getJwt();
-
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().print(JSON.toJSONString(R.ok("Bearer " + token)));
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("token", "Bearer " + token);
+        dataMap.put("user", UserConvert.INSTANCE.toUserSelfVO((User) jwtAuth.getDetails()));
+        response.getWriter().print(JSON.toJSONString(R.ok(dataMap)));
         response.getWriter().flush();
     }
 

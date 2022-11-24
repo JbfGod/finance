@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** listProfitOfMonth GET /api/profitReport/list */
 export async function listProfitOfMonthUsingGET(

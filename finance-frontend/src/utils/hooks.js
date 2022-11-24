@@ -36,6 +36,7 @@ export function useModalWithParam(visible = false, state = {}) {
 }
 
 export function useCurrentUser() {
+  console.log("useCurrentUser")
   const {initialState = {}} = useModel('@@initialState')
   const {currentUser} = initialState
   const isSuperCustomer = currentUser?.customer?.number === "HX_TOP"
@@ -48,7 +49,7 @@ export function useCurrentUser() {
 }
 
 export function useSecurity(permissionPrefix = "") {
-  const {initialState = {}} = useModel('@@initialState')
+  const {initialState = {}, refresh} = useModel('@@initialState')
   const access = useAccess()
   const {currentUser = {}} = initialState || {}
   const {customer = {}, role} = currentUser || {}
@@ -86,7 +87,8 @@ export function useSecurity(permissionPrefix = "") {
     canOperating,
     canPrint,
     canAddFeign,
-    proxyCustomer
+    proxyCustomer,
+    refresh
   }
 }
 

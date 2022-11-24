@@ -1,6 +1,7 @@
 import React, {useState} from "react"
 import {Button, Modal, Radio, Space} from "antd";
 import {getUserIdentity, switchUserIdentity} from "@/utils/common";
+import {history} from "@umijs/max"
 
 export default function SwitchUserIdentity() {
   const [identity, setIdentity] = useState(getUserIdentity() || 'NORMAL')
@@ -8,15 +9,15 @@ export default function SwitchUserIdentity() {
     switchUserIdentity(identity)
     setTimeout(() => {
       if (identity === "NORMAL") {
-        window.location.href = "/user/switchCustomer"
+        history.push("/user/switchCustomer")
         return
       }
-      window.location.href = "/approval/expenseBill"
+      history.push("/approval/expenseBill")
     }, 100)
   }
   return (
     <Modal title="请选择用户身份" width={350} centered
-           visible={true} closable={false} maskClosable={false}
+           open={true} closable={false} maskClosable={false}
            footer={[
              <Button type="primary" key="ok" onClick={onOk}>
                确认

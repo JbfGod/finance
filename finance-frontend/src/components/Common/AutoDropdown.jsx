@@ -18,7 +18,7 @@ export default function AutoDropdown({overlay, max = 3, ...props}) {
       <Space>
         {unOverComp}
         {isOver && (
-          <Dropdown key="more" overlay={(
+          <Dropdown key="more" menu={(
             <Menu items={overComp.map(Comp => ({
               key: Comp.key,
               label: Comp

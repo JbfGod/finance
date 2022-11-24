@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** deleteFlowItem DELETE /api/approvalFlow/flowItem/${param0} */
 export async function deleteFlowItemUsingDELETE(

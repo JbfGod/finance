@@ -14,7 +14,7 @@ const GlobalHeaderRight = () => {
   let className = styles.right;
 
   if ((navTheme === 'dark' && layout === 'top') || layout === 'mix') {
-    className = `${styles.right}  ${styles.dark}`;
+    className = `${styles.right}`;
   }
   return (
     <Space className={className}>

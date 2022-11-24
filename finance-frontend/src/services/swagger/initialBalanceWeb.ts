@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** addInitialBalanceItem POST /api/initialBalance/add */
 export async function addInitialBalanceItemUsingPOST(

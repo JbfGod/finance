@@ -130,8 +130,8 @@ export default () => {
         />
         <ModalForm title="新增用户" width="400px"
                    initialValues={{role: "NORMAL"}}
-                   visible={createModalVisible} modalProps={{destroyOnClose: true}}
-                   onVisibleChange={handleModalVisible}
+                   open={createModalVisible} modalProps={{destroyOnClose: true}}
+                   onOpenChange={handleModalVisible}
                    onFinish={async (value) => {
                      const password = value.password || "123456"
                      userWeb.addUserUsingPOST({...value, password}).then(() => {
@@ -183,8 +183,8 @@ export default () => {
           </ProFormItem>
         </ModalForm>
         <ModalForm title="修改密码" width="400px"
-                   visible={updateModalVisible} modalProps={{destroyOnClose: true}}
-                   onVisibleChange={handleUpdateModalVisible}
+                   open={updateModalVisible} modalProps={{destroyOnClose: true}}
+                   onOpenChange={handleUpdateModalVisible}
                    onFinish={async (value) => {
                      return userWeb.resetUserPasswordUsingPUT({
                        id: tmpOperateUser.id,

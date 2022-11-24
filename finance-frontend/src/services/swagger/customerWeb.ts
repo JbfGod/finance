@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** resourceIdsOfCustomer GET /api/customer/${param0}/resourceIds */
 export async function resourceIdsOfCustomerUsingGET(

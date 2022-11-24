@@ -161,7 +161,7 @@ function AddOrUpdateFormModal({modal, categoryId, onSuccess, industryTreeData, .
     loadDirectors()
   }, [])
   return (
-    <ModalForm width={750} title={title} visible={modal.visible}
+    <ModalForm width={750} title={title} open={modal.visible}
                grid={true} layout="inline" rowProps={{gutter: [0, 12]}}
                modalProps={{
                  destroyOnClose: true

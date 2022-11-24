@@ -60,8 +60,8 @@ export default () => {
                       editable={editable}
                       request={customerCategoryWeb.treeCustomerCategoryUsingGET}
           />
-          <ModalForm title="新增客户类别" width="400px" visible={creatModal.visible} modalProps={{destroyOnClose: true}}
-                     onVisibleChange={creatModal.handleVisible}
+          <ModalForm title="新增客户类别" width="400px" open={creatModal.visible} modalProps={{destroyOnClose: true}}
+                     onOpenChange={creatModal.handleVisible}
                      onFinish={async (value) => {
                        customerCategoryWeb.addCustomerCategoryUsingPOST({
                          ...value,

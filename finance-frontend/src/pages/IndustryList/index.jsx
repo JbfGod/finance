@@ -60,8 +60,8 @@ export default () => {
                       editable={editable}
                       request={industryWeb.treeIndustryUsingGET}
           />
-          <ModalForm title="新增客户行业" width="400px" visible={createModal.visible} modalProps={{destroyOnClose: true}}
-                     onVisibleChange={createModal.handleVisible}
+          <ModalForm title="新增客户行业" width="400px" open={createModal.visible} modalProps={{destroyOnClose: true}}
+                     onOpenChange={createModal.handleVisible}
                      onFinish={async (value) => {
                        industryWeb.addIndustryUsingPOST({
                          ...value,

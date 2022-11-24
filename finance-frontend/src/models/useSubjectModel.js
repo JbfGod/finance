@@ -1,10 +1,9 @@
 import {useCallback, useEffect, useMemo, useState} from "react"
 import {listSubjectUsingGET} from "@/services/swagger/subjectWeb";
-import {arrayToTree} from "@/utils/common";
-import {useCurrentUser} from "@/utils/hooks";
+import {arrayToTree, getAccessToken} from "@/utils/common";
 
 export default function useSubjectModel() {
-  const {isAuth} = useCurrentUser()
+  const isAuth = !!getAccessToken()
   const [subjects, setSubjects] = useState([])
   const treeSubjects = useMemo(() => arrayToTree(subjects), [subjects])
   const subjectById = useMemo(() => subjects.reduce((curr, next) => {

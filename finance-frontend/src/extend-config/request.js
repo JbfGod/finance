@@ -23,15 +23,16 @@ const authHeaderInterceptor = (url, options) => {
     case "delete":
     case "put":
       if (!IGNORE_URL.includes(url)) {
-        loadingKey = [options.url, options.method, new Date().getTime()]
+        loadingKey = [options.url, options.method, Date.now()]
         message.loading({content: "操作中...", key: loadingKey})
       }
   }
   return {
+    url,
     options: {...options, interceptors: true, headers: headers, loadingKey},
   };
 };
-const responseInterceptor = async (response, options) => {
+const responseInterceptor = (response, options) => {
   if (response.status === 504) {
     notification.error({
       description: "服务器请求超时",
@@ -39,13 +40,13 @@ const responseInterceptor = async (response, options) => {
     });
     return response
   }
-  const data = await response.clone().json();
-  if (data?.success && !IGNORE_URL.includes(options.url)) {
-    switch (options?.method.toLowerCase()) {
+  const {data, config} = response;
+  if (data?.success && !IGNORE_URL.includes(config.url)) {
+    switch (config?.method.toLowerCase()) {
       case "post":
       case "delete":
       case "put":
-        message.success({content: data.message || "操作成功", key: options.loadingKey})
+        message.success({content: data.message || "操作成功", key: config.loadingKey})
     }
     return response
   }
@@ -66,8 +67,8 @@ const responseInterceptor = async (response, options) => {
     case ErrorShowType.REDIRECT:
       let pathname = DEFAULT_ERROR_PAGE;
       if (errorCode === "401") {
-        common.clearAccessToken()
-        pathname = "/user/login"
+        common.logoutStorageHandler()
+        pathname = "/login"
       }
       message.error({content: errorMessage, key: loadingKey})
       pathname && (window.location.href = pathname)
@@ -76,16 +77,17 @@ const responseInterceptor = async (response, options) => {
       message.error(errorMessage)
       break
   }
+  console.log(response)
   return response
 }
 export const request = {
   requestInterceptors: [authHeaderInterceptor],
   responseInterceptors: [responseInterceptor],
   errorConfig: {
-    adaptor: () => ({})
+    adaptor: () => ({}),
+    errorHandler: (error) => {
+      console.error("error", error)
+      throw error
+    }
   },
-  errorHandler: (error) => {
-    console.error("error", error)
-    throw error
-  }
 }

@@ -182,10 +182,10 @@ function SubjectFormModal({modal, tblActionRef}) {
   const {handleVisible, state} = modal
   const {industryId, id: parentId, number: parentNumber} = state.parent || {}
   return (
-    <ModalForm title="新增科目" width="420px" visible={true}
+    <ModalForm title="新增科目" width="420px" open={true}
                initialValues={{number: parentNumber, type: "SUBJECT", assistSettlement: "NOTHING", direction: "NOTHING"}}
                modalProps={{destroyOnClose: true}}
-               onVisibleChange={handleVisible}
+               onOpenChange={handleVisible}
                layout="inline"
                grid={true}
                rowProps={{gutter: [0,12]}}

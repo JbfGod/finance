@@ -170,10 +170,10 @@ function FormModal({modal, yearMonthDate, subjectById, onSuccess}) {
   const {mode = "add", initialValue = {}} = state
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   return (
-    <ModalForm title="新增初始余额" width="420px" visible={visible}
+    <ModalForm title="新增初始余额" width="420px" open={visible}
                initialValues={{lendingDirection: "BORROW", currencyName: "人民币", ...initialValue}}
                modalProps={{destroyOnClose: true}}
-               onVisibleChange={handleVisible}
+               onOpenChange={handleVisible}
                onFinish={async (value) => {
                  const {subjectId} = value
                  const newValues = {

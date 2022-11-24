@@ -3,13 +3,15 @@ import ExProTable from "@/components/Table/ExtProTable";
 import React, {useRef, useState} from "react";
 import {ownedCustomerUsingGET, switchProxyCustomerUsingPUT} from "@/services/swagger/userWeb";
 import GlobalPageContainer from "@/components/PageContainer";
-
+import {history, useModel} from "@umijs/max"
+import {useSecurity} from "@/utils/hooks";
 
 export default function SwitchCustomer() {
   const actionRef = useRef()
   const [customerName, setCustomerName] = useState()
   const [customerNumber, setCustomerNumber] = useState()
-  const [selectedRowKeys, setSelectedRowKeys] = useState([])
+  const {refresh, proxyCustomer} = useSecurity()
+  const [selectedRowKeys, setSelectedRowKeys] = useState(proxyCustomer?[proxyCustomer.id] : [])
   const columns = [
     {
       title: "客户编号", dataIndex: "number", width: 100
@@ -25,7 +27,7 @@ export default function SwitchCustomer() {
     }
     const customerId = selectedRowKeys[0]
     switchProxyCustomerUsingPUT({customerId}).then(_ => {
-      window.location.href = "/"
+      refresh().then(() => history.push("/"))
     })
   }
   return (

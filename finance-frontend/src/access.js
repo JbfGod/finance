@@ -12,7 +12,7 @@ export default function access(initialState) {
   const allMenuAccess = flatTree(menus, "routes")
     .filter(menu => menu.path)
     .reduce((curr, next) => {
-      curr[next.path] = (selfMenuPaths || []).includes(next.path)
+      curr[`MENU:${next.path}`] = (selfMenuPaths || []).includes(next.path)
       return curr
     }, {})
   return {

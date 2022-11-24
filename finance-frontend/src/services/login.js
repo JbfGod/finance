@@ -1,6 +1,6 @@
-import {history, request} from "umi";
+import {history, request} from "@umijs/max";
 import * as common from "@/utils/common";
-import {removeCurrCustomer} from "@/utils/common";
+import {logoutStorageHandler, removeCurrCustomer} from "@/utils/common";
 
 export async function login(body) {
   return request('/api/login', {
@@ -12,12 +12,12 @@ export async function login(body) {
 export async function logout() {
   return request('/api/logout', {
     method: 'POST'
-  }).then(_ => common.clearAccessToken());
+  }).then(_ => common.logoutStorageHandler());
 }
 
 
 export const loginOut = async () => {
   await logout();
-  history.replace('/user/login')
+  history.replace('/login')
   removeCurrCustomer()
 };

@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** accountBalance GET /api/report/accountBalance */
 export async function accountBalanceUsingGET(

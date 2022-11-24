@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** listBalanceSheetOfMonth GET /api/balanceSheetReport/list */
 export async function listBalanceSheetOfMonthUsingGET(

@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** approvalInstance GET /api/approvalInstance/${param0} */
 export async function approvalInstanceUsingGET(

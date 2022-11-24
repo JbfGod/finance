@@ -257,8 +257,8 @@ const TableList = () => {
       <ModalForm
         title="New rule"
         width="400px"
-        visible={createModalVisible}
-        onVisibleChange={handleModalVisible}
+        open={createModalVisible}
+        onOpenChange={handleModalVisible}
         onFinish={async (value) => {
           const success = await handleAdd(value);
 

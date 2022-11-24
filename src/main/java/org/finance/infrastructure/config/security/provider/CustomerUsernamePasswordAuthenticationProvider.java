@@ -82,7 +82,7 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         authorities.add(new SimpleGrantedAuthority(String.format("%s%s", Constants.ROLE_PREFIX, dbUser.getRole())));*/
         // 构造Authentication
         JwtAuthenticationToken result = new JwtAuthenticationToken(token);
-        result.setDetails(authentication.getDetails());
+        result.setDetails(dbUser);
         // 将token写入缓存
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
         redisTemplate.opsForValue().set(cacheAttr.getKey(), new UserRedisContextState(), cacheAttr.getTimeout());

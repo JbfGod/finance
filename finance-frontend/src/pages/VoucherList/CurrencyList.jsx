@@ -113,7 +113,7 @@ export default function CurrencyList() {
 function SyncModal({modal, onSuccess}) {
   const {visible, handleVisible} = modal
   return (
-      <ModalForm title="同步汇率" width={350} visible={visible} onVisibleChange={handleVisible}
+      <ModalForm title="同步汇率" width={350} open={visible} onOpenChange={handleVisible}
                  layout="horizontal"  modalProps={{destroyOnClose: true}}
                  onFinish={async (values) => {
                    await copyCurrencyByMonthUsingPOST(values).then(() => onSuccess && onSuccess())
@@ -152,7 +152,7 @@ function AddOrUpdateModal({modal, onSuccess, ...props}) {
                    yearMonthNum: moment().format("YYYY-MM")
                  }}
                  layout={"horizontal"} form={form}
-                 visible={visible} modalProps={{destroyOnClose: true}}
+                 open={visible} modalProps={{destroyOnClose: true}}
                  onFinish={async (values) => {
                    if (isAddMode) {
                      addCurrencyUsingPOST(values).then(_ => onSuccess && onSuccess())

@@ -2,22 +2,24 @@ const CAN = "can"
 
 const menus = [
   {
+    path: '/login',
+    name: '管理后台',
+    layout: false,
+    hideInMenu: true,
+    component: './Login',
+    access: 'can'
+  },
+  {
+    path: '/switchIdentity',
+    name: '选择用户身份',
+    layout: false,
+    hideInMenu: true,
+    component: './SwitchUserIdentity',
+    access: 'isAuth'
+  },
+  {
     path: '/user',
     routes: [
-      {
-        path: '/user/login',
-        layout: false,
-        name: 'login',
-        component: './Login',
-        access: 'can'
-      },
-      {
-        name: '选择用户身份',
-        layout: false,
-        path: '/user/switchIdentity',
-        component: './SwitchUserIdentity',
-        access: 'isAuth'
-      },
       {
         name: '选择客户单位',
         path: '/user/switchCustomer',

@@ -1,4 +1,4 @@
-import {ACCESS_TOKEN} from "@/constants";
+import {ACCESS_TOKEN, CURRENT_USER_KEY, LAST_LOGIN_CUSTOMER_ACCOUNT} from "@/constants";
 import React from "react";
 
 export function preMinioUrl(url) {
@@ -8,6 +8,21 @@ export function preMinioUrl(url) {
   return `/minio${url}`
 }
 
+export function loginStorageHandler({token, user}) {
+  setAccessToken(token)
+  sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user))
+  localStorage.setItem(LAST_LOGIN_CUSTOMER_ACCOUNT, user.customerNumber || "")
+}
+export function getCurrentUser() {
+  const userStr = sessionStorage.getItem(CURRENT_USER_KEY)
+  if (userStr) {
+    return JSON.parse(userStr)
+  }
+}
+export function logoutStorageHandler() {
+  clearAccessToken()
+  sessionStorage.removeItem(CURRENT_USER_KEY)
+}
 export function setAccessToken(token) {
   sessionStorage.setItem(ACCESS_TOKEN, token)
 }

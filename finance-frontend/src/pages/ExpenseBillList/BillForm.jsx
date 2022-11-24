@@ -131,9 +131,9 @@ export default ({mode = "add", billId, visible, onVisibleChange, onClose}) => {
                             body: formData
                         }).then(onClose)
                     }}
-                    visible={visible}
+                    open={visible}
                     size="small"
-                    onVisibleChange={onVisibleChange}
+                    onOpenChange={onVisibleChange}
                     layout="horizontal"
                     drawerProps={{
                         destroyOnClose: true,

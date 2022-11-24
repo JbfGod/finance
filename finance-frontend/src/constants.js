@@ -1,10 +1,8 @@
-const constants = {
-
-  /**
-   * LocalStorage Item Key
-   */
-  LAST_LOGIN_CUSTOMER_ACCOUNT: "LS_Key_LAST_LOGIN_CUSTOMER_ACCOUNT",
-}
+/**
+ * LocalStorage Item Key
+ */
+export const LAST_LOGIN_CUSTOMER_ACCOUNT = "LS_Key_LAST_LOGIN_CUSTOMER_ACCOUNT"
+export const CURRENT_USER_KEY = "CURRENT_USER"
 /**
  * SessionStorage Item Key
  */
@@ -81,5 +79,3 @@ export const AuditStatus = {
   AUDITED: "AUDITED",
   APPROVED: "APPROVED"
 }
-
-export default constants

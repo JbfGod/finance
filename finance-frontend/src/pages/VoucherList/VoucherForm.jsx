@@ -127,7 +127,7 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
             title: "原币",
             dataIndex: "debitAmount",
             valueType: "digit",
-            fieldProps: {style: {width: "100%"}}
+            fieldProps: {style: {width: "100%"}, precision: 5, formatter: v => v}
           },
           {
             title: "汇率", dataIndex: "debitAmount", editable: false, width: 50,
@@ -146,7 +146,7 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
             title: "原币",
             dataIndex: "creditAmount",
             valueType: "digit",
-            fieldProps: {style: {width: "100%"}}
+            fieldProps: {style: {width: "100%"}, precision: 5, formatter: v => v}
           },
           {
             title: "汇率", dataIndex: "creditAmount", editable: false, width: 50,
@@ -163,9 +163,9 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
         title: "借方金额", editable: !isFromExpenseBill,
         valueType: "digit",
         dataIndex: "debitAmount",
-        fieldProps: {style: {width: "100%"}},
+        fieldProps: {style: {width: "100%"}, precision: 5, formatter: v => v},
         render: (_, row) => {
-          return Number(row.debitAmount) || " "
+          return row.debitAmount || " "
         }
       },
       {
@@ -173,7 +173,7 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
         editable: (_, row) => !isFromExpenseBill || row.creditAmount,
         valueType: "digit",
         dataIndex: "creditAmount",
-        fieldProps: {style: {width: "100%"}},
+        fieldProps: {style: {width: "100%"}, precision: 5, formatter: v => v},
         render: (_, row) => {
           return Number(row.creditAmount) || " "
         }
@@ -259,7 +259,7 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
                      const newValue = {...items[key]}
                      formRef.setFieldsValue({
                        items: items.map(item => {
-                         if (item.index === key && newValue.creditAmount) {
+                         if (item.index == key && newValue.creditAmount) {
                            delete newValue.creditAmount
                            return newValue
                          }
@@ -270,7 +270,7 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
                      const newValue = {...items[key]}
                      formRef.setFieldsValue({
                        items: items.map(item => {
-                         if (item.index === key && newValue.debitAmount) {
+                         if (item.index == key && newValue.debitAmount) {
                            delete newValue.debitAmount
                            return newValue
                          }
@@ -280,8 +280,8 @@ export default ({modal, onSuccess, defaultVoucherDate, ...props}) => {
                    }
                  })
                }}
-               visible={visible}
-               onVisibleChange={modal.handleVisible}
+               open={visible}
+               onOpenChange={modal.handleVisible}
                layout="horizontal"
                modalProps={{
                  destroyOnClose: true,

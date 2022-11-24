@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from 'umi';
+import { request } from '@umijs/max';
 
 /** getDocumentation GET /api/downloadOpenapi */
 export async function getDocumentationUsingGET(options?: { [key: string]: any }) {
