@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** addCurrency POST /api/currency/add */
 export async function addCurrencyUsingPOST(

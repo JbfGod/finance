@@ -1,5 +1,4 @@
 import {useCallback, useEffect, useMemo, useState} from "react"
-import {useCurrentUser} from "@/utils/hooks";
 import {listUserFromSuperCustomerUsingGET} from "@/services/swagger/userWeb";
 import {getCurrentUser} from "@/utils/common";
 

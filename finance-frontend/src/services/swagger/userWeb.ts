@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** deleteUser DELETE /api/user/${param0} */
 export async function deleteUserUsingDELETE(

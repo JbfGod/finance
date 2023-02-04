@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Divider, Modal, Select, Tabs, Tree, message} from "antd";
+import {Divider, message, Modal, Select, Tabs, Tree} from "antd";
 import {useModalWithParam} from "@/utils/hooks";
 import styles from "./index.less"
 import {useModel} from "@umijs/max";

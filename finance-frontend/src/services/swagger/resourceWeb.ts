@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** treeNormalCustomerResources GET /api/resource/treeOfNormalCustomer */
 export async function treeNormalCustomerResourcesUsingGET(options?: { [key: string]: any }) {

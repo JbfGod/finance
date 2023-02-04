@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** voucherDetail GET /api/voucher/${param0} */
 export async function voucherDetailUsingGET(

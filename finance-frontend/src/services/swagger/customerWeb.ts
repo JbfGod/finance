@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** treeResourceWithOperate GET /api/customer/${param0}/treeResourceWithOperate */
 export async function treeResourceWithOperateUsingGET(

@@ -2,8 +2,8 @@ import React, {useRef, useState} from "react";
 import {useAccess, useModel} from "umi";
 import {Form} from "antd";
 import * as common from "@/utils/common";
-import {useReactToPrint} from "react-to-print";
 import {getUserIdentity} from "@/utils/common";
+import {useReactToPrint} from "react-to-print";
 import {ResourceModule} from "@/constants";
 
 export function useBoolean(initialValue = false) {

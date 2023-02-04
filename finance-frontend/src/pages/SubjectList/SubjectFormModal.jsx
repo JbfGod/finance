@@ -1,6 +1,6 @@
 import React from "react";
 import {useModel} from "umi";
-import {ModalForm, ProFormGroup, ProFormItem, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-form";
+import {ModalForm, ProFormGroup, ProFormItem, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import * as subjectWeb from "@/services/swagger/subjectWeb";
 import {LENDING_DIRECTION, SUBJECT_ASSIST_SETTLEMENT, SUBJECT_CATEGORY} from "@/constants";
 import SubjectSelect from "@/pages/SubjectList/SubjectSelect";

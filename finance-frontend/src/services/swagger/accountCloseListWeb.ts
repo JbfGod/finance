@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** closeNextPeriod POST /api/account/closeNextPeriod */
 export async function closeNextPeriodUsingPOST(options?: { [key: string]: any }) {

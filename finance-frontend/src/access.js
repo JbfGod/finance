@@ -1,5 +1,6 @@
 import menus from "../config/menus";
 import {flatTree} from "@/utils/common";
+
 /**
  * TODO 通过菜单加载权限
  * @see https://umijs.org/zh-CN/plugins/plugin-access

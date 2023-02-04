@@ -9,14 +9,12 @@ import ExProTable from "@/components/Table/ExtProTable";
 import * as customerCategoryWeb from "@/services/swagger/customerCategoryWeb";
 import {CUSTOMER_TYPE} from "@/constants";
 import * as customerWeb from "@/services/swagger/customerWeb";
-import * as industryWeb from "@/services/swagger/industryWeb";
 import {getCustomerTokenUsingGET, listUserFromSuperCustomerUsingGET} from "@/services/swagger/userWeb";
 import ProFormDatePickerMonth from "@ant-design/pro-form/es/components/DatePicker/MonthPicker";
 
 export default () => {
   const [selectedCategory, setSelectedCategory] = useState({id: 0, number: "0"})
   const selectedCategoryId = selectedCategory.id
-  const [industryTreeData, setIndustryTreeData] = useState([])
   const [customerCategoryTreeData, setCustomerCategoryTreeData] = useState([])
   const formModal = useModalWithParam()
 
@@ -31,13 +29,8 @@ export default () => {
     const {data} = await customerCategoryWeb.treeCustomerCategoryUsingGET()
     setCustomerCategoryTreeData([{id: 0, number: "0", name: "全部分类", children: data}])
   }
-  const fetchIndustryTreeData = async () => {
-    const {data} = await industryWeb.treeIndustryUsingGET()
-    setIndustryTreeData(data)
-  }
   useEffect(() => {
     fetchTreeCustomerCategory()
-    fetchIndustryTreeData()
   }, [])
   const actionRef = useRef()
   const columns = [
@@ -113,7 +106,7 @@ export default () => {
             />
             <AddOrUpdateFormModal modal={formModal} onVisibleChange={formModal.handleVisible}
                                   categoryId={selectedCategoryId}
-                                  industryTreeData={industryTreeData} onSuccess={() => actionRef.current?.reload()}
+                                  onSuccess={() => actionRef.current?.reload()}
             />
           </Col>
         </ProCard>
@@ -129,7 +122,7 @@ export default () => {
   )
 }
 
-function AddOrUpdateFormModal({modal, categoryId, onSuccess, industryTreeData, ...props}) {
+function AddOrUpdateFormModal({modal, categoryId, onSuccess, ...props}) {
   const {state: {mode, initialValues}} = modal
   const isAddMode = mode === "add", isViewMode = mode === "view", isEditMode = mode === "edit"
   const title = isAddMode ? "新增客户" : isEditMode ? "编辑客户" : "客户详情"

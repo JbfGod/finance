@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import { request } from '@umijs/max';
+import {request} from '@umijs/max';
 
 /** closingToNextPeriod PUT /api/settlement/closingToNextPeriod */
 export async function closingToNextPeriodUsingPUT(options?: { [key: string]: any }) {
