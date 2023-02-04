@@ -2,6 +2,7 @@ package org.finance.business.web.request;
 
 import lombok.Data;
 import org.finance.business.entity.Customer;
+import org.finance.business.entity.enums.AccountingSystem;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -21,11 +22,10 @@ public class UpdateCustomerRequest {
     @Size(min = 2, max = 20, message = "客户名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "请填写客户行业")
-    private Long industryId;
-
     @NotNull(message = "请填写客户类型")
     private Customer.Type type;
+    @NotNull(message = "请选择会计制度")
+    private AccountingSystem accountingSystem;
 
     private Long businessUserId;
 

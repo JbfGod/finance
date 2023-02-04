@@ -3,6 +3,7 @@ import {switchProxyCustomerUsingPUT} from "@/services/swagger/userWeb";
 import {history} from "@umijs/max"
 
 const Footer = () => {
+  return null
   const security = useSecurity()
   if (!security.isAuth) {
     return null
@@ -20,7 +21,7 @@ const Footer = () => {
         {!isApprover && security.isSuperCustomer && (
           <>
             <span style={itemStyle}>{proxyCustomer.name}-({proxyCustomer.number})</span>
-            <a style={itemStyle} onClick={() => history.push("/user/switchCustomer")}>切换客户</a>
+            <a style={itemStyle} onClick={() => window.href = "/"}>切换客户</a>
           </>
         )}
         {hasMultipleIdentities && (

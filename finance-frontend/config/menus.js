@@ -3,33 +3,11 @@ const CAN = "can"
 const menus = [
   {
     path: '/login',
-    name: '管理后台',
+    name: '登录',
     layout: false,
     hideInMenu: true,
     component: './Login',
-    access: 'can'
-  },
-  {
-    path: '/switchIdentity',
-    name: '选择用户身份',
-    layout: false,
-    hideInMenu: true,
-    component: './SwitchUserIdentity',
-    access: 'isAuth'
-  },
-  {
-    path: '/user',
-    routes: [
-      {
-        name: '选择客户单位',
-        path: '/user/switchCustomer',
-        component: './SwitchCustomer',
-        access: 'isAuth'
-      },
-      {
-        component: './404',
-      },
-    ],
+    access: CAN
   },
   {
     path: '/approval',
@@ -40,227 +18,205 @@ const menus = [
         path: '/approval/expenseBill',
         component: './Approval/ExpenseBillApproval',
         access: 'isAuth'
-      },
-      {
-        component: './404',
-      },
+      }
     ]
   },
   {
-    path: '/expense',
-    name: '费用报销单管理',
-    icon: 'simple',
-    routes : [
+    component: './Welcome',
+  },
+  {
+    path: '/Manage',
+    access: CAN,
+    component: './Welcome',
+  },
+  {
+    path: '/Finance',
+    access: CAN,
+    component: './Welcome',
+  },
+  {
+    path: '/Manage/customer',
+    name: '客户管理',
+    routes: [
       {
-        path: "/expense/bill",
+        path: '/Manage/customer/category',
+        name: '客户分类管理',
+        access: 'MENU:/Manage/customer/category',
+        component: './CustomerCategoryList/index',
+      },
+      {
+        name: '客户档案',
+        path: '/Manage/customer/archive',
+        access: 'MENU:/Manage/customer/archive',
+        component: 'CustomerList/index'
+      },
+      {
+        path: '/Manage/customer/approvalFlow',
+        name: '审批流程配置',
+        icon: '',
+        access: 'MENU:/Manage/customer/approvalFlow',
+        component: './CustomerList/CustomerApprovalFlow',
+      },
+    ],
+  },
+  {
+    path: '/Manage/setting',
+    name: '设置',
+    routes: [
+      {
+        path: '/Manage/setting/user',
+        name: '用户管理',
+        icon: 'smile',
+        access: 'MENU:/Manage/setting/user',
+        component: './UserList/index',
+      }
+    ],
+  },
+  {
+    path: '/Finance/expense',
+    name: '费用报销单管理',
+    routes: [
+      {
+        path: "/Finance/expense/bill",
         name: '费用报销单管理',
-        access: "MENU:/expense/bill",
+        access: "MENU:/Finance/expense/bill",
         component: './ExpenseBillList',
       }
     ],
   },
   {
-    path: '/voucher',
+    path: '/Finance/setting',
+    name: '设置',
+    routes: [
+      {
+        name: '科目',
+        path: '/Finance/setting/subject',
+        access: "MENU:/Finance/setting/subject",
+        component: './SubjectList'
+      },
+      {
+        name: '初始余额',
+        path: '/Finance/setting/initialBalance',
+        access: "MENU:/Finance/setting/initialBalance",
+        component: './InitialBalance'
+      },
+    ],
+  },
+  {
+    path: '/switchIdentity',
+    name: '选择用户身份',
+    layout: false,
+    hideInMenu: true,
+    component: './SwitchUserIdentity',
+    access: 'isAuth'
+  },
+  {
+    path: '/Finance/voucher',
     name: '凭证管理',
     icon: 'simple',
     routes: [
       {
-        path: "/voucher/list",
-        name: '凭证管理',
-        access: "MENU:/voucher/list",
-        component: './VoucherList',
+        path: "/Finance/voucher/record",
+        name: '录凭证',
+        access: "MENU:/Finance/voucher/record",
+        component: './Voucher/RecordVoucher',
       },
       {
-        path: "/voucher/book",
+        path: "/Finance/voucher/list",
+        name: '查凭证',
+        access: "MENU:/Finance/voucher/list",
+        component: './Voucher',
+      },
+      {
+        path: "/Finance/voucher/book",
         name: '科目账簿',
-        access: "MENU:/voucher/book",
-        component: './VoucherList/VoucherBook',
+        access: "MENU:/Finance/voucher/book",
+        component: './Voucher/VoucherBook',
       },
       {
-        path: "/voucher/currency",
+        path: "/Finance/voucher/currency",
         name: '外币汇率管理',
-        access: "MENU:/voucher/currency",
-        component: './VoucherList/CurrencyList',
+        access: "MENU:/Finance/voucher/currency",
+        component: './Voucher/CurrencyList',
       },
       {
-        path: "/voucher/batchAuditing",
-        name: '批量审批',
-        access: "MENU:/voucher/batchAuditing",
-        component: './VoucherList/BatchAuditing',
-      },
-      {
-        path: "/voucher/batchBookkeeping",
-        name: '批量记账',
-        access: "MENU:/voucher/batchBookkeeping",
-        component: './VoucherList/BatchBookkeeping',
-      },
-      {
-        path: "/voucher/accountClose",
-        name: '月度关账',
-        access: "MENU:/voucher/accountClose",
-        component: './VoucherList/AccountClose',
+        path: "/Finance/voucher/accountClose",
+        name: '结账',
+        access: "MENU:/Finance/voucher/accountClose",
+        component: './Voucher/AccountClose',
       }
     ]
   },
   {
-    path: 'system',
-    name: '系统管理',
-    icon: 'xitongguanli',
-    local: false,
-    routes: [
-      {
-        path: '/system/user',
-        name: '用户管理',
-        icon: 'smile',
-        access: 'MENU:/system/user',
-        component: './UserList/index',
-      },
-      {
-        path: '/system/customerGrantPermissionPage',
-        name: '客户授权管理',
-        icon: '/system/customerGrantPermissionPage',
-        access: 'MENU:/system/customerGrantPermissionPage',
-        component: './CustomerList/CustomerGrantPermission',
-      },
-      {
-        path: '/system/customerApprovalFlow',
-        name: '审批流程配置',
-        icon: '/system/customerGrantPermissionPage',
-        access: 'MENU:/system/customerGrantPermissionPage',
-        component: './CustomerList/CustomerApprovalFlow',
-      },
-      {
-        component: './404',
-      },
-    ]
-  },
-  {
-    path: '/base',
-    name: '基础数据管理',
+    path: '/Finance/book',
+    name: '账簿',
     icon: 'simple',
     routes: [
       {
-        path: '/base/customerCategory',
-        name: '客户分类管理',
-        icon: 'smile',
-        access: 'MENU:/base/customerCategory',
-        component: './CustomerCategoryList/index',
-      },
-      {
-        path: '/base/customer',
-        name: '客户档案',
-        icon: 'smile',
-        access: 'MENU:/base/customer',
-        component: './CustomerList/index',
-      },
-      {
-        path: '/base/industry',
-        name: '行业管理',
-        icon: 'smile',
-        access: 'MENU:/base/industry',
-        component: './IndustryList',
-      },
-      {
-        path: '/base/subject',
-        name: '科目管理',
-        icon: 'smile',
-        access: 'MENU:/base/subject',
-        component: './SubjectList',
-      },
-      {
-        path: "/base/initialBalance",
-        name: '初始余额',
-        access: "MENU:/base/initialBalance",
-        component: './InitialBalance',
-      },
-      {
-        component: './404',
-      },
-    ]
-  },
-  {
-    path: '/report',
-    name: '报表管理',
-    icon: 'simple',
-    routes: [
-      {
-        path: '/report/accountBalance',
+        path: '/Finance/book/accountBalance',
         name: '科目余额表',
         icon: 'smile',
-        access: 'MENU:/report/accountBalance',
+        access: 'MENU:/Finance/book/accountBalance',
         component: './Report/AccountBalance',
       },
       {
-        path: '/report/generalLedger',
+        path: '/Finance/book/generalLedger',
         name: '总分类账',
         icon: 'smile',
-        access: 'MENU:/report/generalLedger',
+        access: 'MENU:/Finance/book/generalLedger',
         component: './Report/GeneralLedger',
       },
       {
-        path: '/report/subLedger',
+        path: '/Finance/book/subLedger',
         name: '明细分类账',
         icon: 'smile',
-        access: 'MENU:/report/subLedger',
+        access: 'MENU:/Finance/book/subLedger',
         component: './Report/SubLedger',
       },
       {
-        path: '/report/dailyCash',
+        path: '/Finance/book/dailyCash',
         name: '现金日报表',
         icon: 'smile',
-        access: 'MENU:/report/dailyCash',
+        access: 'MENU:/Finance/book/dailyCash',
         component: './Report/DailyCash',
       },
       {
-        path: '/report/dailyBank',
+        path: '/Finance/book/dailyBank',
         name: '银行存款日报表',
         icon: 'smile',
-        access: 'MENU:/report/dailyBank',
+        access: 'MENU:/Finance/book/dailyBank',
         component: './Report/DailyBank',
-      },
-      {
-        path: '/report/profit',
-        name: '利润表',
-        icon: 'smile',
-        access: 'MENU:/report/profit',
-        component: './Report/Profit',
-      },
-      {
-        path: '/report/cashFlow',
-        name: '现金流量表',
-        icon: 'smile',
-        access: 'MENU:/report/cashFlow',
-        component: './Report/CashFlow',
-      },
-      {
-        path: '/report/balanceSheet',
-        name: '资产负债表',
-        icon: 'smile',
-        access: 'MENU:/report/balanceSheet',
-        component: './Report/BalanceSheet',
-      },
-      {
-        component: './404',
-      },
+      }
     ]
   },
   {
-    path: '/',
-    name: 'welcome',
-    icon: 'icon-danwei',
-    component: './Welcome',
-    access: "can"
-  },
-  {
-    path: '/welcome',
-    name: 'welcome',
-    icon: 'icon-danwei',
-    component: './Welcome',
-    access: "can"
-  },
-  {
-    component: './404',
-  },
+    path: '/Finance/report',
+    name: '报表',
+    icon: 'simple',
+    routes: [
+      {
+        path: '/Finance/report/profit',
+        name: '利润表',
+        icon: 'smile',
+        access: 'MENU:/Finance/report/profit',
+        component: './Report/Profit',
+      },
+      {
+        path: '/Finance/report/cashFlow',
+        name: '现金流量表',
+        icon: 'smile',
+        access: 'MENU:/Finance/report/cashFlow',
+        component: './Report/CashFlow',
+      },
+      {
+        path: '/Finance/report/balanceSheet',
+        name: '资产负债表',
+        icon: 'smile',
+        access: 'MENU:/Finance/report/balanceSheet',
+        component: './Report/AssetsLiabilities',
+      },
+    ]
+  }
 ]
 
 export default menus

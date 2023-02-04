@@ -17,7 +17,7 @@ const Login = () => {
     common.loginStorageHandler(data)
     message.success("登录成功！");
     setTimeout(() => {
-      window.location.href = "/user/switchCustomer"
+      window.location.href = "/Manage"
     }, 0)
   }
 

@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -42,24 +41,9 @@ public class AccountCloseList implements Serializable {
     private Long customerId;
 
     /**
-     * 年份:yyyy
-     */
-    private Integer year;
-
-    /**
      * 月份:yyyyMM
      */
     private Integer yearMonthNum;
-
-    /**
-     * 关账开始日期
-     */
-    private LocalDate beginDate;
-
-    /**
-     * 关账结束日期
-     */
-    private LocalDate endDate;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
@@ -79,5 +63,13 @@ public class AccountCloseList implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifyTime;
 
+
+    public AccountCloseList() {
+
+    }
+
+    public AccountCloseList(Integer yearMonthNum) {
+        this.yearMonthNum = yearMonthNum;
+    }
 
 }

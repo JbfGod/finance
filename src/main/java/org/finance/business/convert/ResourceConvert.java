@@ -1,7 +1,6 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.Resource;
-import org.finance.business.entity.enums.ResourceOperate;
 import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceVO;
 import org.finance.business.web.vo.TreeResourceWithOperateVO;
@@ -12,7 +11,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +34,9 @@ public interface ResourceConvert {
 
     TreeResourceWithOperateVO toTreeResourceWithOperateVO(Resource resource);
     default List<TreeResourceWithOperateVO> toTreeResourceWithOperateVO(List<Resource> resources) {
-        List<TreeResourceWithOperateVO> operateList = resources.stream().flatMap(r -> {
+        List<TreeResourceWithOperateVO> operateList = resources.stream().map(this::toTreeResourceWithOperateVO)
+                .collect(Collectors.toList());
+        /*List<TreeResourceWithOperateVO> operateList = resources.stream().flatMap(r -> {
             TreeResourceWithOperateVO operateVO = this.toTreeResourceWithOperateVO(r);
             String permitCode = r.getPermitCode();
             if (!StringUtils.hasText(permitCode)) {
@@ -55,7 +55,7 @@ public interface ResourceConvert {
                 );
             }
             return list.stream();
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList());*/
         return CollectionUtil.transformTree(operateList, TreeResourceWithOperateVO::getId, TreeResourceWithOperateVO::getParentId
                 , TreeResourceWithOperateVO::getChildren, TreeResourceWithOperateVO::setChildren);
     }
@@ -81,7 +81,7 @@ public interface ResourceConvert {
         String permitCode = r.getPermitCode();
         if (StringUtils.hasText(permitCode)) {
             return Arrays.stream(r.getPermitCode().split(","))
-                    .map(code -> String.join(":", r.getBusinessCode(), code));
+                    .map(code -> String.join(":", r.getModule().name(), code));
         }
         return Stream.of("");
     }

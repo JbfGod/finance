@@ -33,15 +33,17 @@ declare namespace API {
   };
 
   type addCustomerUsingPOSTParams = {
+    accountingSystem: 'N1' | 'N2' | 'N3' | 'N4';
     bankAccount?: string;
     bankAccountName?: string;
     businessUserId?: number;
     categoryId: number;
     contactName?: string;
+    currentPeriod?: number;
     effectTime?: string;
     enabled?: boolean;
+    enablePeriod: number;
     expireTime?: string;
-    industryId: number;
     name: string;
     number: string;
     remark?: string;
@@ -87,7 +89,7 @@ declare namespace API {
   type AddInitialBalanceRequest = {
     amount: number;
     currencyName: string;
-    lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
+    lendingDirection: 'BORROW' | 'LOAN';
     localAmount: number;
     subjectId: number;
     subjectNumber: string;
@@ -96,13 +98,12 @@ declare namespace API {
 
   type AddSubjectRequest = {
     assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
-    industryId?: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
+    category: 'ASSETS' | 'COMMON' | 'COST' | 'EQUITY' | 'FU_ZAI' | 'PROFIT';
+    lendingDirection?: 'BORROW' | 'LOAN';
     name: string;
     number: string;
     parentId?: number;
     remark?: string;
-    type: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
 
   type AddUserRequest = {
@@ -115,12 +116,9 @@ declare namespace API {
 
   type AddVoucherRequest = {
     attachmentNum?: number;
-    currencyId: number;
-    currencyName: string;
+    currencyId?: number;
     items?: Item[];
-    rate: number;
     serialNumber?: number;
-    unit: string;
     voucherDate: string;
   };
 
@@ -162,6 +160,27 @@ declare namespace API {
     remark?: string;
   };
 
+  type assetsLiabilitiesUsingGETParams = {
+    yearMonth: string;
+  };
+
+  type AssetsLiability = {
+    assetBeginBalance?: number;
+    assetEndBalance?: number;
+    assetFormulaType?: number;
+    assetLevel?: number;
+    assetName?: string;
+    assetReportId?: number;
+    assetRowNum?: number;
+    liabilityBeginBalance?: number;
+    liabilityEndBalance?: number;
+    liabilityFormulaType?: number;
+    liabilityLevel?: number;
+    liabilityName?: string;
+    liabilityReportId?: number;
+    liabilityRowNum?: number;
+  };
+
   type auditingCurrencyUsingPUTParams = {
     /** id */
     id: number;
@@ -176,78 +195,29 @@ declare namespace API {
     yearMonthDate: string;
   };
 
+  type AuditingVoucherRequest = {
+    ids?: number[];
+  };
+
   type auditingVoucherUsingPUTParams = {
     /** id */
     id: number;
   };
 
-  type BalanceSheetOfMonthVO = {
-    assetsClosingAmount?: number;
-    assetsFormula?: string;
-    assetsName?: string;
-    assetsOpeningAmount?: number;
-    assetsRowNum?: number;
-    equityClosingAmount?: number;
-    equityFormula?: string;
-    equityName?: string;
-    equityOpeningAmount?: number;
-    equityRowNum?: number;
-    id?: number;
+  type BatchDeleteVoucherRequest = {
+    ids?: number[];
   };
 
-  type batchAuditingVoucherUsingPUTParams = {
-    beginSerialNum?: number;
-    endSerialNum?: number;
-    yearMonth: number;
-  };
-
-  type batchBookkeepingVoucherUsingPUTParams = {
-    beginSerialNum?: number;
-    endSerialNum?: number;
-    yearMonth: number;
-  };
-
-  type batchUnAuditingVoucherUsingPUTParams = {
-    beginSerialNum?: number;
-    endSerialNum?: number;
-    yearMonth: number;
-  };
-
-  type batchUnBookkeepingVoucherUsingPUTParams = {
-    beginSerialNum?: number;
-    endSerialNum?: number;
-    yearMonth: number;
-  };
-
-  type bookkeepingInitialBalanceUsingPUTParams = {
-    /** id */
-    id: number;
-  };
-
-  type bookkeepingVoucherUsingPUTParams = {
-    /** id */
-    id: number;
-  };
-
-  type cancelClosedAccountUsingPOSTParams = {
-    yearMonthDate: string;
-    yearMonthNum?: number;
-  };
-
-  type CashFlowOfMonthVO = {
-    amount?: number;
-    formula?: string;
-    id?: number;
+  type CashFlow = {
+    annualAmount?: number;
+    currentPeriodAmount?: number;
     name?: string;
+    reportId?: number;
     rowNum?: number;
   };
 
-  type closeAccountUsingPOSTParams = {
-    beginDate?: string;
-    endDate?: string;
-    year?: number;
-    yearMonthDate: string;
-    yearMonthNum?: number;
+  type cashFlowUsingGETParams = {
+    yearMonth: string;
   };
 
   type CopyCurrencyRequest = {
@@ -278,7 +248,14 @@ declare namespace API {
     yearMonthNum?: string;
   };
 
+  type CurrentPeriodOutlineOfVoucherVO = {
+    voucherTotal?: number;
+    yearMonthNum?: number;
+  };
+
   type Customer = {
+    currentPeriod?: number;
+    enablePeriod?: number;
     id?: number;
     name?: string;
     number?: string;
@@ -308,6 +285,7 @@ declare namespace API {
     contactName?: string;
     createTime?: string;
     effectTime?: string;
+    enablePeriod?: string;
     enabled?: boolean;
     expireTime?: string;
     id?: number;
@@ -460,6 +438,11 @@ declare namespace API {
     reason?: string;
   };
 
+  type firstVoucherDetailUsingGETParams = {
+    /** period */
+    period?: number;
+  };
+
   type FlowItem = {
     approverIds: number[];
     department?: string;
@@ -491,9 +474,9 @@ declare namespace API {
     summary?: string;
   };
 
-  type GrantResourcesToCustomerRequest = {
-    customerId: number;
-    resourceIds?: number[];
+  type getCustomerTokenUsingGETParams = {
+    /** customerId */
+    customerId?: number;
   };
 
   type GrantResourcesToUserRequest = {
@@ -537,9 +520,10 @@ declare namespace API {
   type Item = {
     creditAmount?: number;
     debitAmount?: number;
+    id?: number;
     subjectId: number;
     subjectNumber: string;
-    summary: string;
+    summary?: string;
   };
 
   type Item0 = {
@@ -572,24 +556,25 @@ declare namespace API {
 
   type Json = true;
 
-  type listBalanceSheetOfMonthUsingGETParams = {
-    yearMonth: string;
-  };
-
-  type listCashFlowOfMonthUsingGETParams = {
-    yearMonth: string;
-  };
-
-  type listProfitOfMonthUsingGETParams = {
-    yearMonth: string;
+  type lastVoucherDetailUsingGETParams = {
+    /** period */
+    period?: number;
   };
 
   type listSubjectUsingGETParams = {
+    category?: 'ASSETS' | 'COMMON' | 'COST' | 'EQUITY' | 'FU_ZAI' | 'PROFIT';
     current?: number;
     industryId?: number;
     name?: string;
     number?: string;
     pageSize?: number;
+  };
+
+  type nextVoucherDetailUsingGETParams = {
+    /** period */
+    period?: number;
+    /** serialNumber */
+    serialNumber: number;
   };
 
   type OwnedApprovalCustomerVO = {
@@ -624,7 +609,6 @@ declare namespace API {
     bankAccountName?: string;
     categoryId?: number;
     current?: number;
-    industryId?: number;
     name?: string;
     number?: string;
     pageSize?: number;
@@ -650,6 +634,7 @@ declare namespace API {
   };
 
   type pageSubjectUsingGETParams = {
+    category?: 'ASSETS' | 'COMMON' | 'COST' | 'EQUITY' | 'FU_ZAI' | 'PROFIT';
     current?: number;
     industryId?: number;
     name?: string;
@@ -676,10 +661,10 @@ declare namespace API {
   type pageVoucherUsingGETParams = {
     currencyType?: 'FOREIGN' | 'LOCAL';
     current?: number;
-    endDate?: string;
+    endPeriod?: number;
     pageSize?: number;
     serialNumber?: number;
-    startDate?: string;
+    startPeriod?: number;
   };
 
   type persignedObjectUrlUsingGETParams = {
@@ -687,6 +672,13 @@ declare namespace API {
     fileExtend?: string;
     fileName: string;
     objectName?: string;
+  };
+
+  type prevVoucherDetailUsingGETParams = {
+    /** period */
+    period?: number;
+    /** serialNumber */
+    serialNumber: number;
   };
 
   type printContentOfExpenseBillUsingGETParams = {
@@ -699,13 +691,16 @@ declare namespace API {
     id: number;
   };
 
-  type ProfitOfMonthVO = {
+  type Profit = {
     annualAmount?: number;
-    formula?: string;
-    id?: number;
-    monthlyAmount?: number;
+    currentPeriodAmount?: number;
     name?: string;
+    reportId?: number;
     rowNum?: number;
+  };
+
+  type profitUsingGETParams = {
+    yearMonth: string;
   };
 
   type R = {
@@ -741,15 +736,15 @@ declare namespace API {
     traceId?: string;
   };
 
-  type ResourceIdentifiedVO = {
-    hasLeaf?: boolean;
-    id?: number;
-    number?: string;
-  };
-
-  type resourceIdsOfCustomerUsingGETParams = {
-    /** customerId */
-    customerId: number;
+  type RCurrentPeriodOutlineOfVoucherVO_ = {
+    data?: CurrentPeriodOutlineOfVoucherVO;
+    errorCode?: string;
+    host?: string;
+    message?: string;
+    redirectUrl?: string;
+    showType?: number;
+    success?: boolean;
+    traceId?: string;
   };
 
   type resourceIdsOfUserUsingGETParams = {
@@ -830,8 +825,8 @@ declare namespace API {
     traceId?: string;
   };
 
-  type RListBalanceSheetOfMonthVO_ = {
-    data?: BalanceSheetOfMonthVO[];
+  type RListAssetsLiability_ = {
+    data?: AssetsLiability[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -841,8 +836,8 @@ declare namespace API {
     traceId?: string;
   };
 
-  type RListCashFlowOfMonthVO_ = {
-    data?: CashFlowOfMonthVO[];
+  type RListCashFlow_ = {
+    data?: CashFlow[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -940,19 +935,8 @@ declare namespace API {
     traceId?: string;
   };
 
-  type RListProfitOfMonthVO_ = {
-    data?: ProfitOfMonthVO[];
-    errorCode?: string;
-    host?: string;
-    message?: string;
-    redirectUrl?: string;
-    showType?: number;
-    success?: boolean;
-    traceId?: string;
-  };
-
-  type RListResourceIdentifiedVO_ = {
-    data?: ResourceIdentifiedVO[];
+  type RListProfit_ = {
+    data?: Profit[];
     errorCode?: string;
     host?: string;
     message?: string;
@@ -1072,12 +1056,6 @@ declare namespace API {
     traceId?: string;
   };
 
-  type Row = {
-    formula?: string;
-    name?: string;
-    rowNum?: number;
-  };
-
   type RPageCurrencyVO_ = {
     current?: number;
     data?: CurrencyVO[];
@@ -1134,9 +1112,9 @@ declare namespace API {
     total?: number;
   };
 
-  type RPageVoucherVO_ = {
+  type RPageVoucherDetailVO_ = {
     current?: number;
-    data?: VoucherVO[];
+    data?: VoucherDetailVO[];
     pageSize?: number;
     success?: boolean;
     total?: number;
@@ -1192,21 +1170,6 @@ declare namespace API {
     flowItems: FlowItem[];
   };
 
-  type SaveBalanceSheetReportRequest = {
-    rows: Row[];
-    yearMonthNum: number;
-  };
-
-  type SaveCashFlowReportRequest = {
-    rows: Row[];
-    yearMonthNum: number;
-  };
-
-  type SaveProfitReportRequest = {
-    rows: Row[];
-    yearMonthNum: number;
-  };
-
   type searchCustomerCueUsingGETParams = {
     keyword?: string;
     num?: number;
@@ -1232,18 +1195,23 @@ declare namespace API {
 
   type SubjectVO = {
     assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
+    balance?: number;
+    beginningBalance?: number;
+    category?: 'ASSETS' | 'COMMON' | 'COST' | 'EQUITY' | 'FU_ZAI' | 'PROFIT';
+    creditAnnualAmount?: number;
+    debitAnnualAmount?: number;
     hasLeaf?: boolean;
     id?: number;
     industry?: string;
     industryId?: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
+    lendingDirection?: 'BORROW' | 'LOAN';
     level?: number;
     name?: string;
     number?: string;
+    openingBalance?: number;
     parentId?: number;
     parentNumber?: string;
     remark?: string;
-    type?: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
 
   type subLedgerUsingGETParams = {
@@ -1306,6 +1274,7 @@ declare namespace API {
     children?: TreeResourceWithOperateVO[];
     disabled?: boolean;
     id?: string;
+    module?: 'FINANCE' | 'MANAGE';
     name?: string;
     parentId?: string;
     sortNum?: number;
@@ -1326,17 +1295,11 @@ declare namespace API {
     id: number;
   };
 
+  type UnAuditingVoucherRequest = {
+    ids?: number[];
+  };
+
   type unAuditingVoucherUsingPUTParams = {
-    /** id */
-    id: number;
-  };
-
-  type unBookkeepingInitialBalanceUsingPUTParams = {
-    /** id */
-    id: number;
-  };
-
-  type unBookkeepingVoucherUsingPUTParams = {
     /** id */
     id: number;
   };
@@ -1356,6 +1319,7 @@ declare namespace API {
   };
 
   type updateCustomerUsingPUTParams = {
+    accountingSystem: 'N1' | 'N2' | 'N3' | 'N4';
     bankAccount?: string;
     bankAccountName?: string;
     businessUserId?: number;
@@ -1363,7 +1327,6 @@ declare namespace API {
     enabled?: boolean;
     expireTime?: string;
     id: number;
-    industryId: number;
     name: string;
     remark?: string;
     telephone?: string;
@@ -1414,7 +1377,7 @@ declare namespace API {
     amount: number;
     currencyName: string;
     id: number;
-    lendingDirection: 'BORROW' | 'DEFAULT' | 'LOAN';
+    lendingDirection: 'BORROW' | 'LOAN';
     localAmount: number;
     subjectId: number;
     subjectNumber: string;
@@ -1425,13 +1388,21 @@ declare namespace API {
     oldPassword: string;
   };
 
+  type UpdateSubjectInitialBalanceRequest = {
+    beginningBalance?: number;
+    creditAnnualAmount?: number;
+    debitAnnualAmount?: number;
+    id: number;
+    openingBalance?: number;
+  };
+
   type UpdateSubjectRequest = {
     assistSettlement?: 'BANK' | 'CUSTOMER' | 'EMPLOYEE' | 'NOTHING' | 'SUPPLIER';
+    category: 'ASSETS' | 'COMMON' | 'COST' | 'EQUITY' | 'FU_ZAI' | 'PROFIT';
     id: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
+    lendingDirection?: 'BORROW' | 'LOAN';
     name: string;
     remark?: string;
-    type: 'COST' | 'SUBJECT' | 'SUBJECT_AND_COST';
   };
 
   type UpdateUserPasswordRequest = {
@@ -1446,20 +1417,12 @@ declare namespace API {
 
   type UpdateVoucherRequest = {
     attachmentNum?: number;
-    currencyId: number;
-    currencyName: string;
+    currencyId?: number;
     deletedItemIds?: number[];
     id: number;
     items?: Item[];
-    rate: number;
     serialNumber?: number;
-    unit: string;
     voucherDate: string;
-  };
-
-  type usableSerialNumberUsingGETParams = {
-    /** yearMonthNum */
-    yearMonthNum?: number;
   };
 
   type UserListVO = {
@@ -1482,6 +1445,11 @@ declare namespace API {
     path?: string;
   };
 
+  type UserRedisContextState = {
+    module?: 'FINANCE' | 'MANAGE';
+    proxyCustomerId?: number;
+  };
+
   type UserSelfVO = {
     account?: string;
     createBy?: number;
@@ -1495,13 +1463,14 @@ declare namespace API {
     name?: string;
     proxyCustomer?: Customer;
     role?: 'ADMIN' | 'ADVANCED_APPROVER' | 'NORMAL' | 'NORMAL_APPROVER';
+    state?: UserRedisContextState;
   };
 
   type VoucherBookVO = {
     creditAmount?: number;
     debitAmount?: number;
     id?: number;
-    lendingDirection?: 'BORROW' | 'DEFAULT' | 'LOAN';
+    lendingDirection?: 'BORROW' | 'LOAN';
     serialNumber?: number;
     subjectName?: string;
     subjectNumber?: string;
@@ -1517,15 +1486,21 @@ declare namespace API {
 
   type VoucherDetailVO = {
     attachmentNum?: number;
+    auditorName?: string;
+    closed?: boolean;
+    createTime?: string;
+    creatorName?: string;
     currencyId?: number;
-    currencyName?: string;
     expenseBillId?: number;
     id?: number;
     items?: Item0[];
-    rate?: number;
+    reviewed?: boolean;
     serialNumber?: number;
     source?: 'EXPENSE_BILL' | 'MANUAL';
-    unit?: string;
+    totalCreditAmount?: number;
+    totalDebitAmount?: number;
+    voucherDate?: string;
+    yearMonthNum?: number;
   };
 
   type voucherItemBySubjectUsingGETParams = {
@@ -1556,24 +1531,5 @@ declare namespace API {
     totalLocalCurrencyAmount?: number;
     unit?: string;
     voucherTime?: string;
-  };
-
-  type VoucherVO = {
-    attachmentNum?: number;
-    auditStatus?: 'APPROVED' | 'AUDITED' | 'TO_BE_AUDITED';
-    bookkeeping?: boolean;
-    creatorName?: string;
-    currencyName?: string;
-    currencyType?: 'FOREIGN' | 'LOCAL';
-    current?: number;
-    customerNumber?: string;
-    expenseBillId?: number;
-    id?: number;
-    pageSize?: number;
-    serialNumber?: number;
-    source?: 'EXPENSE_BILL' | 'MANUAL';
-    unit?: string;
-    voucherDate?: string;
-    yearMonthNum?: string;
   };
 }

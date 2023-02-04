@@ -17,6 +17,36 @@ export async function accountBalanceUsingGET(
   });
 }
 
+/** assetsLiabilities GET /api/report/assetsLiabilities */
+export async function assetsLiabilitiesUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.assetsLiabilitiesUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RListAssetsLiability_>('/api/report/assetsLiabilities', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** cashFlow GET /api/report/cashFlow */
+export async function cashFlowUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.cashFlowUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RListCashFlow_>('/api/report/cashFlow', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** dailyBank GET /api/report/dailyBank */
 export async function dailyBankUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -54,6 +84,21 @@ export async function generalLedgerUsingGET(
   options?: { [key: string]: any },
 ) {
   return request<API.RListGeneralLedgerVO_>('/api/report/generalLedger', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** profit GET /api/report/profit */
+export async function profitUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.profitUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RListProfit_>('/api/report/profit', {
     method: 'GET',
     params: {
       ...params,

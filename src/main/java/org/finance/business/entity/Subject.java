@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import org.finance.infrastructure.constants.LendingDirection;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,11 +37,6 @@ public class Subject implements Serializable {
     private Long customerId;
 
     /**
-     * 所属行业
-     */
-    private Long industryId;
-
-    /**
      * 科目编号
      */
     private String number;
@@ -51,9 +47,9 @@ public class Subject implements Serializable {
     private String name;
 
     /**
-     * 科目类型
+     * 科目类别
      */
-    private Type type;
+    private Category category;
 
     /**
      * 借贷方向
@@ -75,6 +71,7 @@ public class Subject implements Serializable {
      */
     private String parentNumber;
 
+    private String path;
     /**
      * 是否有叶子节点
      */
@@ -86,24 +83,36 @@ public class Subject implements Serializable {
     private Integer level;
 
     /**
-     * 节点左值
-     */
-    private Integer leftValue;
-
-    /**
-     * 节点右值
-     */
-    private Integer rightValue;
-
-    /**
      * 根级别ID
      */
     private String rootNumber;
 
+    private Long rootId;
     /**
      * 备注
      */
     private String remark;
+
+    /**
+     * 年初余额
+     */
+    private BigDecimal beginningBalance;
+    /**
+     * 期初余额
+     */
+    private BigDecimal openingBalance;
+    /**
+     * 借方年累计金额
+     */
+    private BigDecimal debitAnnualAmount;
+    /**
+     * 贷方年累计金额
+     */
+    private BigDecimal creditAnnualAmount;
+    /**
+     * 现金流量科目
+     */
+    private Boolean beCashFlow;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
@@ -127,22 +136,33 @@ public class Subject implements Serializable {
     private List<Subject> children;
 
     /**
-     * 科目类型
+     * 科目类别
      */
-    public enum Type {
+    public enum Category {
         /**
-         * 科目
+         * 资产
          */
-        SUBJECT,
+        ASSETS,
         /**
-         * 费用
+         * 负债
+         */
+        FU_ZAI,
+        /**
+         * 权益
+         */
+        EQUITY,
+        /**
+         * 成本
          */
         COST,
         /**
-         * 科目+费用
+         * 损益
          */
-        SUBJECT_AND_COST,
-        ;
+        PROFIT,
+        /**
+         * 共同
+         */
+        COMMON,
     }
 
     /**
@@ -172,4 +192,22 @@ public class Subject implements Serializable {
         ;
     }
 
+    public Subject() {}
+
+    public Subject(String number, String name,
+                   Category category, LendingDirection lendingDirection) {
+        this.number = number;
+        this.name = name;
+        this.category = category;
+        this.lendingDirection = lendingDirection;
+    }
+
+    public Subject(String number, String name, Category category,
+                   LendingDirection lendingDirection, Boolean beCashFlow) {
+        this.number = number;
+        this.name = name;
+        this.category = category;
+        this.lendingDirection = lendingDirection;
+        this.beCashFlow = beCashFlow;
+    }
 }

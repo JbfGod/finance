@@ -24,10 +24,8 @@ public class AddSubjectRequest {
     @Size(min = 2, max = 20, message = "科目名称只允许有2-20个字符！")
     private String name;
 
-    private Long industryId;
-
-    @NotNull(message = "请选择科目类型")
-    private Subject.Type type;
+    @NotNull(message = "请选择科目类别")
+    private Subject.Category category;
 
     private LendingDirection lendingDirection;
 

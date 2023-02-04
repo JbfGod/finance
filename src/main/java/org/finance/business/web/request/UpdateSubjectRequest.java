@@ -21,8 +21,8 @@ public class UpdateSubjectRequest {
     @Size(min = 2, max = 20, message = "科目名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "请填写科目类型！")
-    private Subject.Type type;
+    @NotNull(message = "请填写科目类别！")
+    private Subject.Category category;
 
     private LendingDirection lendingDirection;
 

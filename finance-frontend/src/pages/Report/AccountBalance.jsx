@@ -2,28 +2,38 @@ import React, {useEffect, useRef, useState} from "react"
 import GlobalPageContainer from "@/components/PageContainer";
 import ExProTable from "@/components/Table/ExtProTable";
 import {accountBalanceUsingGET} from "@/services/swagger/reportWeb";
-import moment from "moment";
 import {Col, Row, Table} from "antd";
 import {voucherItemBySubjectUsingGET} from "@/services/swagger/voucherWeb";
 import styles from "@/global.less";
-import VoucherForm from "@/pages/VoucherList/VoucherForm";
-import {useModalWithParam} from "@/utils/hooks";
+import VoucherForm from "@/pages/Voucher/VoucherForm";
+import {useModalWithParam, useSecurity} from "@/utils/hooks";
 import commonColumn from "@/pages/Report/commonColumn";
 import commonNumberColumn from "@/pages/Report/commonNumberColumn";
+import dayjs from "dayjs";
 
 export default function () {
   const actionRef = useRef()
   const [data, setData] = useState([])
   const [yearMonth, setYearMonth] = useState(null)
   const [selectedSubjectId, setSelectedSubjectId] = useState([])
+  const {proxyCustomer} = useSecurity()
+  const {enablePeriod, currentPeriod} = proxyCustomer
   const voucherModal = useModalWithParam()
   useEffect(() => {
     setSelectedSubjectId([])
   }, [])
   const balanceColumns = [
     {
-      title: "月份", dataIndex: "yearMonth", valueType: "dateMonth",
-      hideInTable: true, initialValue: moment(), fieldProps: {allowClear: false}
+      title: "", dataIndex: "yearMonth", valueType: "dateMonth",
+      hideInTable: true, initialValue: dayjs(`${proxyCustomer.currentPeriod}`, "YYYYMM").format("YYYY-MM"),
+      fieldProps: {
+        allowClear: false,
+        disabledDate: date => {
+          return date < dayjs(`${enablePeriod}`, "YYYYMM").endOf("day")
+            ||
+            date > dayjs(`${currentPeriod}`, "YYYYMM").endOf("day")
+        }
+      }
     },
     {title: "科目编号", dataIndex: "subjectNumber", align: "center"},
     {title: "科目名称", dataIndex: "subjectName", align: "center"},

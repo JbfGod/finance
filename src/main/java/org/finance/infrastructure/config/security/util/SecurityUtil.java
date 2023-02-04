@@ -110,4 +110,8 @@ public class SecurityUtil {
                         String.format("%s:view:all", target)
                 ));
     }
+
+    public static Integer getProxyCustomerCurrentPeriod() {
+        return getProxyCustomer().getCurrentPeriod();
+    }
 }

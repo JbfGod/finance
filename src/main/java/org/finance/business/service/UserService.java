@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
+import org.finance.business.entity.enums.ResourceModule;
 import org.finance.business.mapper.CustomerMapper;
 import org.finance.business.mapper.UserMapper;
 import org.finance.business.mapper.UserResourceMapper;
 import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
+import org.finance.infrastructure.config.security.util.JwtTokenUtil;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
 import org.finance.infrastructure.util.CacheAttr;
@@ -102,7 +104,17 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Custom
         baseMapper.insert(user);
     }
 
-    public void proxyCustomer(long userId, Long proxyCustomerId, String token) {
+    public String proxyCustomer(long userId, Long proxyCustomerId) {
+        String token = JwtTokenUtil.generateTokenByUser(userId);
+        CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
+        UserRedisContextState state = new UserRedisContextState()
+                .setModule(ResourceModule.FINANCE)
+                .setProxyCustomerId(proxyCustomerId);
+        redisTemplate.opsForValue().set(cacheAttr.getKey(), state, cacheAttr.getTimeout());
+        return String.format("Bearer %s", token);
+    }
+
+    public void switchCustomer(long userId, Long proxyCustomerId, String token) {
         User user = baseMapper.selectById(userId);
         AssertUtil.isTrue(Customer.DEFAULT_ID.equals(user.getCustomerId()), "操作失败，只有记账平台单位用户才能切换其他客户单位！");
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);

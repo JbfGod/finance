@@ -17,7 +17,9 @@ export default function useSubjectModel() {
 
   const fetchSubjects = useCallback((params) => {
     return listSubjectUsingGET(params).then(result => {
-      setSubjects(result.data)
+      setSubjects(result.data.map(sub => ({
+        ...sub, isLeaf: !sub.hasLeaf, key: sub.id, title: `${sub.number} ${sub.name}`
+      })))
       return result
     })
   }, [])

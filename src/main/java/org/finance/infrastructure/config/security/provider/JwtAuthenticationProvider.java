@@ -59,6 +59,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             if (dbUser == null) {
                 throw new AccountNotFoundException("账户不存在！");
             }
+            dbUser.setState(state);
             // 如果当前用户代理客户单位，则该单位信息当如当前用户上下文中
             Long proxyCustomerId = state.getProxyCustomerId();
             if (proxyCustomerId != null) {

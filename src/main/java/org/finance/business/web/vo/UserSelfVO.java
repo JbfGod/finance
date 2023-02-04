@@ -3,6 +3,7 @@ package org.finance.business.web.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.finance.business.entity.User;
+import org.finance.infrastructure.common.UserRedisContextState;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ public class UserSelfVO {
 
     private Customer customer;
     private Customer proxyCustomer;
+    private UserRedisContextState state;
 
     @Data
     @Accessors(chain = true)
@@ -32,6 +34,8 @@ public class UserSelfVO {
         private Long id;
         private String name;
         private String number;
+        private Integer enablePeriod;
+        private Integer currentPeriod;
     }
 
 }

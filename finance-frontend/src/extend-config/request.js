@@ -32,7 +32,7 @@ const authHeaderInterceptor = (url, options) => {
     options: {...options, interceptors: true, headers: headers, loadingKey},
   };
 };
-const responseInterceptor = (response, options) => {
+const responseInterceptor = (response) => {
   if (response.status === 504) {
     notification.error({
       description: "服务器请求超时",
@@ -48,36 +48,7 @@ const responseInterceptor = (response, options) => {
       case "put":
         message.success({content: data.message || "操作成功", key: config.loadingKey})
     }
-    return response
   }
-  const errorCode = data?.errorCode
-  let errorMessage = data?.message || "未知的服务异常！"
-  const loadingKey = options?.loadingKey
-  switch (data?.showType) {
-    case ErrorShowType.SILENT:
-      // do nothing
-      break;
-    case ErrorShowType.WARN_MESSAGE:
-      message.warn({content: errorMessage, key: loadingKey})
-      break
-    case ErrorShowType.ERROR_MESSAGE:
-    case ErrorShowType.NOTIFICATION:
-      message.error({content: errorMessage, key: loadingKey})
-      break;
-    case ErrorShowType.REDIRECT:
-      let pathname = DEFAULT_ERROR_PAGE;
-      if (errorCode === "401") {
-        common.logoutStorageHandler()
-        pathname = "/login"
-      }
-      message.error({content: errorMessage, key: loadingKey})
-      pathname && (window.location.href = pathname)
-      break
-    default:
-      message.error(errorMessage)
-      break
-  }
-  console.log(response)
   return response
 }
 export const request = {
@@ -85,8 +56,42 @@ export const request = {
   responseInterceptors: [responseInterceptor],
   errorConfig: {
     adaptor: () => ({}),
+    errorThrower(e){
+      console.log("errorThrower", e)
+    },
     errorHandler: (error) => {
-      console.error("error", error)
+      const {response, config} = error
+      if (!response || !response.data) {
+        console.error("errorHandler", error)
+        throw error
+      }
+      const loadingKey = config?.loadingKey
+      const {data} = response
+      let errorMessage = data?.message || "未知的服务异常！"
+      switch (data?.showType) {
+        case ErrorShowType.SILENT:
+          // do nothing
+          break;
+        case ErrorShowType.WARN_MESSAGE:
+          message.warn({content: errorMessage, key: loadingKey})
+          break
+        case ErrorShowType.ERROR_MESSAGE:
+        case ErrorShowType.NOTIFICATION:
+          message.error({content: errorMessage, key: loadingKey})
+          break;
+        case ErrorShowType.REDIRECT:
+          let pathname = DEFAULT_ERROR_PAGE;
+          if (data.errorCode === "401") {
+            common.logoutStorageHandler()
+            pathname = "/login"
+          }
+          message.error({content: errorMessage, key: loadingKey})
+          pathname && (window.location.href = pathname)
+          break
+        default:
+          message.error({content: errorMessage, key: loadingKey})
+          break
+      }
       throw error
     }
   },

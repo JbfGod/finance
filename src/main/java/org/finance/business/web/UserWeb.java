@@ -7,7 +7,6 @@ import org.finance.business.convert.CustomerConvert;
 import org.finance.business.convert.ResourceConvert;
 import org.finance.business.convert.UserConvert;
 import org.finance.business.entity.Customer;
-import org.finance.business.entity.Resource;
 import org.finance.business.entity.User;
 import org.finance.business.entity.enums.ResourceOperate;
 import org.finance.business.service.CustomerResourceService;
@@ -27,6 +26,7 @@ import org.finance.business.web.vo.UserOwnedMenuVO;
 import org.finance.business.web.vo.UserSelfVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
+import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.handler.MyPermissionEvaluator;
 import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
@@ -81,7 +81,12 @@ public class UserWeb {
 
     @GetMapping("/self/menus")
     public R<List<UserOwnedMenuVO>> selfMenus() {
-        return R.ok(ResourceConvert.INSTANCE.toTreeMenus(this.getSelfResources()));
+        User currentUser = SecurityUtil.getCurrentUser();
+        UserRedisContextState state = currentUser.getState();
+        Long userId = SecurityUtil.getUserId();
+        return R.ok(ResourceConvert.INSTANCE.toTreeMenus(
+            userResourceService.getResourcesByUserIdAndModule(userId, state.getModule())
+        ));
     }
 
     @GetMapping("/self/permissions")
@@ -131,9 +136,7 @@ public class UserWeb {
     @GetMapping("/ownedCustomer")
     public R<List<CustomerCueVO>> ownedCustomer(QueryOwnedCustomerRequest request) {
         Long userId = SecurityUtil.getUserId();
-        boolean searchAll = myPermissionEvaluator.hasPermission(SecurityUtil.getAuthentication(),
-                "customer", ResourceOperate.VIEW_ALL.getValue()
-        );
+        boolean searchAll = SecurityUtil.isSuperAdmin();
         List<Customer> customers = customerService.list(Wrappers.<Customer>lambdaQuery()
             .eq(!searchAll, Customer::getBusinessUserId, userId)
             .gt(Customer::getId, 0)
@@ -144,6 +147,12 @@ public class UserWeb {
             .map(CustomerConvert.INSTANCE::toCustomerCueVO)
             .collect(Collectors.toList())
         );
+    }
+
+    @GetMapping("/getCustomerToken")
+    public R<String> getCustomerToken(long customerId) {
+        Long userId = SecurityUtil.getUserId();
+        return R.ok(userService.proxyCustomer(userId, customerId));
     }
 
     @PostMapping("/grantResources")
@@ -205,20 +214,8 @@ public class UserWeb {
     @PutMapping("/switch/proxyCustomer")
     public R switchProxyCustomer(Long customerId, @RequestHeader("Authorization") String authorization) {
         String token = authorization.substring("Bearer ".length());
-        userService.proxyCustomer(SecurityUtil.getUserId(), customerId, token);
+        userService.switchCustomer(SecurityUtil.getUserId(), customerId, token);
         return R.ok();
-    }
-
-    private List<Resource> getSelfResources() {
-        List<Resource> resources;
-        User currentUser = SecurityUtil.getCurrentUser();
-        // 若果是管理员用户直接获取所在客户单位的功能菜单
-        if (currentUser.getRole() == User.Role.ADMIN && currentUser.getCustomerId() > 0) {
-            resources = customerResourceService.listResourceByCustomerId(currentUser.getCustomerId());
-        } else {
-            resources = userResourceService.getResourcesByUserId(currentUser.getId());
-        }
-        return resources;
     }
 
     private LambdaQueryWrapper<User> buildQueryWrapperByRequest(QueryUserRequest request) {

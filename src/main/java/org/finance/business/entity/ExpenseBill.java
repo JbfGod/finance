@@ -141,10 +141,7 @@ public class ExpenseBill implements Serializable {
                 .setSource(Voucher.Source.EXPENSE_BILL)
                 .setExpenseBillId(this.getId())
                 .setVoucherDate(expenseTime.toLocalDate())
-                .setCurrencyId(Currency.LOCAL_CURRENCY.getId())
-                .setRate(Currency.LOCAL_CURRENCY.getRate())
-                .setCurrencyName(Currency.LOCAL_CURRENCY.getName())
-                .setUnit("元");
+                .setCurrencyId(Currency.LOCAL_CURRENCY.getId());
         List<ExpenseItem> itemList = this.getItems();
         List<VoucherItem> voucherItems = itemList.stream().map(
                 expenseItem -> new VoucherItem()
@@ -162,7 +159,6 @@ public class ExpenseBill implements Serializable {
                 .setTotalDebitAmount(this.getTotalSubtotalAmount())
                 .setTotalLocalDebitAmount(this.getTotalSubtotalAmount())
                 .setAuditStatus(AuditStatus.TO_BE_AUDITED)
-                .setBookkeeping(false)
                 .setItems(voucherItems);
         return voucher;
     }

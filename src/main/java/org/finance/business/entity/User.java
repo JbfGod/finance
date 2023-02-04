@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.finance.infrastructure.common.UserRedisContextState;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -90,6 +91,8 @@ public class User implements Serializable, UserDetails {
 
     @TableField(exist = false)
     private Customer proxyCustomer;
+    @TableField(exist = false)
+    UserRedisContextState state;
 
     @TableField(exist = false)
     public List<Resource> resources;

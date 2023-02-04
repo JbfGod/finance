@@ -1,6 +1,7 @@
 package org.finance.infrastructure.config.security.provider;
 
 import org.finance.business.entity.User;
+import org.finance.business.entity.enums.ResourceModule;
 import org.finance.infrastructure.common.UserRedisContextState;
 import org.finance.infrastructure.config.security.CustomerUserService;
 import org.finance.infrastructure.config.security.token.CustomerUsernamePasswordAuthenticationToken;
@@ -85,7 +86,8 @@ public class CustomerUsernamePasswordAuthenticationProvider extends AbstractUser
         result.setDetails(dbUser);
         // 将token写入缓存
         CacheAttr cacheAttr = CacheKeyUtil.getToken(token);
-        redisTemplate.opsForValue().set(cacheAttr.getKey(), new UserRedisContextState(), cacheAttr.getTimeout());
+        UserRedisContextState state = new UserRedisContextState().setModule(ResourceModule.MANAGE);
+        redisTemplate.opsForValue().set(cacheAttr.getKey(), state, cacheAttr.getTimeout());
         return result;
     }
 

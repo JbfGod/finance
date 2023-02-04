@@ -113,5 +113,5 @@ export default defineConfig({
       schemaPath: 'http://docker.localhost:8081/api/downloadOpenapi',
       projectName: 'swagger',
     },
-  ],
+  ]
 });

@@ -1,7 +1,9 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.AccountBalance;
+import org.finance.business.entity.Currency;
 import org.finance.business.entity.InitialBalanceItem;
+import org.finance.business.entity.Subject;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.web.vo.AccountBalanceVO;
 import org.mapstruct.Mapper;
@@ -42,6 +44,22 @@ public interface AccountBalanceConvert {
                 .setDebitAnnualAmount(localDebitAmount)
                 .setCreditAnnualAmount(localCreditAmount)
                 .calcClosingBalance(balance, localBalance);
+    }
+
+    default AccountBalance toAccountBalance(Subject subject) {
+        BigDecimal zero = new BigDecimal("0");
+        return AccountBalance.newInstance()
+                .setSubjectId(subject.getId())
+                .setSubjectNumber(subject.getNumber())
+                .setCurrency(Currency.LOCAL_CURRENCY.getName())
+                .setDebitCurrentAmount(zero)
+                .setCreditCurrentAmount(zero)
+                .setDebitAnnualAmount(subject.getDebitAnnualAmount())
+                .setCreditAnnualAmount(subject.getCreditAnnualAmount())
+                .setLocalOpeningBalance(subject.getOpeningBalance())
+                .setLocalClosingBalance(subject.getOpeningBalance())
+                .setOpeningBalance(subject.getOpeningBalance())
+                .setClosingBalance(subject.getOpeningBalance());
     }
 
     default AccountBalance toAccountBalance(VoucherItem voucherItem) {

@@ -10,15 +10,15 @@ body,
   filter: invert(80%);
 }
 
-.ant-layout {
-  min-height: 100vh;
-  .ant-pro-layout-container {
-    background-color: #f0f2f5;
-    .ant-page-header {
-      background-color: #fff;
-    }
-  }
-}
+//.ant-layout {
+//  min-height: 100vh;
+//  .ant-pro-layout-container {
+//    background-color: #f0f2f5;
+//    .ant-page-header {
+//      background-color: #fff;
+//    }
+//  }
+//}
 
 
 .ant-pro-sider.ant-layout-sider.ant-pro-sider-fixed {
@@ -65,9 +65,18 @@ ol {
     min-height: 100vh;
   }
 }
-
+main.ant-layout-content {
+  position: relative;
+}
+.ant-pro-page-container{
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
 .ant-pro-page-container-children-content {
-  margin: 12px 12px 0;
+  margin: 0;
   padding: inherit;
 }
 

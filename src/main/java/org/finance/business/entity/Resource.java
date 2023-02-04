@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.finance.business.entity.enums.ResourceModule;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -76,9 +77,9 @@ public class Resource implements Serializable {
     private String icon;
 
     /**
-     * 业务标识
+     * 模块
      */
-    private String businessCode;
+    private ResourceModule module;
 
     /**
      * 权限代码

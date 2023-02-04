@@ -2,6 +2,7 @@ package org.finance.infrastructure.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.finance.infrastructure.common.R;
+import org.finance.infrastructure.exception.HxException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
@@ -22,9 +23,20 @@ import javax.validation.ConstraintViolationException;
 @ApiIgnore
 public class ExceptionAdviceWeb {
 
+    @ExceptionHandler(HxException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public R handleHxException(HxException e) {
+        if (e.getShowType() == R.SHOW_TYPE_ERROR) {
+            return R.error(e.getMessage());
+        } else if (e.getShowType() == R.SHOW_TYPE_WARN) {
+            return R.warn(e.getMessage());
+        }
+        return R.error(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public R handleHxException(Exception e) {
+    public R handleException(Exception e) {
         e.printStackTrace();
         return R.error(e.getMessage());
     }

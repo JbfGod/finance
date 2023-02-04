@@ -75,3 +75,18 @@ export async function updateSubjectUsingPUT(
     ...(options || {}),
   });
 }
+
+/** updateSubjectInitialBalance PUT /api/subject/updateSubjectInitialBalance */
+export async function updateSubjectInitialBalanceUsingPUT(
+  body: API.UpdateSubjectInitialBalanceRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.R>('/api/subject/updateSubjectInitialBalance', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}

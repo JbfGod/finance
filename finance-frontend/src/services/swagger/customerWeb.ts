@@ -2,20 +2,6 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** resourceIdsOfCustomer GET /api/customer/${param0}/resourceIds */
-export async function resourceIdsOfCustomerUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.resourceIdsOfCustomerUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { customerId: param0, ...queryParams } = params;
-  return request<API.RListResourceIdentifiedVO_>(`/api/customer/${param0}/resourceIds`, {
-    method: 'GET',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
 /** treeResourceWithOperate GET /api/customer/${param0}/treeResourceWithOperate */
 export async function treeResourceWithOperateUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -58,21 +44,6 @@ export async function deleteCustomerUsingDELETE(
   return request<API.R>(`/api/customer/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** grantResourceToCustomer POST /api/customer/grantResources */
-export async function grantResourceToCustomerUsingPOST(
-  body: API.GrantResourcesToCustomerRequest,
-  options?: { [key: string]: any },
-) {
-  return request<API.R>('/api/customer/grantResources', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
     ...(options || {}),
   });
 }

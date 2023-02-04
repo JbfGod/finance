@@ -14,9 +14,13 @@ public enum LendingDirection {
      * 贷
      */
     LOAN,
-    /**
-     * 借+贷
-     */
-    DEFAULT,
     ;
+
+    public boolean isLoan() {
+        return this == LOAN;
+    }
+
+    public boolean isBorrow() {
+        return this == BORROW;
+    }
 }

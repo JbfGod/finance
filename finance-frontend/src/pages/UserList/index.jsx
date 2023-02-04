@@ -1,14 +1,13 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import PageContainer from "@/components/PageContainer";
 import * as userWeb from "@/services/swagger/userWeb";
 import {ModalForm, ProFormItem, ProFormRadio, ProFormSelect, ProFormText} from "@ant-design/pro-form";
 import * as hooks from "@/utils/hooks";
-import {useModalWithParam, useSecurity} from "@/utils/hooks";
+import {useModalWithParam} from "@/utils/hooks";
 import ExProTable from "@/components/Table/ExtProTable";
 import {ExtConfirmDel} from "@/components/Table/ExtPropconfirm";
 import ResourceDrawerForm from "@/pages/ResourceDrawerForm";
 import * as customerWeb from "@/services/swagger/customerWeb";
-import {searchCustomerCueUsingGET} from "@/services/swagger/customerWeb";
 import {Badge} from "antd";
 import {USER_ROLE} from "@/constants";
 
@@ -36,28 +35,16 @@ export default () => {
     functionData: [], selectedResourceIds: [], user: null
   })
   const [tmpOperateUser, setTmpOperateUser] = useState()
-  const [customers, setCustomers] = useState([])
-  const customerOptions = [{name:"记账平台", number:"HX_TOP"}, ...customers]
-    .map(c => ({label: `${c.name}-(${c.number})`, value: c.number}))
-  const loadCustomers = () => {
-    searchCustomerCueUsingGET().then(({data}) => {
-      setCustomers(data)
-    })
-  }
-  useEffect(() => {
-    loadCustomers()
-  }, [])
   const actionRef = useRef()
-  const security = useSecurity("user")
   const columns = [
-    ...(security.isSuperCustomer ? [
+    /*...(security.isSuperCustomer ? [
       {
         title: "客户编号", dataIndex: "customerNumber", valueType: "text"
       },
       {
         title: "客户名称", dataIndex: "customerName", valueType: "text"
       },
-    ] : []),
+    ] : []),*/
     {
       title: "用户姓名", dataIndex: "name", valueType: "text"
       , formItemProps: {rules: nameRules}
@@ -140,9 +127,9 @@ export default () => {
                      })
                    }}
         >
-          {security.isSuperCustomer && (
+          {/*{security.isSuperCustomer && (
               <ProFormSelect name="customerNumber" label="客户编号" showSearch options={customerOptions}/>
-          )}
+          )}*/}
           <ProFormSelect name="role" allowClear={false} label="用户类型" options={Object.values(USER_ROLE)}/>
           <ProFormText name="name" label="用户姓名" rules={nameRules}/>
           <ProFormText name="account" label="登录账号"
@@ -215,16 +202,16 @@ export default () => {
             }
           </ProFormItem>
         </ModalForm>
-        {grantDrawer.visible?
-            <ResourceDrawerForm title="功能授权" width="500px" visible={true}
-                                drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.state.functionData}
-                                initialValues={{resourceWithOperateIds: grantDrawer.state.selectedResourceIds}}
-                                onVisibleChange={grantDrawer.handleVisible}
-                                onFinish={async (v) => {
-                                  return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.state.user.id})
-                                }}
-            /> : null
-        }
+        {grantDrawer.visible && (
+          <ResourceDrawerForm title="功能授权" width="500px" visible={true}
+                              drawerProps={{destroyOnClose: true}} resourceData={grantDrawer.state.functionData}
+                              initialValues={{resourceWithOperateIds: grantDrawer.state.selectedResourceIds}}
+                              onVisibleChange={grantDrawer.handleVisible}
+                              onFinish={async (v) => {
+                                return userWeb.grantResourcesToUserUsingPOST({...v, userId: grantDrawer.state.user.id})
+                              }}
+          />
+        )}
       </PageContainer>
   )
 }

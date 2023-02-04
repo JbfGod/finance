@@ -4,19 +4,28 @@ import RightContent from '@/components/RightContent';
 import defaultSettings from '../config/defaultSettings';
 import * as userWeb from "@/services/swagger/userWeb";
 import * as common from "@/utils/common";
-import {getUserIdentity} from "@/utils/common";
+import {getUserIdentity, setAccessToken} from "@/utils/common";
 
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import Footer from "@/components/Footer";
+import HeaderTitle from "@/components/HeaderTitle";
+import {PageLoading} from "@ant-design/pro-components";
+import weekday from "dayjs/plugin/weekday"
+import localeData from "dayjs/plugin/localeData"
+import dayjs from "dayjs";
 
 moment.locale('zh-cn');
+
+dayjs.extend(weekday)
+dayjs.extend(localeData)
 
 const loginPath = '/login';
 
 export {request} from "@/extend-config/request"
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
+
 /*export const initialStateConfig = {
   loading: <PageLoading />,
 };*/
@@ -24,6 +33,16 @@ export {request} from "@/extend-config/request"
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState() {
+  const {search} = window.location
+  if (search) {
+    const token = search.substring(1).split("&")
+      .filter(ele => ele.includes("token="))?.[0]?.split("=")?.[1]
+    if (token) {
+      setAccessToken(atob(decodeURIComponent(token)))
+      const {origin, pathname} = window.location
+      window.location.href = origin + pathname
+    }
+  }
   const fetchUserInfo = async () => {
     try {
       if (common.getAccessToken()) {
@@ -34,13 +53,13 @@ export async function getInitialState() {
       history.push(loginPath)
       common.logoutStorageHandler()
     }
-    return undefined;
+    return undefined
   }
   const currentUser = await fetchUserInfo()
   let initialValue = {
     fetchUserInfo,
     currentUser,
-    settings: defaultSettings,
+    settings: defaultSettings
   }
   if (currentUser) {
     const userIdentity = getUserIdentity()
@@ -52,48 +71,33 @@ export async function getInitialState() {
       initialValue.treeMenus = [
         {path: approvalExpenseBillPage, key: approvalExpenseBillPage, name: "费用报销单审批"},
         {path: switchUserIdentity, key: switchUserIdentity},
-        {path: switchCustomer, key: switchCustomer},
+        {path: switchCustomer, key: switchCustomer}
       ]
     } else {
-      const {data: treeMenus} = await userWeb.selfMenusUsingGET();
+      const {data: treeMenus} = await userWeb.selfMenusUsingGET()
       initialValue.treeMenus = treeMenus
     }
-    const {data : selfPermissions} = await userWeb.selfPermissionUsingGET()
+    const {data: selfPermissions} = await userWeb.selfPermissionUsingGET()
     initialValue.selfPermissions = selfPermissions
   }
   return initialValue
 }
+
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 
-export const layout = ({ initialState, setInitialState, ...other }) => {
+export const layout = ({initialState, setInitialState, ...other}) => {
   return {
-    title: <span style={{color: "#fff"}}>慧记账平台</span>,
-    token: {
-      header: {
-        colorBgHeader: 'rgb(0, 21, 41)',
-        colorHeaderTitle: '#fff',
-        colorTextMenu: '#dfdfdf',
-        colorTextMenuSecondary: '#dfdfdf',
-        colorTextMenuSelected: '#fff',
-        colorBgMenuItemSelected: 'rgb(0, 21, 41)',
-        heightLayoutHeader: 48
-      },
-      sider: {
-        colorMenuBackground: '#fff',
-        colorMenuItemDivider: '#dfdfdf',
-        colorTextMenu: '#595959',
-        colorTextMenuSelected: 'rgba(42,122,251,1)',
-        colorBgMenuItemSelected: 'rgba(230,243,254,1)',
-      },
-    },
-    rightContentRender: () => <RightContent />,
+    title: '慧记账平台',
+    headerTitleRender: (logo, title, _) => <HeaderTitle logo={logo} title={title} />,
+    headerContentRender: null,
+    rightContentRender: () => <RightContent/>,
     disableContentMargin: true,
     access: {
       strictMode: true,
     },
-    footerRender: () => <Footer />,
+    footerRender: () => <Footer/>,
     onPageChange: () => {
-      const { location } = history; // 如果没有登录，重定向到 login
+      const {location} = history; // 如果没有登录，重定向到 login
       const currentUser = initialState?.currentUser
       if (!currentUser) {
         // 如果没有认证就跳转到登录页面
@@ -130,7 +134,7 @@ export const layout = ({ initialState, setInitialState, ...other }) => {
     },
     menu: {
       params: {
-        userId: initialState?.currentUser?.id,
+        userId: initialState?.currentUser?.id
       },
       request: async (params, defaultMenuData) => {
         if (!params.userId) {
@@ -140,12 +144,15 @@ export const layout = ({ initialState, setInitialState, ...other }) => {
         return treeMenus
       },
     },
-    menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
     // 增加一个 loading 的状态
     childrenRender: (children, props) => {
-      // if (initialState?.loading) return <PageLoading />;
+      if (initialState?.loading) {
+        return (
+          <PageLoading />
+        )
+      }
       return (
         <>
           {children}

@@ -21,13 +21,23 @@ export const USER_ROLE = {
   NORMAL_APPROVER: {label: "审批人员", value: "NORMAL_APPROVER"},
   ADVANCED_APPROVER: {label: "操作+审批人员", value: "ADVANCED_APPROVER"},
 }
+export const ResourceModule = {
+  MANAGE: "MANAGE",
+  FINANCE: "FINANCE",
+}
+export const SUBJECT_CATEGORY = {
+  ASSETS: {label: "资产", value: "ASSETS"},
+  FU_ZAI: {label: "负债", value: "FU_ZAI"},
+  EQUITY: {label: "权益", value: "EQUITY"},
+  COST: {label: "成本", value: "COST"},
+  PROFIT: {label: "损益", value: "PROFIT"},
+}
 export const SUBJECT_TYPE = {
   SUBJECT: {label: "科目", value: "SUBJECT"},
   COST: {label: "费用", value: "COST"},
   SUBJECT_AND_COST: {label: "科目+费用", value: "SUBJECT_AND_COST"},
 }
 export const LENDING_DIRECTION = {
-  DEFAULT: {label: "借+贷", value: "DEFAULT"},
   BORROW: {label: "借", value: "BORROW"},
   LOAN: {label: "贷", value: "LOAN"},
 }

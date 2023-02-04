@@ -32,15 +32,11 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
             subject.setHasLeaf(false);
             subject.setParentNumber("0");
             subject.setLevel(1);
-            subject.setLeftValue(1);
-            subject.setRightValue(2);
             subject.setRootNumber(subject.getNumber());
             baseMapper.insert(subject);
             return;
         }
         Subject parentSubject = baseMapper.selectById(parentId);
-        Long industryId = parentSubject.getIndustryId();
-        Integer pRightValue = parentSubject.getRightValue();
         String rootNumber = parentSubject.getRootNumber();
 
         if (!parentSubject.getHasLeaf()) {
@@ -54,38 +50,15 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
         subject.setHasLeaf(false);
         subject.setParentNumber(parentSubject.getNumber());
         subject.setLevel(parentSubject.getLevel() + 1);
-        subject.setLeftValue(pRightValue);
-        subject.setRightValue(pRightValue + 1);
         subject.setRootNumber(rootNumber);
-        this.update(Wrappers.<Subject>lambdaUpdate()
-                .setSql("left_value = left_value + 2")
-                .eq(Subject::getCustomerId, parentSubject.getCustomerId())
-                .eq(Subject::getRootNumber, rootNumber)
-                .eq(Subject::getIndustryId, industryId)
-                .ge(Subject::getLeftValue, pRightValue)
-        );
-        this.update(Wrappers.<Subject>lambdaUpdate()
-                .setSql("right_value = right_value + 2")
-                .eq(Subject::getCustomerId, parentSubject.getCustomerId())
-                .eq(Subject::getRootNumber, rootNumber)
-                .eq(Subject::getIndustryId, industryId)
-                .ge(Subject::getRightValue, pRightValue)
-        );
         baseMapper.insert(subject);
     }
 
     public void delete(long id) {
         Subject dbSubject = baseMapper.selectById(id);
         AssertUtil.isTrue(dbSubject != null, "科目不存在，删除失败！");
-        baseMapper.delete(Wrappers.<Subject>lambdaQuery()
-                .eq(Subject::getRootNumber, dbSubject.getRootNumber())
-                .ge(Subject::getLeftValue, dbSubject.getLeftValue())
-                .le(Subject::getRightValue, dbSubject.getRightValue())
-        );
-    }
-
-    public boolean existsByIndustryId(long industryId) {
-        return baseMapper.exists(Wrappers.<Subject>lambdaQuery().eq(Subject::getIndustryId, industryId));
+        AssertUtil.isFalse(baseMapper.exists(Wrappers.<Subject>lambdaQuery().eq(Subject::getParentId, id)), "存在下级科目，删除失败！");
+        baseMapper.deleteById(id);
     }
 
     public Function<Long, String> getNameFunction() {
@@ -103,21 +76,13 @@ public class SubjectService extends ServiceImpl<SubjectMapper, Subject> {
     }
 
     public List<Long> listTogetherChildrenIds(long subjectId) {
-        Subject dbSubject = baseMapper.selectById(subjectId);
+        Subject subject = baseMapper.selectById(subjectId);
         return baseMapper.selectList(Wrappers.<Subject>lambdaQuery()
-            .select(Subject::getId)
-            .ge(Subject::getLeftValue, dbSubject.getLeftValue())
-            .le(Subject::getRightValue, dbSubject.getRightValue())
-            .eq(Subject::getRootNumber, dbSubject.getRootNumber())
+            .select(Subject::getId).likeRight(Subject::getNumber, subject.getNumber())
         ).stream().map(Subject::getId).collect(Collectors.toList());
     }
 
     public List<Subject> listChildren(long subjectId) {
-        Subject dbSubject = baseMapper.selectById(subjectId);
-        return baseMapper.selectList(Wrappers.<Subject>lambdaQuery()
-                .eq(Subject::getRootNumber, dbSubject.getRootNumber())
-                .gt(Subject::getLeftValue, dbSubject.getLeftValue())
-                .lt(Subject::getRightValue, dbSubject.getRightValue())
-        );
+        return baseMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getParentId, subjectId));
     }
 }

@@ -49,6 +49,12 @@ public class CustomerListVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createTime;
 
+    private Integer enablePeriod;
+
+    public String getEnablePeriod() {
+        return String.format("%s-%s", enablePeriod / 100, enablePeriod % 100);
+    }
+
     public Long getBusinessUserId() {
         return this.businessUserId == 0 ? null : this.businessUserId;
     }

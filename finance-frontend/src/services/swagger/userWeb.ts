@@ -42,6 +42,21 @@ export async function addUserUsingPOST(body: API.AddUserRequest, options?: { [ke
   });
 }
 
+/** getCustomerToken GET /api/user/getCustomerToken */
+export async function getCustomerTokenUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getCustomerTokenUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RString_>('/api/user/getCustomerToken', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** grantResourcesToUser POST /api/user/grantResources */
 export async function grantResourcesToUserUsingPOST(
   body: API.GrantResourcesToUserRequest,

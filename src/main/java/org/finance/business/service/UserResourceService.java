@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.UserResource;
+import org.finance.business.entity.enums.ResourceModule;
 import org.finance.business.entity.enums.ResourceOperate;
 import org.finance.business.mapper.UserResourceMapper;
 import org.springframework.stereotype.Service;
@@ -53,5 +54,8 @@ public class UserResourceService extends ServiceImpl<UserResourceMapper, UserRes
         return baseMapper.listResourceByUserId(userId);
     }
 
+    public List<Resource> getResourcesByUserIdAndModule(long userId, ResourceModule module) {
+        return baseMapper.listResourceByUserIdAndModule(userId, module);
+    }
 
 }

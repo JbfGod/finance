@@ -97,6 +97,9 @@ public class AccountBalance implements Serializable {
      */
     private BigDecimal creditAnnualAmount;
 
+    @TableField(exist = false)
+    private Subject subject;
+
     public enum LendingDirection {
         /**
          * 借
@@ -109,10 +112,10 @@ public class AccountBalance implements Serializable {
         /**
          * 贷
          */
-        CREDIT("贷")
-        ;
+        CREDIT("贷");
 
         private String label;
+
         LendingDirection(String label) {
             this.label = label;
         }
@@ -139,6 +142,7 @@ public class AccountBalance implements Serializable {
 
     public static AccountBalance newInstance(Subject subject) {
         return newInstance()
+                .setSubject(subject)
                 .setSubjectId(subject.getId())
                 .setSubjectNumber(subject.getNumber());
     }
@@ -150,7 +154,7 @@ public class AccountBalance implements Serializable {
         // 若是同一年则累积年金额
         if (Objects.equals(this.year, accountBalance.getYear())) {
             this.setDebitAnnualAmount(this.debitCurrentAmount.add(accountBalance.getDebitAnnualAmount()))
-                .setCreditAnnualAmount(this.creditCurrentAmount.add(accountBalance.getCreditAnnualAmount()));
+                    .setCreditAnnualAmount(this.creditCurrentAmount.add(accountBalance.getCreditAnnualAmount()));
         }
 
         return this.setOpeningBalance(accountBalance.getClosingBalance())
@@ -169,19 +173,19 @@ public class AccountBalance implements Serializable {
     }
 
     public BigDecimal getDebitOpeningAmount() {
-        return this.openingBalance.compareTo(BigDecimal.ZERO) > 0? this.openingBalance : BigDecimal.ZERO;
+        return this.openingBalance.compareTo(BigDecimal.ZERO) > 0 ? this.openingBalance : BigDecimal.ZERO;
     }
 
     public BigDecimal getCreditOpeningAmount() {
-        return this.openingBalance.compareTo(BigDecimal.ZERO) < 0? this.openingBalance.abs() : BigDecimal.ZERO;
+        return this.openingBalance.compareTo(BigDecimal.ZERO) < 0 ? this.openingBalance.abs() : BigDecimal.ZERO;
     }
 
     public BigDecimal getDebitClosingAmount() {
-        return this.closingBalance.compareTo(BigDecimal.ZERO) > 0? this.closingBalance : BigDecimal.ZERO;
+        return this.closingBalance.compareTo(BigDecimal.ZERO) > 0 ? this.closingBalance : BigDecimal.ZERO;
     }
 
     public BigDecimal getCreditClosingAmount() {
-        return this.closingBalance.compareTo(BigDecimal.ZERO) < 0? this.closingBalance.abs() : BigDecimal.ZERO;
+        return this.closingBalance.compareTo(BigDecimal.ZERO) < 0 ? this.closingBalance.abs() : BigDecimal.ZERO;
     }
 
     public LendingDirection getOpeningBalanceLendingDirection() {
@@ -203,10 +207,23 @@ public class AccountBalance implements Serializable {
     }
 
     public BigDecimal getCurrentAmount() {
-        return this.debitCurrentAmount.subtract(this.creditCurrentAmount);
+        if (this.subject == null) {
+            return this.debitCurrentAmount.subtract(this.creditCurrentAmount);
+        }
+        return this.subject.getLendingDirection().isBorrow() ? this.debitCurrentAmount : this.creditCurrentAmount;
     }
 
     public BigDecimal getAnnualAmount() {
-        return this.debitAnnualAmount.subtract(this.creditAnnualAmount);
+        if (this.subject == null) {
+            return this.debitAnnualAmount.subtract(this.creditAnnualAmount);
+        }
+        return this.subject.getLendingDirection().isBorrow() ? this.debitAnnualAmount : this.creditAnnualAmount;
+    }
+
+    /**
+     * 获取年初余额
+     */
+    public BigDecimal getBeginningBalance() {
+        return this.openingBalance.subtract(this.debitAnnualAmount).add(this.creditAnnualAmount);
     }
 }

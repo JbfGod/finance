@@ -5,33 +5,20 @@ import org.finance.business.convert.AccountBalanceConvert;
 import org.finance.business.convert.ReportConvert;
 import org.finance.business.convert.VoucherConvert;
 import org.finance.business.entity.AccountBalance;
-import org.finance.business.entity.BalanceSheetReport;
-import org.finance.business.entity.CashFlowReport;
-import org.finance.business.entity.ProfitReport;
 import org.finance.business.entity.Subject;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.mapper.param.QueryVoucherItemOfSubLegerParam;
 import org.finance.business.service.AccountBalanceService;
-import org.finance.business.service.BalanceSheetReportService;
-import org.finance.business.service.CashFlowReportService;
-import org.finance.business.service.ProfitReportService;
 import org.finance.business.service.SubjectService;
 import org.finance.business.service.VoucherItemService;
-import org.finance.business.web.request.QueryBalanceSheetReportRequest;
-import org.finance.business.web.request.QueryCashFlowReportRequest;
 import org.finance.business.web.request.QueryDailyBankRequest;
 import org.finance.business.web.request.QueryDailyCashRequest;
-import org.finance.business.web.request.QueryProfitReportRequest;
 import org.finance.business.web.request.QuerySubLedgerRequest;
 import org.finance.business.web.vo.AccountBalanceVO;
-import org.finance.business.web.vo.BalanceSheetOfMonthVO;
-import org.finance.business.web.vo.CashFlowOfMonthVO;
 import org.finance.business.web.vo.DailyBankVO;
 import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
-import org.finance.business.web.vo.ProfitOfMonthVO;
 import org.finance.business.web.vo.SubLedgerVO;
-import org.finance.infrastructure.util.CommonUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -39,7 +26,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,21 +48,13 @@ public class ReportManage {
     private SubjectService subjectService;
     @Resource
     private VoucherItemService voucherItemService;
-    @Resource
-    private ProfitReportService profitReportService;
-    @Resource
-    private CashFlowReportService cashFlowReportService;
-    @Resource
-    private BalanceSheetReportService balanceSheetReportService;
 
     public List<AccountBalanceVO> listAccountBalance(YearMonth yearMonth) {
         Function<Long, String> nameBySubjectId = subjectService.getNameFunction();
         List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
-                .orderByAsc(Subject::getRootNumber, Subject::getLeftValue)
+                .orderByAsc(Subject::getRootNumber, Subject::getNumber)
         );
-        Map<Long, AccountBalance> accountBalanceBySubjectId = AccountBalanceConvert.INSTANCE.flatValuesByCurrency(
-                accountBalanceService.summaryGroupBySubject(yearMonth, subjects, voucherItemService::summaryByMonthGroupBySubject)
-        );
+        Map<Long, AccountBalance> accountBalanceBySubjectId = accountBalanceService.summaryBySubjectId(yearMonth, subjects, voucherItemService::summaryByMonthGroupBySubject);
         return subjects.stream().map(sub -> {
             AccountBalance accountBalance = Optional.ofNullable(accountBalanceBySubjectId.get(sub.getId()))
                     .orElseGet(() -> AccountBalance.newInstance(sub));
@@ -89,7 +67,8 @@ public class ReportManage {
     public List<GeneralLedgerVO> listGeneralLedger(YearMonth startMonth, YearMonth endMonth, String currencyName) {
         Map<Long, List<GeneralLedgerVO>> result = new LinkedHashMap<>();
 
-        List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery().orderByAsc(Subject::getRootNumber, Subject::getLeftValue));
+        List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
+                .orderByAsc(Subject::getRootNumber, Subject::getNumber));
 
         Function<Integer, List<VoucherItem>> summaryByCurrencyAndGroupBySubject = (yearMonth) ->
                 voucherItemService.summaryByCurrencyGroupBySubject(yearMonth, currencyName);
@@ -100,9 +79,7 @@ public class ReportManage {
         // 汇总所有1及科目的余额
         while (tmpYearMonth.isBefore(endMonth) || tmpYearMonth.equals(endMonth)) {
             int monthValue = tmpYearMonth.getMonthValue();
-            Map<Long, AccountBalance> accountBalanceBySubjectId = AccountBalanceConvert.INSTANCE.flatValuesByCurrency(
-                    accountBalanceService.summaryGroupBySubject(tmpYearMonth, subjects, summaryByCurrencyAndGroupBySubject)
-            );
+            Map<Long, AccountBalance> accountBalanceBySubjectId = accountBalanceService.summaryBySubjectId(tmpYearMonth, subjects, summaryByCurrencyAndGroupBySubject);
             for (Subject subject : subjectsOfFirstLevel) {
                 AccountBalance accountBalance = Optional.ofNullable(accountBalanceBySubjectId.get(subject.getId()))
                         .orElseGet(() -> AccountBalance.newInstance(subject).setYearMonthNum(monthValue));
@@ -132,8 +109,7 @@ public class ReportManage {
 
         Subject dbSubject = subjectService.getById(subjectId);
         List<Subject> subjects = subjectService.list(Wrappers.<Subject>lambdaQuery()
-                .ge(Subject::getLeftValue, dbSubject.getLeftValue())
-                .le(Subject::getRightValue, dbSubject.getRightValue())
+                .eq(Subject::getParentId, dbSubject.getId())
         );
 
         Consumer<VoucherItem> forEachVoucherItem = (voucherItem) -> {
@@ -144,17 +120,13 @@ public class ReportManage {
             param.setCurrencyName(currencyName);
             param.setYearMonthNum(yearMonth);
             param.setRootNumber(dbSubject.getRootNumber());
-            param.setLeftValue(dbSubject.getLeftValue());
-            param.setRightValue(dbSubject.getRightValue());
             return voucherItemService.summaryVoucherItem(param, forEachVoucherItem);
         };
 
         YearMonth tmpYearMonth = startMonth;
         AccountBalance openingAccountBalance = null;
         while (tmpYearMonth.isBefore(endMonth) || tmpYearMonth.equals(endMonth)) {
-            Map<Long, AccountBalance> accountBalanceBySubjectId = AccountBalanceConvert.INSTANCE.flatValuesByCurrency(
-                    accountBalanceService.summaryGroupBySubject(tmpYearMonth, subjects, summaryByCurrencyAndGroupBySubject)
-            );
+            Map<Long, AccountBalance> accountBalanceBySubjectId = accountBalanceService.summaryBySubjectId(tmpYearMonth, subjects, summaryByCurrencyAndGroupBySubject);
             AccountBalance accountBalance = Optional.ofNullable(accountBalanceBySubjectId.get(subjectId))
                     .orElseGet(AccountBalance::newInstance);
             result.addAll(ReportConvert.INSTANCE.toSubLedgerVO(accountBalance, tmpYearMonth));
@@ -201,10 +173,7 @@ public class ReportManage {
         );
 
         // 查询昨日余额
-        Map<Long, List<AccountBalance>> accountBalanceOfYesterday = accountBalanceService.summaryGroupBySubject(YearMonth.from(voucherDate), cashSubjects, fetchAccountBalanceOfYesterday);
-        Map<String, AccountBalance> balanceOfYesterdayByKey = accountBalanceOfYesterday.values()
-                .stream().flatMap(Collection::stream)
-                .collect(Collectors.toMap(AccountBalance::getKey, v -> v));
+        Map<Long, AccountBalance> accountBalanceOfYesterday = accountBalanceService.summaryBySubjectId(YearMonth.from(voucherDate), cashSubjects, fetchAccountBalanceOfYesterday);
         // 查询今日借贷金额
         List<DailyCashVO> voucherItems = voucherItemService.summaryDailyGroupBySubjectAndCurrency(voucherDate, currencyName)
                 .stream().filter(dailyCash -> subjectById.containsKey(dailyCash.getSubjectId()))
@@ -213,7 +182,7 @@ public class ReportManage {
         List<DailyCashVO> result = new ArrayList<>();
         Map<String, List<DailyCashVO>> dailyCashByKey = voucherItems.stream().collect(Collectors.groupingBy(DailyCashVO::getCurrency));
         dailyCashByKey.forEach((key, dailyCashes) -> {
-            result.addAll(ReportConvert.INSTANCE.toDailyCashVOList(dailyCashes, balanceOfYesterdayByKey));
+            result.addAll(ReportConvert.INSTANCE.toDailyCashVOList(dailyCashes, accountBalanceOfYesterday));
         });
         result.stream().filter(dailyCashVO -> dailyCashVO.getSubjectId() != null).forEach(dailyCashVO -> {
             dailyCashVO.setSubjectName(subjectById.get(dailyCashVO.getSubjectId()).getName());
@@ -245,10 +214,7 @@ public class ReportManage {
         );
 
         // 查询昨日余额
-        Map<Long, List<AccountBalance>> accountBalanceOfYesterday = accountBalanceService.summaryGroupBySubject(YearMonth.from(voucherDate), bankSubjects, fetchAccountBalanceOfYesterday);
-        Map<String, AccountBalance> balanceOfYesterdayByKey = accountBalanceOfYesterday.values()
-                .stream().flatMap(Collection::stream)
-                .collect(Collectors.toMap(AccountBalance::getKey, v -> v));
+        Map<Long, AccountBalance> accountBalanceOfYesterday = accountBalanceService.summaryBySubjectId(YearMonth.from(voucherDate), bankSubjects, fetchAccountBalanceOfYesterday);
         // 查询今日借贷金额
         List<DailyBankVO> voucherItems = voucherItemService.summaryDailyGroupBySubjectAndCurrency(voucherDate, currencyName)
                 .stream().filter(dailyBank -> subjectById.containsKey(dailyBank.getSubjectId()))
@@ -257,7 +223,7 @@ public class ReportManage {
         List<DailyBankVO> result = new ArrayList<>();
         Map<String, List<DailyBankVO>> dailyBankByKey = voucherItems.stream().collect(Collectors.groupingBy(DailyBankVO::getCurrency));
         dailyBankByKey.forEach((key, dailyBanks) -> {
-            result.addAll(ReportConvert.INSTANCE.toDailyBankVOList(dailyBanks, balanceOfYesterdayByKey));
+            result.addAll(ReportConvert.INSTANCE.toDailyBankVOList(dailyBanks, accountBalanceOfYesterday));
         });
         result.stream().filter(dailyBankVO -> dailyBankVO.getSubjectId() != null).forEach(dailyBankVO -> {
             dailyBankVO.setSubjectName(subjectById.get(dailyBankVO.getSubjectId()).getName());
@@ -268,65 +234,5 @@ public class ReportManage {
         result.add(ReportConvert.INSTANCE.toSummaryTotalDailyBankVO(result));
         return result;
     }
-
-    public List<ProfitOfMonthVO> listProfit(QueryProfitReportRequest request) {
-        YearMonth yearMonth = request.getYearMonth();
-        int yearMonthNum = CommonUtil.getYearMonthNum(yearMonth);
-
-        List<ProfitReport> profits = profitReportService.list(yearMonthNum);
-        if (profits.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<Subject> subjects = subjectService.list();
-
-        Map<Long, List<AccountBalance>> balancesBySubjectId = accountBalanceService.summaryGroupBySubject(
-            yearMonth, subjects, voucherItemService::summaryByMonthGroupBySubject
-        );
-        Map<String, AccountBalance> balanceBySubjectNumber = balancesBySubjectId.values().stream().flatMap(Collection::stream)
-                .collect(Collectors.toMap(AccountBalance::getSubjectNumber, v -> v));
-        Map<Integer, ProfitReport.Row> profitByRowNum = profitReportService.calcProfit(profits, balanceBySubjectNumber);
-        return ReportConvert.INSTANCE.toProfitOfMonthVO(profits, profitByRowNum);
-    }
-
-    public List<CashFlowOfMonthVO> listCashFlow(QueryCashFlowReportRequest request) {
-        YearMonth yearMonth = request.getYearMonth();
-        int yearMonthNum = CommonUtil.getYearMonthNum(yearMonth);
-        List<CashFlowReport> cashFlowReports = cashFlowReportService.list(Wrappers.<CashFlowReport>lambdaQuery()
-                .eq(CashFlowReport::getYearMonthNum, yearMonthNum)
-                .orderByAsc(CashFlowReport::getSerialNumber)
-        );
-        if (cashFlowReports.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<Long, VoucherItem> voucherItemById = voucherItemService.list(Wrappers.<VoucherItem>lambdaQuery()
-                .eq(VoucherItem::getYearMonthNum, yearMonthNum)
-        ).stream().collect(Collectors.toMap(VoucherItem::getId, v -> v));
-        Map<Integer, BigDecimal> cashFlowByRowNum = cashFlowReportService.calcCashFlow(cashFlowReports, voucherItemById);
-        return ReportConvert.INSTANCE.toCashFlowOfMonthVO(cashFlowReports, cashFlowByRowNum);
-    }
-
-    public List<BalanceSheetOfMonthVO> listBalanceSheet(QueryBalanceSheetReportRequest request) {
-        YearMonth yearMonth = request.getYearMonth();
-        int yearMonthNum = CommonUtil.getYearMonthNum(yearMonth);
-
-        List<BalanceSheetReport> sheetReports = balanceSheetReportService.list(Wrappers.<BalanceSheetReport>lambdaQuery()
-                .eq(BalanceSheetReport::getYearMonthNum, yearMonthNum)
-                .orderByAsc(BalanceSheetReport::getSerialNumber)
-        );
-        if (sheetReports.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<Subject> subjects = subjectService.list();
-        Map<Long, List<AccountBalance>> balancesBySubjectId = accountBalanceService.summaryGroupBySubject(
-                yearMonth, subjects, voucherItemService::summaryByMonthGroupBySubject
-        );
-        Map<String, AccountBalance> balanceBySubjectNumber = balancesBySubjectId.values().stream().flatMap(Collection::stream)
-                .collect(Collectors.toMap(AccountBalance::getSubjectNumber, v -> v));
-        Map<Integer, BalanceSheetReport.Row> sheetRowByRowNum = balanceSheetReportService
-                .calcBalanceSheet(sheetReports, balanceBySubjectNumber);
-
-        return ReportConvert.INSTANCE.toBalanceSheetOfMonthVO(sheetReports, sheetRowByRowNum);
-    }
-
 
 }

@@ -2,12 +2,8 @@ package org.finance.business.web;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import org.finance.business.convert.AccountCloseListConvert;
 import org.finance.business.convert.InitialBalanceConvert;
-import org.finance.business.entity.AccountCloseList;
-import org.finance.business.entity.InitialBalance;
 import org.finance.business.entity.InitialBalanceItem;
-import org.finance.business.entity.enums.AuditStatus;
 import org.finance.business.service.AccountCloseListService;
 import org.finance.business.service.InitialBalanceItemService;
 import org.finance.business.service.InitialBalanceService;
@@ -20,9 +16,7 @@ import org.finance.business.web.vo.InitialBalanceItemVO;
 import org.finance.business.web.vo.InitialBalanceVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
-import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.constants.LendingDirection;
-import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.time.YearMonth;
 import java.util.function.Function;
 
 /**
@@ -63,7 +56,7 @@ public class InitialBalanceWeb {
     public R<InitialBalanceVO> initialBalanceOutline() {
         InitialBalanceVO initialBalance = InitialBalanceConvert.INSTANCE.toInitialBalanceVO(
                 baseService.getOne(
-                        Wrappers.<InitialBalance>lambdaQuery().orderByDesc(InitialBalance::getYearMonthNum)
+                        null/*Wrappers.<InitialBalance>lambdaQuery().orderByDesc(InitialBalance::getYearMonthNum)*/
                 )
         );
         return R.ok(initialBalance);
@@ -94,7 +87,6 @@ public class InitialBalanceWeb {
     @PutMapping("/update")
     @PreAuthorize("hasPermission('initialBalance', 'base')")
     public R updateInitialBalance(@Valid @RequestBody UpdateInitialBalanceRequest request) {
-        assertNotAuditAndNoBookkeeping(request.getId());
         baseService.addOrUpdateItem(InitialBalanceConvert.INSTANCE.toInitialBalanceItem(request));
         return R.ok();
     }
@@ -102,7 +94,6 @@ public class InitialBalanceWeb {
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasPermission('initialBalance', 'base')")
     public R deleteInitialBalance(@PathVariable("id") long id) {
-        assertNotAuditAndNoBookkeeping(id);
         itemService.removeById(id);
         return R.ok();
     }
@@ -124,7 +115,7 @@ public class InitialBalanceWeb {
         return R.ok();
     }
 
-    @PutMapping("/bookkeeping/{id}")
+   /* @PutMapping("/bookkeeping/{id}")
     @PreAuthorize("hasPermission('initialBalance', 'bookkeeping')")
     public R bookkeepingInitialBalance(@PathVariable("id") long id) {
         baseService.bookkeepingById(id, initialBalance -> {
@@ -160,5 +151,5 @@ public class InitialBalanceWeb {
         ) > 0;
         AssertUtil.isFalse(existsAudited, "操作失败，初始余额已经审核！");
     }
-
+*/
 }

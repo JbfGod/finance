@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.finance.business.entity.Resource;
 import org.finance.business.entity.UserResource;
+import org.finance.business.entity.enums.ResourceModule;
 
 import java.util.List;
 
@@ -23,5 +24,7 @@ public interface UserResourceMapper extends BaseMapper<UserResource> {
      * @return
      */
     List<Resource> listResourceByUserId(@Param("userId") Long userId);
+
+    List<Resource> listResourceByUserIdAndModule(@Param("userId") Long userId, @Param("module") ResourceModule module);
 
 }

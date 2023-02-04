@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.finance.business.entity.enums.AuditStatus;
+import org.finance.business.mapper.VoucherItemMapper;
+import org.finance.business.service.VoucherItemService;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -79,21 +82,6 @@ public class Voucher implements Serializable {
     private Long currencyId;
 
     /**
-     * 原币汇率
-     */
-    private BigDecimal rate;
-
-    /**
-     * 原币名称
-     */
-    private String currencyName;
-
-    /**
-     * 单位
-     */
-    private String unit;
-
-    /**
      * 凭证序号,每月凭证从1开始
      */
     private Integer serialNumber;
@@ -125,23 +113,6 @@ public class Voucher implements Serializable {
      * 审核状态
      */
     private AuditStatus auditStatus;
-
-    /**
-     * 记账状态
-     */
-    private Boolean bookkeeping;
-
-    /**
-     * 记账人
-     */
-    @TableField(fill = FieldFill.UPDATE)
-    private String bookkeeperName;
-
-    /**
-     * 记账人
-     */
-    @TableField(fill = FieldFill.UPDATE)
-    private Long bookkeepingBy;
 
     /**
      * 审核人
@@ -190,4 +161,19 @@ public class Voucher implements Serializable {
         EXPENSE_BILL
     }
 
+    public Voucher loadItems(VoucherItemMapper itemMapper) {
+        List<VoucherItem> items = itemMapper.selectList(
+                Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, this.id)
+                    .orderByAsc(VoucherItem::getSerialNumber)
+        );
+        return this.setItems(items);
+    }
+
+    public Voucher loadItems(VoucherItemService itemService) {
+        List<VoucherItem> items = itemService.list(
+                Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, this.id)
+                        .orderByAsc(VoucherItem::getSerialNumber)
+        );
+        return this.setItems(items);
+    }
 }

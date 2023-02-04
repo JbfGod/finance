@@ -4,30 +4,28 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.convert.AccountBalanceConvert;
 import org.finance.business.entity.AccountBalance;
-import org.finance.business.entity.InitialBalance;
+import org.finance.business.entity.Customer;
 import org.finance.business.entity.Subject;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.mapper.AccountBalanceMapper;
-import org.finance.business.mapper.InitialBalanceItemMapper;
-import org.finance.business.mapper.InitialBalanceMapper;
+import org.finance.business.mapper.AccountCloseListMapper;
 import org.finance.business.mapper.SubjectMapper;
 import org.finance.business.mapper.VoucherItemMapper;
 import org.finance.business.service.event.AccountEvent;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.constants.Constants;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.time.YearMonth;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <p>
@@ -44,19 +42,17 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
     @Resource
     private SubjectMapper subjectMapper;
     @Resource
-    private InitialBalanceMapper initialBalanceMapper;
-    @Resource
-    private InitialBalanceItemMapper initialBalanceItemMapper;
+    private AccountCloseListMapper accountCloseListMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void onAccountClosed(YearMonth yearMonth) {
         List<Subject> subjects = subjectMapper.listOrderByTree();
-        Map<Long, List<AccountBalance>> summaryResult = summaryGroupBySubject(yearMonth, subjects, voucherItemMapper::summaryMonthGroupBySubjectAndCurrency);
+        Map<Long, AccountBalance> summaryResult = summaryBySubjectId(yearMonth, subjects, voucherItemMapper::summaryMonthGroupBySubjectAndCurrency);
         if (summaryResult.isEmpty()) {
             return;
         }
-        List<AccountBalance> balances = summaryResult.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        List<AccountBalance> balances = new ArrayList<>(summaryResult.values());
         this.saveBatch(balances);
     }
 
@@ -65,14 +61,23 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
     public void onCancelClosedAccount(YearMonth yearMonth) {
         int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
         baseMapper.delete(Wrappers.<AccountBalance>lambdaQuery()
-            .eq(AccountBalance::getYearMonthNum, yearMonthNum)
+                .eq(AccountBalance::getYearMonthNum, yearMonthNum)
         );
     }
 
-    public Map<Long, List<AccountBalance>> summaryGroupBySubject(YearMonth yearMonth, List<Subject> subjects,
-                                                                 Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
-        InitialBalance initialBalance = initialBalanceMapper.selectOne(null);
-        return summaryByYearMonth(yearMonth, subjects, initialBalance, voucherItemsByYearMonth);
+    public Map<Long, AccountBalance> summaryBySubjectId(YearMonth yearMonth, List<Subject> subjects,
+                                                        Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
+        return summaryByYearMonth(yearMonth, subjects, voucherItemsByYearMonth);
+    }
+
+    public Map<Long, AccountBalance> summaryBySubjectNumber(YearMonth yearMonth, List<Subject> subjects,
+                                                           Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
+        return summaryByYearMonth(yearMonth, subjects, voucherItemsByYearMonth);
+    }
+
+    public Map<Long, AccountBalance> summaryBySubject(YearMonth yearMonth, List<Subject> subjects,
+                                                            Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
+        return summaryByYearMonth(yearMonth, subjects, voucherItemsByYearMonth);
     }
 
     /**
@@ -80,25 +85,16 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
      *
      * @param subjects 默认为null，查询所有科目，否则查询指定科目
      */
-    private Map<Long, List<AccountBalance>> summaryByYearMonth(YearMonth yearMonth,
-                                                         List<Subject> subjects,
-                                                         InitialBalance initialBalance,
-                                                         Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
+    private Map<Long, AccountBalance> summaryByYearMonth(YearMonth yearMonth,
+                                                               List<Subject> subjects,
+                                                               Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
         int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
 
         // 1. 根据科目分组查询统计 YearMonth时期的 借贷总和
-        Map<Long, List<AccountBalance>> balanceOfCurrentBySubjectId = listAccountBalanceByYearMonth(yearMonth, initialBalance, voucherItemsByYearMonth);
+        Map<Long, AccountBalance> balanceOfCurrentBySubjectId = listAccountBalanceByYearMonth(yearMonth, subjects, voucherItemsByYearMonth);
 
-        // 2. 获取上一个月的科目余额
-        YearMonth lastYearMonth = yearMonth.minusMonths(1);
-        int lastYearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(lastYearMonth));
-        // 2.1. 先查询科目余额表
-        List<AccountBalance> balancesOfLastPeriod = baseMapper.listByYearMonth(lastYearMonthNum);
-        Map<Long, List<AccountBalance>> balanceOfLastPeriodBySubjectId;
-        if (balancesOfLastPeriod.isEmpty() && isAfterInitialBalanceDate(lastYearMonth, initialBalance)) {
-            balanceOfLastPeriodBySubjectId = summaryByYearMonth(lastYearMonth, subjects, initialBalance, voucherItemsByYearMonth);
-        } else {
-            balanceOfLastPeriodBySubjectId = AccountBalanceConvert.INSTANCE.toGroupBySubject(balancesOfLastPeriod);
+        if (balanceOfCurrentBySubjectId.isEmpty()) {
+            return Collections.emptyMap();
         }
 
         Map<Integer, List<Subject>> subjectsByLevel = subjects.stream().collect(Collectors.groupingBy(Subject::getLevel));
@@ -107,103 +103,86 @@ public class AccountBalanceService extends ServiceImpl<AccountBalanceMapper, Acc
         Integer maxLevel = subjectsByLevel.keySet().stream().max(Integer::compareTo).get();
 
         // 4. 从科目最底层，一级一级往上合计相关余额信息
-        for (int i = maxLevel; i >= 1; i--) {
+        for (int i = maxLevel - 1; i >= 1; i--) {
             List<Subject> subjectByLevel = subjectsByLevel.get(i);
             if (subjectByLevel == null) {
                 continue;
             }
             for (Subject subject : subjectByLevel) {
-                // 最底层科目余额 ==> 查询相关凭证记录进行合计
-                if (!subject.getHasLeaf()) {
-                    Map<String, AccountBalance> balanceByCurrencyOfLastPeriod = AccountBalanceConvert.INSTANCE.toMapByCurrency(
-                        balanceOfLastPeriodBySubjectId.get(subject.getId())
-                    );
-                    List<AccountBalance> accountBalances = balanceOfCurrentBySubjectId.get(subject.getId());
-                    if (CollectionUtils.isEmpty(accountBalances) && CollectionUtils.isEmpty(balanceByCurrencyOfLastPeriod)) {
-                        continue;
-                    }
-                    Map<String, AccountBalance> balanceByCurrency = AccountBalanceConvert.INSTANCE.toMapByCurrency(
-                        accountBalances
-                    );
-                    List<AccountBalance> balances = Stream.of(balanceByCurrencyOfLastPeriod.keySet(), balanceByCurrency.keySet())
-                            .flatMap(Collection::stream)
-                            .distinct()
-                            .map(currency -> (
-                                    Optional.ofNullable(balanceByCurrency.get(currency))
-                                            .orElseGet(() -> AccountBalance.newInstance(subject))
-                                            .setYear(yearMonth.getYear()).setYearMonthNum(yearMonthNum)
-                                            .setCurrency(currency)
-                                            .mergeLastPeriod(balanceByCurrencyOfLastPeriod.get(currency))
-                            )).collect(Collectors.toList());
-
-                    balanceOfCurrentBySubjectId.put(subject.getId(), balances);
-                    continue;
-                }
-
-                // 非最底层科目余额 ==> 直接合计已经计算好的子级科目余额
                 List<Subject> childrenSubject = subjectsByLevel.get(i + 1).stream()
                         .filter(child -> subject.getId().equals(child.getParentId())
-                            && balanceOfCurrentBySubjectId.containsKey(child.getId())
+                                && balanceOfCurrentBySubjectId.containsKey(child.getId())
                         )
                         .collect(Collectors.toList());
                 if (childrenSubject.isEmpty()) {
                     continue;
                 }
-                List<AccountBalance> balances = summaryChildrenAccountBalance(balanceOfCurrentBySubjectId, childrenSubject,
-                    () -> AccountBalance.newInstance(subject).setYear(yearMonth.getYear()).setYearMonthNum(yearMonthNum)
+                AccountBalance balance = summaryChildrenAccountBalance(balanceOfCurrentBySubjectId, childrenSubject,
+                        () -> AccountBalance.newInstance(subject).setYear(yearMonth.getYear()).setYearMonthNum(yearMonthNum)
                 );
-                balanceOfCurrentBySubjectId.put(subject.getId(), balances);
+                balanceOfCurrentBySubjectId.put(subject.getId(), balance);
             }
         }
+        Map<Long, Subject> subById = subjects.stream().collect(Collectors.toMap(Subject::getId, v -> v));
+        balanceOfCurrentBySubjectId.values().forEach(accountBalance -> {
+            accountBalance.setSubject(subById.get(accountBalance.getSubjectId()));
+        });
         return balanceOfCurrentBySubjectId;
     }
 
-    private Map<Long, List<AccountBalance>> listAccountBalanceByYearMonth(YearMonth yearMonth, InitialBalance initialBalance,
+    private Map<Long, AccountBalance> listAccountBalanceByYearMonth(YearMonth yearMonth, List<Subject> subjects,
                                                                     Function<Integer, List<VoucherItem>> voucherItemsByYearMonth) {
         int yearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(yearMonth));
-        List<AccountBalance> accountBalances = baseMapper.listByYearMonth(yearMonthNum);
-        if (!accountBalances.isEmpty()) {
-            return accountBalances.stream().collect(Collectors.groupingBy(AccountBalance::getSubjectId));
+        // 如果当期已经结账从AccountBalance里取
+        if (accountCloseListMapper.alreadyAccountClose(yearMonthNum)) {
+            return baseMapper.listByYearMonth(yearMonthNum).stream()
+                    .collect(Collectors.toMap(AccountBalance::getSubjectId, v -> v));
         }
-        // 如果科目余额表没有数据，考虑可能是当月没有关账
-        // 先判断当月是否在初始余额表前一个月(8月份的期末余额=9月份的初始余额)
-        boolean equalsInitialBalanceDate = initialBalance != null
-                && yearMonth.equals(YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT));
-        if (equalsInitialBalanceDate) {
-            return initialBalanceItemMapper.summaryGroupBySubject(initialBalance.getId())
-                    .stream().map(AccountBalanceConvert.INSTANCE::toAccountBalance)
-                    .collect(Collectors.groupingBy(AccountBalance::getSubjectId));
-        }
-
-        return voucherItemsByYearMonth.apply(yearMonthNum).stream()
+        // 否则从凭证里面取
+        Map<Long, AccountBalance> balanceBySubjectId = voucherItemsByYearMonth.apply(yearMonthNum).stream()
                 .map(AccountBalanceConvert.INSTANCE::toAccountBalance)
-                .collect(Collectors.groupingBy(AccountBalance::getSubjectId));
+                .collect(Collectors.toMap(AccountBalance::getSubjectId, v -> v));
+        Customer proxyCustomer = SecurityUtil.getProxyCustomer();
+        Integer enablePeriod = proxyCustomer.getEnablePeriod();
+        // 判断当月是否是初始余额月份，如果从初始余额中累加统计年累计金额，否则从上月结账数据中累加
+        boolean isInitialBalanceDate = yearMonthNum == enablePeriod;
+        List<AccountBalance> accountBalances;
+        if (isInitialBalanceDate) {
+            accountBalances = subjects.stream().map(AccountBalanceConvert.INSTANCE::toAccountBalance).collect(Collectors.toList());
+        } else {
+            // 2. 获取上一个月的科目余额
+            YearMonth lastYearMonth = yearMonth.minusMonths(1);
+            int lastYearMonthNum = Integer.parseInt(Constants.YEAR_MONTH_FMT.format(lastYearMonth));
+            accountBalances = baseMapper.listByYearMonth(lastYearMonthNum);
+        }
+        return accountBalances.stream()
+                .map(accountBalance -> {
+                    Long subjectId = accountBalance.getSubjectId();
+                    AccountBalance balanceOfVoucher = balanceBySubjectId.get(subjectId);
+                    if (balanceOfVoucher == null) {
+                        return accountBalance;
+                    }
+                    return balanceOfVoucher.setOpeningBalance(accountBalance.getOpeningBalance().add(balanceOfVoucher.getOpeningBalance()))
+                            .setClosingBalance(accountBalance.getClosingBalance().add(balanceOfVoucher.getClosingBalance()))
+                            .setLocalOpeningBalance(accountBalance.getLocalOpeningBalance().add(balanceOfVoucher.getLocalOpeningBalance()))
+                            .setLocalClosingBalance(accountBalance.getLocalClosingBalance().add(balanceOfVoucher.getLocalClosingBalance()))
+                            .setDebitAnnualAmount(accountBalance.getDebitAnnualAmount().add(balanceOfVoucher.getDebitAnnualAmount()))
+                            .setCreditAnnualAmount(accountBalance.getCreditAnnualAmount().add(balanceOfVoucher.getCreditAnnualAmount()));
+                })
+                .collect(Collectors.toMap(AccountBalance::getSubjectId, v -> v));
     }
 
     /**
      * 合计childrenSubject科目的余额
      */
-    private List<AccountBalance> summaryChildrenAccountBalance(Map<Long, List<AccountBalance>> balancesBySubject,
+    private AccountBalance summaryChildrenAccountBalance(Map<Long, AccountBalance> balancesBySubject,
                                                                List<Subject> childrenSubject, Supplier<AccountBalance> newInstance) {
-        Map<String, List<AccountBalance>> balanceByCurrency = childrenSubject.stream()
+        List<AccountBalance> balanceByCurrency = childrenSubject.stream()
                 .filter(child -> balancesBySubject.containsKey(child.getId()))
-                .flatMap(child -> balancesBySubject.get(child.getId()).stream())
-                .collect(Collectors.groupingBy(AccountBalance::getCurrency));
+                .map(child -> balancesBySubject.get(child.getId()))
+                .collect(Collectors.toList());
 
-        return balanceByCurrency.keySet().stream().map(currency -> (
-            AccountBalanceConvert.INSTANCE.sumAccountBalances(balanceByCurrency.get(currency), newInstance)
-        )).collect(Collectors.toList());
-    }
-
-    /**
-     * yearMonth是否在初始余额日期之后（包含）
-     */
-    private boolean isAfterInitialBalanceDate(YearMonth yearMonth, InitialBalance initialBalance) {
-        if (initialBalance == null) {
-            return false;
-        }
-        YearMonth initialBalanceDate = YearMonth.parse(initialBalance.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT).minusMonths(1);
-        return yearMonth.equals(initialBalanceDate) || yearMonth.isAfter(initialBalanceDate);
+        return   AccountBalanceConvert.INSTANCE.sumAccountBalances(balanceByCurrency, newInstance);
     }
 
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2022-09-16
  */
 @RestController
-@RequestMapping("/accountBalance")
+@RequestMapping("/api/accountBalance")
 public class AccountBalanceWeb {
 
 }

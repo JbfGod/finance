@@ -4,6 +4,7 @@ import {Form} from "antd";
 import * as common from "@/utils/common";
 import {useReactToPrint} from "react-to-print";
 import {getUserIdentity} from "@/utils/common";
+import {ResourceModule} from "@/constants";
 
 export function useBoolean(initialValue = false) {
   const [value, setValue] = useState(initialValue)
@@ -60,12 +61,9 @@ export function useSecurity(permissionPrefix = "") {
   const isSuperAdmin = isSuperCustomer && isAdmin
   const isApprover = getUserIdentity() === "APPROVER"
 
-  const proxyCustomer = currentUser?.proxyCustomer || {
-    id: customer.id,
-    name: customer.name,
-    number: customer.number
-  }
-  const isSuperProxyCustomer = proxyCustomer.number === "HX_TOP"
+  const proxyCustomer = currentUser?.proxyCustomer
+  const isManageMode = currentUser?.state?.module === ResourceModule.MANAGE
+  const isFinanceMode = currentUser?.state?.module === ResourceModule.FINANCE
 
   const canAuditing = isSuperAdmin || access[`${permissionPrefix}:auditing`]
   const canUnAuditing = isSuperAdmin || access[`${permissionPrefix}:unAuditing`]
@@ -79,7 +77,8 @@ export function useSecurity(permissionPrefix = "") {
     isApprover,
     isSuperCustomer,
     hasMultipleIdentities,
-    isSuperProxyCustomer,
+    isManageMode,
+    isFinanceMode,
     canAuditing,
     canUnAuditing,
     canBookkeeping,

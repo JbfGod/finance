@@ -1,6 +1,6 @@
 import {history, request} from "@umijs/max";
 import * as common from "@/utils/common";
-import {logoutStorageHandler, removeCurrCustomer} from "@/utils/common";
+import {removeCurrCustomer} from "@/utils/common";
 
 export async function login(body) {
   return request('/api/login', {

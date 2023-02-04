@@ -13,6 +13,7 @@ export function loginStorageHandler({token, user}) {
   sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user))
   localStorage.setItem(LAST_LOGIN_CUSTOMER_ACCOUNT, user.customerNumber || "")
 }
+
 export function getCurrentUser() {
   const userStr = sessionStorage.getItem(CURRENT_USER_KEY)
   if (userStr) {
@@ -74,15 +75,16 @@ export function arrayToTree(array, {keyField = "id", parentKeyField = "parentId"
   }, {})
   const treeData = []
   array.forEach(ele => {
-    const parentKey = ele[parentKeyField]
+    const tmpEle = eleByKey[ele[keyField]]
+    const parentKey = tmpEle[parentKeyField]
     const parentEle = eleByKey[parentKey]
     if (parentEle == null) {
-      treeData.push(ele)
+      treeData.push(tmpEle)
       return
     }
     const children = parentEle[childrenField] || []
     parentEle[childrenField] = children
-    children.push(ele)
+    children.push(tmpEle)
   })
   return treeData
 }
@@ -272,4 +274,34 @@ export function copyStr(str){
     document.getSelection().removeAllRanges();
     document.getSelection().addRange(selected);
   }
+}
+
+/**
+ * 保留precision位小数点
+ * @param value 需要转换的值
+ * @param precision 保留的小数位数
+ * @param nullValue
+ * @param around 是否四舍五入
+ */
+export function retainPrecision(value, precision, nullValue = "-", around = false){
+  if (value == null || value === "") {
+    return nullValue;
+  }
+  if (around) {
+    return parseFloat(value).toFixed(precision);
+  }
+  if (/(\d+)\.+$/.test(value)) {
+    return RegExp.$1 + "."
+  } else if (/^(-?\d+)(\.\d*)?(e-?\d+)?$/.test(value+"")) {
+    const section1 = RegExp.$1;
+    const section2 = RegExp.$2;
+    const section3 = RegExp.$3;
+    if (section3) {
+      return section3.startsWith("e-")?"0":value;
+    }
+    if (section2.length - 1 > precision) {
+      return section1 + section2.substring(0, parseInt(precision) + 1).replace(/\.?0*$/,"")
+    }
+  }
+  return parseFloat(value);
 }

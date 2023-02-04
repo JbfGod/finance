@@ -1,7 +1,14 @@
 package org.finance.business.web;
 
+import org.finance.business.entity.templates.accountting.system.AssetsLiability;
+import org.finance.business.entity.templates.accountting.system.CashFlow;
+import org.finance.business.entity.templates.accountting.system.Profit;
 import org.finance.business.manage.ReportManage;
+import org.finance.business.manage.report.AssetsLiabilityManage;
+import org.finance.business.manage.report.CashFlowManage;
+import org.finance.business.manage.report.ProfitManage;
 import org.finance.business.web.request.QueryAccountBalanceRequest;
+import org.finance.business.web.request.QueryAssetsLiabilityRequest;
 import org.finance.business.web.request.QueryDailyBankRequest;
 import org.finance.business.web.request.QueryDailyCashRequest;
 import org.finance.business.web.request.QueryGeneralLedgerRequest;
@@ -28,6 +35,27 @@ public class ReportWeb {
 
     @Resource
     private ReportManage reportManage;
+    @Resource
+    private AssetsLiabilityManage assetsLiabilityManage;
+    @Resource
+    private ProfitManage profitManage;
+    @Resource
+    private CashFlowManage cashFlowManage;
+
+    @GetMapping("/assetsLiabilities")
+    public R<List<AssetsLiability>> assetsLiabilities(@Valid QueryAssetsLiabilityRequest request) {
+        return R.ok(assetsLiabilityManage.list(request.getYearMonth()));
+    }
+
+    @GetMapping("/profit")
+    public R<List<Profit>> profit(@Valid QueryAssetsLiabilityRequest request) {
+        return R.ok(profitManage.list(request.getYearMonth()));
+    }
+
+    @GetMapping("/cashFlow")
+    public R<List<CashFlow>> cashFlow(@Valid QueryAssetsLiabilityRequest request) {
+        return R.ok(cashFlowManage.list(request.getYearMonth()));
+    }
 
     @GetMapping("/accountBalance")
     public R<List<AccountBalanceVO>> accountBalance(@Valid QueryAccountBalanceRequest request) {

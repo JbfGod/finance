@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.finance.business.entity.Currency;
 import org.finance.business.entity.Voucher;
 import org.finance.business.entity.VoucherItem;
 import org.finance.business.entity.enums.AuditStatus;
+import org.finance.business.mapper.CurrencyMapper;
 import org.finance.business.mapper.VoucherItemMapper;
 import org.finance.business.mapper.VoucherMapper;
 import org.finance.business.web.vo.VoucherBookVO;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,15 +35,45 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
 
     @Resource
     private VoucherItemMapper itemMapper;
+    @Resource
+    private CurrencyMapper currencyMapper;
 
     public Voucher getAndItemsById(long voucherId) {
-        Voucher voucher = baseMapper.selectById(voucherId);
-        List<VoucherItem> items = itemMapper.selectList(
-                Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, voucherId)
-                    .orderByAsc(VoucherItem::getSerialNumber)
+        return baseMapper.selectById(voucherId).loadItems(itemMapper);
+    }
+
+    public Voucher getNextAndItems(long serialNumber, int period) {
+        return baseMapper.selectOne(Wrappers.<Voucher>lambdaQuery()
+                .eq(Voucher::getYearMonthNum, period)
+                .gt(Voucher::getSerialNumber, serialNumber)
+                .orderByAsc(Voucher::getSerialNumber)
+                .last("limit 1")
         );
-        voucher.setItems(items);
-        return voucher;
+    }
+
+    public Voucher getPrevAndItems(long serialNumber, int period) {
+        return baseMapper.selectOne(Wrappers.<Voucher>lambdaQuery()
+                .eq(Voucher::getYearMonthNum, period)
+                .lt(Voucher::getSerialNumber, serialNumber)
+                .orderByDesc(Voucher::getSerialNumber)
+                .last("limit 1")
+        );
+    }
+
+    public Voucher getFirstAndItems(int period) {
+        return baseMapper.selectOne(Wrappers.<Voucher>lambdaQuery()
+                .eq(Voucher::getYearMonthNum, period)
+                .orderByAsc(Voucher::getSerialNumber)
+                .last("limit 1")
+        );
+    }
+
+    public Voucher getLastAndItems(int period) {
+        return baseMapper.selectOne(Wrappers.<Voucher>lambdaQuery()
+                .eq(Voucher::getYearMonthNum, period)
+                .orderByDesc(Voucher::getSerialNumber)
+                .last("limit 1")
+        );
     }
 
     public IPage<VoucherBookVO> pageVoucherBookVO(IPage<?> page) {
@@ -54,7 +87,7 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addOrUpdate(Voucher voucher, Runnable beforeCall) {
+    public Voucher addOrUpdate(Voucher voucher, Runnable beforeCall) {
         if (beforeCall != null) {
             beforeCall.run();
         }
@@ -63,22 +96,25 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
 
         List<VoucherItem> items = voucher.getItems();
         int itemSize = items.size();
+        Currency currency = voucher.getCurrencyId().equals(Currency.LOCAL_CURRENCY.getId())
+                ? Currency.LOCAL_CURRENCY
+                : currencyMapper.selectById(voucher.getCurrencyId());
         for (int i = 0; i < itemSize; i++) {
             VoucherItem item = items.get(i).setSerialNumber(i + 1);
-            item.setLocalDebitAmount(item.getDebitAmount().multiply(voucher.getRate()))
-                .setLocalCreditAmount(item.getCreditAmount().multiply(voucher.getRate()))
-                .setVoucherNumber(voucher.getSerialNumber())
-                .setVoucherDate(voucher.getVoucherDate())
-                .setCurrencyName(voucher.getCurrencyName());
+            item.setLocalDebitAmount(item.getDebitAmount().multiply(currency.getRate()))
+                    .setLocalCreditAmount(item.getCreditAmount().multiply(currency.getRate()))
+                    .setVoucherNumber(voucher.getSerialNumber())
+                    .setVoucherDate(voucher.getVoucherDate());
             this.addOrUpdateItem(voucher, item);
         }
+        return voucher;
     }
 
     public void auditingById(long voucherId) {
-        Voucher voucher = this.getById(voucherId);
-        this.assertVoucherItemLoanBalanced(voucherId, voucher.getSerialNumber());
         boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                .set(Voucher::getAuditBy, SecurityUtil.getUserId())
+                .set(Voucher::getAuditorName, SecurityUtil.getUserName())
                 .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
                 .eq(Voucher::getId, voucherId));
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
@@ -87,86 +123,39 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
     public void unAuditingById(long voucherId) {
         boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                .set(Voucher::getAuditBy, 0L)
+                .set(Voucher::getAuditorName, "")
                 .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
                 .eq(Voucher::getId, voucherId));
         AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
-        List<Voucher> dbVouchers = baseMapper.selectList(Wrappers.<Voucher>lambdaQuery()
-                .select(Voucher::getId, Voucher::getSerialNumber)
-                .eq(Voucher::getYearMonthNum, yearMonth)
-                .eq(Voucher::getCustomerId, customerId)
-                .between(beginSerialNum != null && endSerialNum != null,
-                        Voucher::getSerialNumber, beginSerialNum, endSerialNum)
-        );
-        for (Voucher dbVoucher : dbVouchers) {
-            this.assertVoucherItemLoanBalanced(dbVoucher.getId(), dbVoucher.getSerialNumber());
-            this.update(Wrappers.<Voucher>lambdaUpdate()
-                    .eq(Voucher::getId, dbVoucher.getId())
-                    .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
-                    .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
-            );
-        }
+    public void batchAuditingVoucher(List<Long> ids) {
+        this.update(Wrappers.<Voucher>lambdaUpdate()
+                .set(Voucher::getAuditStatus, AuditStatus.AUDITED)
+                .set(Voucher::getAuditBy, SecurityUtil.getUserId())
+                .set(Voucher::getAuditorName, SecurityUtil.getUserName())
+                .eq(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
+                .in(Voucher::getId, ids));
     }
 
-    public void batchUnAuditingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
-        this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                        yearMonth, beginSerialNum, endSerialNum, customerId
-                ).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
+    public void batchUnAuditingVoucher(List<Long> ids) {
+        this.update(Wrappers.<Voucher>lambdaUpdate()
                 .set(Voucher::getAuditStatus, AuditStatus.TO_BE_AUDITED)
-        );
-    }
-
-    public void bookkeepingById(long voucherId) {
-        boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
-                .set(Voucher::getBookkeeping, true)
-                .eq(Voucher::getId, voucherId)
-                .eq(Voucher::getBookkeeping, false)
+                .set(Voucher::getAuditBy, 0L)
+                .set(Voucher::getAuditorName, "")
                 .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
-        );
-        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
-    }
-
-    public void unBookkeepingById(long voucherId) {
-        boolean success = this.update(Wrappers.<Voucher>lambdaUpdate()
-                .set(Voucher::getBookkeeping, false)
-                .eq(Voucher::getId, voucherId)
-                .eq(Voucher::getBookkeeping, true)
-                .eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
-        );
-        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void batchBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
-        boolean success = this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                                yearMonth, beginSerialNum, endSerialNum, customerId
-                        ).eq(Voucher::getBookkeeping, false).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
-                        .set(Voucher::getBookkeeping, true)
-        );
-        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void batchUnBookkeepingVoucher(Integer yearMonth, Integer beginSerialNum, Integer endSerialNum, Long customerId) {
-        boolean success = this.update(this.buildLambdaUpdateByYearMonthAndSerialNum(
-                                yearMonth, beginSerialNum, endSerialNum, customerId
-                        ).eq(Voucher::getBookkeeping, true).eq(Voucher::getAuditStatus, AuditStatus.AUDITED)
-                        .set(Voucher::getBookkeeping, false)
-        );
-        AssertUtil.isTrue(success, "操作失败，该记录状态已发生变化！");
+                .in(Voucher::getId, ids));
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(long voucherId) {
-        Voucher voucher = baseMapper.selectById(voucherId);
         baseMapper.deleteById(voucherId);
         itemMapper.delete(Wrappers.<VoucherItem>lambdaQuery().eq(VoucherItem::getVoucherId, voucherId));
 
-        // 重置当月凭证的序列号
-        List<Voucher> dbVouchers = baseMapper.selectList(Wrappers.<Voucher>lambdaQuery()
+        // TODO 重置当月凭证的序列号
+        /*List<Voucher> dbVouchers = baseMapper.selectList(Wrappers.<Voucher>lambdaQuery()
                 .eq(Voucher::getYearMonthNum, voucher.getYearMonthNum())
                 .orderByAsc(Voucher::getCreateBy)
         );
@@ -175,13 +164,19 @@ public class VoucherService extends ServiceImpl<VoucherMapper, Voucher> {
                     .set(Voucher::getSerialNumber, i + 1)
                     .eq(Voucher::getId, dbVouchers.get(i).getId())
             );
-        }
+        }*/
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDelete(List<Long> voucherIds) {
+        baseMapper.delete(Wrappers.<Voucher>lambdaQuery().in(Voucher::getId, voucherIds));
+        itemMapper.delete(Wrappers.<VoucherItem>lambdaQuery().in(VoucherItem::getVoucherId, voucherIds));
     }
 
     private void addOrUpdateVoucher(Voucher voucher) {
         if (voucher.getSerialNumber() == null) {
             Integer serialNumber = Optional.ofNullable(
-                baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
+                    baseMapper.getMaxSerialNumber(voucher.getYearMonthNum())
             ).map(num -> num + 1).orElse(1);
             voucher.setSerialNumber(serialNumber);
         }

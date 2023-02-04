@@ -1,12 +1,13 @@
 import React, {useCallback} from 'react';
-import {LogoutOutlined, SettingOutlined, UserOutlined} from '@ant-design/icons';
-import {Avatar, Menu, Spin} from 'antd';
+import {ExclamationCircleFilled, LogoutOutlined} from '@ant-design/icons';
+import {Avatar, Modal, Spin} from 'antd';
 import {history, useModel} from 'umi';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 import {loginOut} from '@/services/login';
 import {useSecurity} from "@/utils/hooks";
 
+const { confirm } = Modal;
 
 const AvatarDropdown = ({ menu }) => {
   const { initialState, setInitialState } = useModel('@@initialState')
@@ -17,11 +18,19 @@ const AvatarDropdown = ({ menu }) => {
       const { key } = event;
 
       if (key === 'logout') {
-        setInitialState((s) => ({ ...s, currentUser: null }));
-        loginOut()
-        return;
-      } else if (key === "switchCustomer") {
-        history.push("/user/switchCustomer")
+        if (security.isFinanceMode) {
+          confirm({
+            title: '系统提示',
+            icon: <ExclamationCircleFilled />,
+            content: '你确认要退出吗？',
+            onOk() {
+              window.close()
+            }
+          })
+        } else {
+          setInitialState((s) => ({ ...s, currentUser: null }));
+          loginOut()
+        }
         return
       } else if (key === "switchUserIdentity") {
         history.push("/switchIdentity")
@@ -56,23 +65,21 @@ const AvatarDropdown = ({ menu }) => {
     /*{key: "center", label:"个人中心", icon:(<UserOutlined />)},
     {key: "settings", label:"个人设置", icon:(<SettingOutlined />)},
     {type: 'divider'},*/
-    ...(!isApprover && security.isSuperCustomer?[
-      {key: "switchCustomer", label:"切换客户单位", icon:false}
-    ] : []),
     ...(security.hasMultipleIdentities? [
       {key: "switchUserIdentity", label:"切换用户身份", icon:false}
     ] : []),
     {key: "logout", label:"退出登录", icon:(<LogoutOutlined />)},
   ]
 
-  const menuHeaderDropdown = (
-    <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick} items={menuItems}/>
-  );
+  const menuHeaderDropdown = {
+    items: menuItems,
+    onClick: onMenuClick
+  }
   return (
-    <HeaderDropdown overlay={menuHeaderDropdown}>
-      <span className={`${styles.action} ${styles.account}`}>
-        <Avatar size="small" className={styles.avatar} src={currentUser.avatar} alt="avatar" />
-        <span className={`${styles.name} ${styles.action}`} style={{color: "#fff"}}>{currentUser.name}</span>
+    <HeaderDropdown menu={menuHeaderDropdown}>
+      <span>
+        <Avatar size="small" src={currentUser.avatar} alt="avatar" />
+        <span>{currentUser.name}</span>
       </span>
     </HeaderDropdown>
   );

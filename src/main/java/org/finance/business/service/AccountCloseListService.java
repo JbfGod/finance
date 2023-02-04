@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.finance.business.entity.AccountCloseList;
 import org.finance.business.mapper.AccountCloseListMapper;
 import org.finance.business.service.event.AccountEvent;
+import org.finance.infrastructure.config.security.util.SecurityUtil;
 import org.finance.infrastructure.constants.Constants;
 import org.finance.infrastructure.util.SpringContextUtil;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,24 @@ import java.util.Collection;
 @Service
 public class AccountCloseListService extends ServiceImpl<AccountCloseListMapper, AccountCloseList> {
 
+    public Integer currentAccountCloseYearMonth() {
+        AccountCloseList accountCloseList = baseMapper.selectOne(Wrappers.<AccountCloseList>lambdaQuery()
+                .orderByDesc(AccountCloseList::getYearMonthNum)
+                .last("limit 1")
+        );
+        if (accountCloseList == null) {
+            return SecurityUtil.getProxyCustomer().getEnablePeriod();
+        }
+        YearMonth yearMonth = YearMonth.parse(accountCloseList.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT);
+        return Integer.valueOf(Constants.YEAR_MONTH_FMT.format(yearMonth.plusMonths(1)));
+    }
+
     public void closeAccount(AccountCloseList accountClose) {
         baseMapper.insert(accountClose);
 
         Collection<AccountEvent> accountEvents = SpringContextUtil.getBeansOfType(AccountEvent.class);
         accountEvents.forEach(accountEvent -> {
-            accountEvent.onAccountClosed(YearMonth.from(accountClose.getBeginDate()));
+            accountEvent.onAccountClosed(YearMonth.parse(accountClose.getYearMonthNum().toString(), Constants.YEAR_MONTH_FMT));
         });
     }
 

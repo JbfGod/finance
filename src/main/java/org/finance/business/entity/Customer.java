@@ -6,9 +6,13 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.finance.business.entity.enums.AccountingSystem;
+import org.finance.infrastructure.constants.Constants;
+import org.finance.infrastructure.util.AssertUtil;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 /**
  * <p>
@@ -46,11 +50,6 @@ public class Customer implements Serializable {
      * 业务负责人
      */
     private Long businessUserId;
-
-    /**
-     * 所属行业
-     */
-    private Long industryId;
 
     /**
      * 客户类别
@@ -101,11 +100,23 @@ public class Customer implements Serializable {
      * 是否使用外汇
      */
     private Boolean useForeignExchange;
-
+    /**
+     * 启用期间
+     */
+    private Integer enablePeriod;
+    /**
+     * 当前期间
+     */
+    private Integer currentPeriod;
     /**
      * 备注
      */
     private String remark;
+
+    /**
+     * 会计制度
+     */
+    private AccountingSystem accountingSystem;
 
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
@@ -144,4 +155,19 @@ public class Customer implements Serializable {
         RENT_AND_PROXY
     }
 
+    public void closeToPeriod(int yearMonth) {
+        AssertUtil.isTrue(this.enablePeriod >= yearMonth, "没有上一期");
+        this.currentPeriod = yearMonth;
+    }
+
+    public void closingToNextPeriod() {
+        YearMonth yearMonth = YearMonth.parse(currentPeriod.toString(), Constants.YEAR_MONTH_FMT);
+        this.currentPeriod = Integer.valueOf(yearMonth.plusMonths(1).format(Constants.YEAR_MONTH_FMT));
+    }
+
+    public void closingToPrevPeriod() {
+        AssertUtil.isTrue(this.enablePeriod < this.currentPeriod, "没有上一期");
+        YearMonth yearMonth = YearMonth.parse(currentPeriod.toString(), Constants.YEAR_MONTH_FMT);
+        this.currentPeriod = Integer.valueOf(yearMonth.minusMonths(1).format(Constants.YEAR_MONTH_FMT));
+    }
 }

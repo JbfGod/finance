@@ -8,17 +8,15 @@ import org.finance.business.entity.Customer;
 import org.finance.business.entity.Resource;
 import org.finance.business.service.ApprovalInstanceApproverService;
 import org.finance.business.service.CustomerCategoryService;
-import org.finance.business.service.CustomerResourceService;
 import org.finance.business.service.CustomerService;
+import org.finance.business.service.ResourceService;
 import org.finance.business.web.request.AddCustomerRequest;
-import org.finance.business.web.request.GrantResourcesToCustomerRequest;
 import org.finance.business.web.request.QueryCustomerCueRequest;
 import org.finance.business.web.request.QueryCustomerRequest;
 import org.finance.business.web.request.UpdateCustomerRequest;
 import org.finance.business.web.vo.CustomerCueVO;
 import org.finance.business.web.vo.CustomerListVO;
 import org.finance.business.web.vo.OwnedApprovalCustomerVO;
-import org.finance.business.web.vo.ResourceIdentifiedVO;
 import org.finance.business.web.vo.TreeResourceWithOperateVO;
 import org.finance.infrastructure.common.R;
 import org.finance.infrastructure.common.RPage;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +34,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -57,9 +53,9 @@ public class CustomerWeb {
     @javax.annotation.Resource
     private CustomerCategoryService customerCategoryService;
     @javax.annotation.Resource
-    private CustomerResourceService customerResourceService;
-    @javax.annotation.Resource
     private ApprovalInstanceApproverService instanceApproverService;
+    @javax.annotation.Resource
+    private ResourceService resourceService;
 
     @GetMapping("/owned/approval")
     public R<List<OwnedApprovalCustomerVO>> ownedApprovalCustomers() {
@@ -76,21 +72,14 @@ public class CustomerWeb {
         );
     }
 
-    @GetMapping("/{customerId}/resourceIds")
-    public R<List<ResourceIdentifiedVO>> resourceIdsOfCustomer(@PathVariable("customerId") long customerId) {
-        List<ResourceIdentifiedVO> resourceIds = customerResourceService.listResourceByCustomerId(customerId)
-                .stream().map(ResourceConvert.INSTANCE::toResourceIdentifiedVO)
-                .collect(Collectors.toList());
-        return R.ok(resourceIds);
-    }
-
     @GetMapping("/{customerId}/treeResourceWithOperate")
     public R<List<TreeResourceWithOperateVO>> treeResourceWithOperate(@PathVariable("customerId") long customerId) {
         List<Long> canGrantResourceIds = SecurityUtil.getCurrentUser().getResources().stream()
                 .map(org.finance.business.entity.Resource::getId)
                 .collect(Collectors.toList());
-        List<Resource> resources = customerResourceService.listResourceByCustomerId(customerId)
-                .stream().filter(r -> {
+        List<Resource> resources = resourceService.list(Wrappers.<Resource>lambdaQuery()
+                .orderByAsc(Resource::getModule, Resource::getSortNum)
+        ).stream().filter(r -> {
             if (!Customer.DEFAULT_ID.equals(customerId) && r.getSuperCustomer()) {
                 return false;
             }
@@ -113,7 +102,6 @@ public class CustomerWeb {
                 .gt(Customer::getId, 0)
                 .likeRight(StringUtils.hasText(request.getNumber()), Customer::getNumber, request.getNumber())
                 .likeRight(StringUtils.hasText(request.getName()), Customer::getName, request.getName())
-                .eq(request.getIndustryId() != null, Customer::getIndustryId, request.getIndustryId())
                 .in(request.getCategoryId() != null, Customer::getCategoryId, categoryIds)
                 .likeRight(request.getType() !=null, Customer::getType, request.getType())
                 .likeRight(StringUtils.hasText(request.getTelephone()), Customer::getTelephone, request.getTelephone())
@@ -142,12 +130,6 @@ public class CustomerWeb {
         return R.ok(cues);
     }
 
-    @PostMapping("/grantResources")
-    public R grantResourceToCustomer(@RequestBody @Valid GrantResourcesToCustomerRequest request) {
-        customerResourceService.grantResourcesToUser(request.getCustomerId(), request.getResourceIds());
-        return R.ok();
-    }
-
     @PostMapping("/add")
     public R addCustomer(@Valid AddCustomerRequest request) {
         Customer customer = CustomerConvert.INSTANCE.toCustomer(request);
@@ -167,15 +149,4 @@ public class CustomerWeb {
         return R.ok();
     }
 
-    /**
-     * 提取出当能用户能够不能分配的权限
-     * @param resources
-     */
-    private List<Resource> getDisabledResourceIds(List<Resource> resources) {
-        Map<Long, Resource> ownedResources = SecurityUtil.getCurrentUser().getResources()
-                .stream().collect(Collectors.toMap(Resource::getId, r -> r));
-        return resources.stream().filter(r -> !ownedResources.containsKey(r.getId()))
-                .map(r -> ownedResources.get(r.getId()))
-                .collect(Collectors.toList());
-    }
 }

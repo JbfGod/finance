@@ -9,7 +9,6 @@ import {AdvancedSubjectSelect} from "@/components/AdvancedSubjectSelect";
 export default function ExProTable({columns, pagination, ...props}) {
   const values = useContext(ProProvider);
   const enhanceColumns = columns.map(c => ({textWrap: 'word-break', ellipsis: {showTitle: true}, ...c}))
-
   const newProps = {
     rowKey: "id",
     ...(props.onNew ? {

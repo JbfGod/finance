@@ -9,7 +9,7 @@ export default function SwitchUserIdentity() {
     switchUserIdentity(identity)
     setTimeout(() => {
       if (identity === "NORMAL") {
-        history.push("/user/switchCustomer")
+        history.push("/Manage")
         return
       }
       history.push("/approval/expenseBill")

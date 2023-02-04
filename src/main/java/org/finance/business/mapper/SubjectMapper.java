@@ -17,6 +17,6 @@ import java.util.List;
 public interface SubjectMapper extends BaseMapper<Subject> {
 
     default List<Subject> listOrderByTree() {
-        return this.selectList(Wrappers.<Subject>lambdaQuery().orderByAsc(Subject::getRootNumber, Subject::getLeftValue));
+        return this.selectList(Wrappers.<Subject>lambdaQuery().orderByAsc(Subject::getRootNumber, Subject::getNumber));
     }
 }

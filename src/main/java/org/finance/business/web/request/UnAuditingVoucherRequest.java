@@ -2,7 +2,8 @@ package org.finance.business.web.request;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * @author jiangbangfa
@@ -10,9 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class UnAuditingVoucherRequest {
 
-    @NotNull(message = "请选择月份！")
-    private Integer yearMonth;
-    private Integer beginSerialNum;
-    private Integer endSerialNum;
+    @Size(message = "请至少选择一条凭证数据")
+    private List<Long> ids;
 
 }

@@ -1,5 +1,6 @@
 package org.finance.business.mapper;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.finance.business.entity.AccountCloseList;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -13,4 +14,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface AccountCloseListMapper extends BaseMapper<AccountCloseList> {
 
+    default boolean alreadyAccountClose(int yearMonthNum) {
+        return this.exists(Wrappers.<AccountCloseList>lambdaQuery()
+                .eq(AccountCloseList::getYearMonthNum, yearMonthNum)
+        );
+    }
 }

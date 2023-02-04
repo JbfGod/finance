@@ -2,6 +2,7 @@ package org.finance.business.web.request;
 
 import lombok.Data;
 import org.finance.business.entity.Customer;
+import org.finance.business.entity.enums.AccountingSystem;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,14 +25,13 @@ public class AddCustomerRequest {
     @Size(min = 2, max = 20, message = "客户名称只允许有2-20个字符！")
     private String name;
 
-    @NotNull(message = "请填写客户行业")
-    private Long industryId;
-
     @NotNull(message = "请填写客户类别")
     private Long categoryId;
 
     @NotNull(message = "请填写客户类型")
     private Customer.Type type;
+    @NotNull(message = "请选择会计制度")
+    private AccountingSystem accountingSystem;
 
     private Long businessUserId;
 
@@ -54,5 +54,10 @@ public class AddCustomerRequest {
 
     @Size(max = 255, message = "备注信息不能超出255个字符")
     private String remark;
+    @NotNull(message = "启用日期不能为空")
+    private Integer enablePeriod;
 
+    public Integer getCurrentPeriod() {
+        return this.enablePeriod;
+    }
 }

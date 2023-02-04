@@ -1,9 +1,6 @@
 package org.finance.infrastructure.config;
 
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import io.minio.SetBucketPolicyArgs;
 import org.finance.infrastructure.constants.BucketName;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +31,7 @@ public class MiniConfig {
 
     private void initializationBucket(MinioClient minioClient) throws Exception {
         for (BucketName bucket : BucketName.values()) {
-            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket.getName()).build())) {
+            /*if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket.getName()).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder()
                         .bucket(bucket.getName())
                         .build());
@@ -42,7 +39,7 @@ public class MiniConfig {
                         .bucket(bucket.getName())
                         .config("PUBLIC")
                         .build());
-            }
+            }*/
         }
     }
 }

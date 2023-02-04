@@ -2,16 +2,14 @@ package org.finance.business.web.request;
 
 import lombok.Data;
 
-import java.time.LocalDate;
-
 /**
  * @author jiangbangfa
  */
 @Data
 public class QueryVoucherRequest extends AbstractPageRequest {
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Integer startPeriod;
+    private Integer endPeriod;
     private CurrencyType currencyType;
     private Integer serialNumber;
 
@@ -27,7 +25,4 @@ public class QueryVoucherRequest extends AbstractPageRequest {
         ;
     }
 
-    public CurrencyType getCurrencyType() {
-        return currencyType == null ? CurrencyType.LOCAL: currencyType;
-    }
 }

@@ -1,19 +1,14 @@
 package org.finance.business.convert;
 
 import org.finance.business.entity.AccountBalance;
-import org.finance.business.entity.BalanceSheetReport;
-import org.finance.business.entity.CashFlowReport;
-import org.finance.business.entity.ProfitReport;
+import org.finance.business.entity.Report;
 import org.finance.business.entity.VoucherItem;
-import org.finance.business.web.request.SaveBalanceSheetReportRequest;
-import org.finance.business.web.request.SaveCashFlowReportRequest;
-import org.finance.business.web.request.SaveProfitReportRequest;
-import org.finance.business.web.vo.BalanceSheetOfMonthVO;
-import org.finance.business.web.vo.CashFlowOfMonthVO;
+import org.finance.business.entity.templates.accountting.system.AssetsLiability;
+import org.finance.business.entity.templates.accountting.system.CashFlow;
+import org.finance.business.entity.templates.accountting.system.Profit;
 import org.finance.business.web.vo.DailyBankVO;
 import org.finance.business.web.vo.DailyCashVO;
 import org.finance.business.web.vo.GeneralLedgerVO;
-import org.finance.business.web.vo.ProfitOfMonthVO;
 import org.finance.business.web.vo.SubLedgerVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -21,10 +16,10 @@ import org.mapstruct.factory.Mappers;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +29,8 @@ import java.util.stream.Collectors;
 public interface ReportConvert {
 
     ReportConvert INSTANCE = Mappers.getMapper(ReportConvert.class);
+
+    Report clone(Report report);
 
     default List<GeneralLedgerVO> toGeneralLedgerVO(AccountBalance accountBalance, String subjectName, boolean visibleOpeningBalance) {
         BigDecimal debitClosingAmount = accountBalance.getDebitClosingAmount();
@@ -96,13 +93,13 @@ public interface ReportConvert {
                 .setBalance(balance);
     }
 
-    default List<DailyCashVO> toDailyCashVOList(List<DailyCashVO> dailyCashesOfToday, Map<String, AccountBalance> balanceOfYesterdayByKey) {
+    default List<DailyCashVO> toDailyCashVOList(List<DailyCashVO> dailyCashesOfToday, Map<Long, AccountBalance> balanceOfYesterdayByKey) {
         DailyCashVO subtotal = DailyCashVO.newInstance("小计");
         List<DailyCashVO> results = new ArrayList<>();
         for (DailyCashVO dailyCashOfToday : dailyCashesOfToday) {
             BigDecimal balance = dailyCashOfToday.getDebitAmountOfToday().subtract(dailyCashOfToday.getCreditAmountOfToday());
             BigDecimal localBalance = dailyCashOfToday.getLocalDebitAmountOfToday().subtract(dailyCashOfToday.getLocalCreditAmountOfToday());
-            AccountBalance balanceOfYesterday = Optional.ofNullable(balanceOfYesterdayByKey.get(dailyCashOfToday.getKey())).orElseGet(AccountBalance::newInstance);
+            AccountBalance balanceOfYesterday = Optional.ofNullable(balanceOfYesterdayByKey.get(dailyCashOfToday.getSubjectId())).orElseGet(AccountBalance::newInstance);
             dailyCashOfToday.setBalanceOfYesterday(balanceOfYesterday.getClosingBalance())
                     .setLocalBalanceOfYesterday(balanceOfYesterday.getLocalClosingBalance())
                     .setBalanceOfToday(balance.add(balanceOfYesterday.getClosingBalance()))
@@ -122,12 +119,12 @@ public interface ReportConvert {
                 .setBalanceOfYesterday(null).setBalanceOfToday(null);
     }
 
-    default List<DailyBankVO> toDailyBankVOList(List<DailyBankVO> dailyCashesOfToday, Map<String, AccountBalance> balanceOfYesterdayByKey) {
+    default List<DailyBankVO> toDailyBankVOList(List<DailyBankVO> dailyCashesOfToday, Map<Long, AccountBalance> balanceOfYesterdayByKey) {
         DailyBankVO subtotal = DailyBankVO.newInstance("小计");
         List<DailyBankVO> results = new ArrayList<>();
         for (DailyBankVO dailyCashOfToday : dailyCashesOfToday) {
             BigDecimal localBalance = dailyCashOfToday.getLocalDebitAmountOfToday().subtract(dailyCashOfToday.getLocalCreditAmountOfToday());
-            AccountBalance balanceOfYesterday = Optional.ofNullable(balanceOfYesterdayByKey.get(dailyCashOfToday.getKey())).orElseGet(AccountBalance::newInstance);
+            AccountBalance balanceOfYesterday = Optional.ofNullable(balanceOfYesterdayByKey.get(dailyCashOfToday.getSubjectId())).orElseGet(AccountBalance::newInstance);
             dailyCashOfToday.setLocalBalanceOfYesterday(balanceOfYesterday.getLocalClosingBalance())
                     .setLocalBalanceOfToday(localBalance.add(balanceOfYesterday.getLocalClosingBalance()));
             results.add(dailyCashOfToday);
@@ -144,90 +141,56 @@ public interface ReportConvert {
                 .setCurrency("本位币");
     }
 
-    default List<ProfitOfMonthVO> toProfitOfMonthVO(List<ProfitReport> profits, Map<Integer, ProfitReport.Row> profitByRowNum) {
-        return profits.stream().map(profit -> {
-            Integer rowNumber = profit.getRowNum();
-            ProfitOfMonthVO profitOfMonthVO = new ProfitOfMonthVO();
-            profitOfMonthVO.setId(profit.getId())
-                    .setName(profit.getName())
-                    .setRowNum(rowNumber)
-                    .setFormula(profit.getFormula());
-            ProfitReport.Row row = Optional.ofNullable(profit.getRow()).orElse(profitByRowNum.get(rowNumber));
-            profitOfMonthVO.setMonthlyAmount(row.getMonthlyAmount())
-                    .setAnnualAmount(row.getAnnualAmount());
-            return profitOfMonthVO;
-        }).collect(Collectors.toList());
+    default List<AssetsLiability> toAssetsLiabilities(List<Report> reports) {
+        if (reports == null || reports.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<Integer, Report> reportById = reports.stream().collect(Collectors.toMap(Report::getId, v -> v));
+        List<AssetsLiability> list = new ArrayList<>();
+        for (int row1 = 1, row2 = 51; row1 <= 50 && row2 <= 100; row1++, row2++) {
+            Report report1 = reportById.get(row1);
+            Report report2 = reportById.get(row2);
+            if (report1 == null && report2 == null) {
+                continue;
+            }
+            list.add(new AssetsLiability(report1, report2));
+        }
+        return list;
     }
 
-    default List<ProfitReport> toProfitReports(SaveProfitReportRequest request) {
-        AtomicInteger atomicInteger = new AtomicInteger(1);
-        return request.getRows().stream().map(row -> new ProfitReport()
-                .setName(row.getName())
-                .setSerialNumber(atomicInteger.getAndIncrement())
-                .setRowNum(row.getRowNum())
-                .setYearMonthNum(request.getYearMonthNum())
-                .setFormula(row.getFormula())
-        ).collect(Collectors.toList());
+    default List<Profit> toProfit(List<Report> reports) {
+        if (reports == null || reports.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<Integer, Report> reportById = reports.stream().collect(Collectors.toMap(Report::getId, v -> v));
+        List<Profit> list = new ArrayList<>();
+        int minId = Report.Category.PROFIT.getMinId();
+        int maxId = Report.Category.PROFIT.getMaxId();
+        for (; minId <= maxId; minId++) {
+            Report report = reportById.get(minId);
+            if (report == null) {
+                continue;
+            }
+            list.add(new Profit(report));
+        }
+        return list;
     }
 
-    default List<CashFlowReport> toCashFlowReports(SaveCashFlowReportRequest request) {
-        AtomicInteger atomicInteger = new AtomicInteger(1);
-        return request.getRows().stream().map(row -> new CashFlowReport()
-                .setName(row.getName())
-                .setSerialNumber(atomicInteger.getAndIncrement())
-                .setRowNum(row.getRowNum())
-                .setYearMonthNum(request.getYearMonthNum())
-                .setFormula(row.getFormula())
-        ).collect(Collectors.toList());
-    }
-    default List<CashFlowOfMonthVO> toCashFlowOfMonthVO(List<CashFlowReport> cashFlows, Map<Integer, BigDecimal> cashFlowByRowNum) {
-        return cashFlows.stream().map(cashFlow -> {
-            Integer rowNumber = cashFlow.getRowNum();
-            CashFlowOfMonthVO cashFlowVO = new CashFlowOfMonthVO();
-            cashFlowVO.setId(cashFlow.getId())
-                    .setName(cashFlow.getName())
-                    .setRowNum(rowNumber)
-                    .setFormula(cashFlow.getFormula());
-            cashFlowVO.setAmount(Optional.ofNullable(cashFlow.getAmount()).orElse(cashFlowByRowNum.get(rowNumber)));
-            return cashFlowVO;
-        }).collect(Collectors.toList());
-    }
-
-    default List<BalanceSheetReport> toBalanceSheetReports(SaveBalanceSheetReportRequest request) {
-        AtomicInteger atomicInteger = new AtomicInteger(1);
-        return request.getRows().stream().map(row -> new BalanceSheetReport()
-                .setSerialNumber(atomicInteger.getAndIncrement())
-                .setAssetsName(row.getAssetsName())
-                .setAssetsRowNum(row.getAssetsRowNum())
-                .setAssetsFormula(row.getAssetsFormula())
-                .setEquityName(row.getEquityName())
-                .setEquityRowNum(row.getEquityRowNum())
-                .setEquityFormula(row.getEquityFormula())
-                .setYearMonthNum(request.getYearMonthNum())
-        ).collect(Collectors.toList());
-    }
-
-    default List<BalanceSheetOfMonthVO> toBalanceSheetOfMonthVO(List<BalanceSheetReport> sheetReports,
-                                                                Map<Integer, BalanceSheetReport.Row> sheetRowByRowNum) {
-        return sheetReports.stream().map(sheetReport -> {
-            Integer assetsRowNumber = sheetReport.getAssetsRowNum();
-            Integer equityRowNumber = sheetReport.getEquityRowNum();
-            BalanceSheetOfMonthVO balanceSheetOfMonthVO = new BalanceSheetOfMonthVO();
-            balanceSheetOfMonthVO.setId(sheetReport.getId())
-                    .setAssetsName(sheetReport.getAssetsName())
-                    .setAssetsRowNum(assetsRowNumber)
-                    .setAssetsFormula(sheetReport.getAssetsFormula())
-                    .setEquityName(sheetReport.getEquityName())
-                    .setEquityRowNum(equityRowNumber)
-                    .setEquityFormula(sheetReport.getEquityFormula());
-            BalanceSheetReport.Row assetsRow = sheetReport.getAssetsRow();
-            balanceSheetOfMonthVO.setAssetsOpeningAmount(assetsRow.getOpeningAmount())
-                    .setAssetsClosingAmount(assetsRow.getClosingAmount());
-
-            BalanceSheetReport.Row equityRow = sheetReport.getEquityRow();
-            balanceSheetOfMonthVO.setEquityOpeningAmount(equityRow.getOpeningAmount())
-                    .setEquityClosingAmount(equityRow.getClosingAmount());
-            return balanceSheetOfMonthVO;
-        }).collect(Collectors.toList());
+    default List<CashFlow> toCashFlow(List<Report> reports) {
+        if (reports == null || reports.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<Integer, Report> reportById = reports.stream().collect(Collectors.toMap(Report::getId, v -> v));
+        List<CashFlow> list = new ArrayList<>();
+        int minId = Report.Category.CASH_FLOW.getMinId();
+        int maxId = Report.Category.CASH_FLOW.getMaxId();
+        for (; minId <= maxId; minId++) {
+            Report report = reportById.get(minId);
+            if (report == null) {
+                continue;
+            }
+            list.add(new CashFlow(report));
+        }
+        return list;
     }
 }

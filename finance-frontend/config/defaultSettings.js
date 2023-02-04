@@ -10,6 +10,6 @@ const Settings = {
   colorWeak: false,
   pwa: false,
   logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
-  iconfontUrl: '//at.alicdn.com/t/c/font_3303162_am6zxvk6v7n.js',
+  iconfontUrl: '//at.alicdn.com/t/c/font_3303162_prss5oixhye.js',
 };
 export default Settings;

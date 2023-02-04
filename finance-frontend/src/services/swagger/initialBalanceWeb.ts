@@ -32,20 +32,6 @@ export async function auditingInitialBalanceUsingPUT(
   });
 }
 
-/** bookkeepingInitialBalance PUT /api/initialBalance/bookkeeping/${param0} */
-export async function bookkeepingInitialBalanceUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.bookkeepingInitialBalanceUsingPUTParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.R>(`/api/initialBalance/bookkeeping/${param0}`, {
-    method: 'PUT',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
 /** deleteInitialBalance DELETE /api/initialBalance/delete/${param0} */
 export async function deleteInitialBalanceUsingDELETE(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -91,20 +77,6 @@ export async function unAuditingInitialBalanceUsingPUT(
 ) {
   const { id: param0, ...queryParams } = params;
   return request<API.R>(`/api/initialBalance/unAuditing/${param0}`, {
-    method: 'PUT',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** unBookkeepingInitialBalance PUT /api/initialBalance/unBookkeeping/${param0} */
-export async function unBookkeepingInitialBalanceUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.unBookkeepingInitialBalanceUsingPUTParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.R>(`/api/initialBalance/unBookkeeping/${param0}`, {
     method: 'PUT',
     params: { ...queryParams },
     ...(options || {}),

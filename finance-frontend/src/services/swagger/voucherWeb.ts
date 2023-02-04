@@ -16,6 +16,38 @@ export async function voucherDetailUsingGET(
   });
 }
 
+/** nextVoucherDetail GET /api/voucher/${param0}/next */
+export async function nextVoucherDetailUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.nextVoucherDetailUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { serialNumber: param0, ...queryParams } = params;
+  return request<API.RVoucherDetailVO_>(`/api/voucher/${param0}/next`, {
+    method: 'GET',
+    params: {
+      ...queryParams,
+    },
+    ...(options || {}),
+  });
+}
+
+/** prevVoucherDetail GET /api/voucher/${param0}/prev */
+export async function prevVoucherDetailUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.prevVoucherDetailUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  const { serialNumber: param0, ...queryParams } = params;
+  return request<API.RVoucherDetailVO_>(`/api/voucher/${param0}/prev`, {
+    method: 'GET',
+    params: {
+      ...queryParams,
+    },
+    ...(options || {}),
+  });
+}
+
 /** printContentOfVoucher GET /api/voucher/${param0}/printContent */
 export async function printContentOfVoucherUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -35,7 +67,7 @@ export async function addVoucherUsingPOST(
   body: API.AddVoucherRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.R>('/api/voucher/add', {
+  return request<API.RVoucherDetailVO_>('/api/voucher/add', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -47,15 +79,15 @@ export async function addVoucherUsingPOST(
 
 /** batchAuditingVoucher PUT /api/voucher/auditing */
 export async function batchAuditingVoucherUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.batchAuditingVoucherUsingPUTParams,
+  body: API.AuditingVoucherRequest,
   options?: { [key: string]: any },
 ) {
   return request<API.R>('/api/voucher/auditing', {
     method: 'PUT',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }
@@ -74,14 +106,14 @@ export async function auditingVoucherUsingPUT(
   });
 }
 
-/** batchBookkeepingVoucher PUT /api/voucher/bookkeeping */
-export async function batchBookkeepingVoucherUsingPUT(
+/** voucherItemBySubject GET /api/voucher/bySubject */
+export async function voucherItemBySubjectUsingGET(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.batchBookkeepingVoucherUsingPUTParams,
+  params: API.voucherItemBySubjectUsingGETParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.R>('/api/voucher/bookkeeping', {
-    method: 'PUT',
+  return request<API.RListVoucherItemVO_>('/api/voucher/bySubject', {
+    method: 'GET',
     params: {
       ...params,
     },
@@ -89,32 +121,10 @@ export async function batchBookkeepingVoucherUsingPUT(
   });
 }
 
-/** bookkeepingVoucher PUT /api/voucher/bookkeeping/${param0} */
-export async function bookkeepingVoucherUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.bookkeepingVoucherUsingPUTParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.R>(`/api/voucher/bookkeeping/${param0}`, {
-    method: 'PUT',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** voucherItemBySubject GET /api/voucher/bySubject/${param0} */
-export async function voucherItemBySubjectUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.voucherItemBySubjectUsingGETParams,
-  options?: { [key: string]: any },
-) {
-  const { subjectId: param0, ...queryParams } = params;
-  return request<API.RListVoucherItemVO_>(`/api/voucher/bySubject/${param0}`, {
+/** currentPeriodOutlineOfVoucher GET /api/voucher/currentPeriodOutline */
+export async function currentPeriodOutlineOfVoucherUsingGET(options?: { [key: string]: any }) {
+  return request<API.RCurrentPeriodOutlineOfVoucherVO_>('/api/voucher/currentPeriodOutline', {
     method: 'GET',
-    params: {
-      ...queryParams,
-    },
     ...(options || {}),
   });
 }
@@ -127,6 +137,21 @@ export async function defaultVoucherDateUsingGET(options?: { [key: string]: any 
   });
 }
 
+/** batchDeleteVoucher DELETE /api/voucher/delete */
+export async function batchDeleteVoucherUsingDELETE(
+  body: API.BatchDeleteVoucherRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.R>('/api/voucher/delete', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** deleteVoucher DELETE /api/voucher/delete/${param0} */
 export async function deleteVoucherUsingDELETE(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -134,9 +159,39 @@ export async function deleteVoucherUsingDELETE(
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.R>(`/api/voucher/delete/${param0}`, {
+  return request<API.RVoucherDetailVO_>(`/api/voucher/delete/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** firstVoucherDetail GET /api/voucher/first */
+export async function firstVoucherDetailUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.firstVoucherDetailUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RVoucherDetailVO_>('/api/voucher/first', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** lastVoucherDetail GET /api/voucher/last */
+export async function lastVoucherDetailUsingGET(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.lastVoucherDetailUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.RVoucherDetailVO_>('/api/voucher/last', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
@@ -147,7 +202,7 @@ export async function pageVoucherUsingGET(
   params: API.pageVoucherUsingGETParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.RPageVoucherVO_>('/api/voucher/page', {
+  return request<API.RPageVoucherDetailVO_>('/api/voucher/page', {
     method: 'GET',
     params: {
       ...params,
@@ -188,15 +243,15 @@ export async function searchVoucherCueUsingGET(
 
 /** batchUnAuditingVoucher PUT /api/voucher/unAuditing */
 export async function batchUnAuditingVoucherUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.batchUnAuditingVoucherUsingPUTParams,
+  body: API.UnAuditingVoucherRequest,
   options?: { [key: string]: any },
 ) {
   return request<API.R>('/api/voucher/unAuditing', {
     method: 'PUT',
-    params: {
-      ...params,
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }
@@ -209,35 +264,6 @@ export async function unAuditingVoucherUsingPUT(
 ) {
   const { id: param0, ...queryParams } = params;
   return request<API.R>(`/api/voucher/unAuditing/${param0}`, {
-    method: 'PUT',
-    params: { ...queryParams },
-    ...(options || {}),
-  });
-}
-
-/** batchUnBookkeepingVoucher PUT /api/voucher/unBookkeeping */
-export async function batchUnBookkeepingVoucherUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.batchUnBookkeepingVoucherUsingPUTParams,
-  options?: { [key: string]: any },
-) {
-  return request<API.R>('/api/voucher/unBookkeeping', {
-    method: 'PUT',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
-/** unBookkeepingVoucher PUT /api/voucher/unBookkeeping/${param0} */
-export async function unBookkeepingVoucherUsingPUT(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.unBookkeepingVoucherUsingPUTParams,
-  options?: { [key: string]: any },
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.R>(`/api/voucher/unBookkeeping/${param0}`, {
     method: 'PUT',
     params: { ...queryParams },
     ...(options || {}),
@@ -260,16 +286,9 @@ export async function updateVoucherUsingPUT(
 }
 
 /** usableSerialNumber GET /api/voucher/usableSerialNumber */
-export async function usableSerialNumberUsingGET(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.usableSerialNumberUsingGETParams,
-  options?: { [key: string]: any },
-) {
+export async function usableSerialNumberUsingGET(options?: { [key: string]: any }) {
   return request<API.RInt_>('/api/voucher/usableSerialNumber', {
     method: 'GET',
-    params: {
-      ...params,
-    },
     ...(options || {}),
   });
 }

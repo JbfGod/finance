@@ -1,7 +1,6 @@
 package org.finance.business.web.request;
 
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.finance.business.entity.Currency;
 
 import javax.validation.Valid;
@@ -10,7 +9,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.finance.infrastructure.constants.Constants.YEAR_MONTH_FMT;
@@ -22,14 +20,7 @@ import static org.finance.infrastructure.constants.Constants.YEAR_MONTH_FMT;
 public class AddVoucherRequest {
 
     private Integer serialNumber;
-    @NotNull(message = "请选择币别！")
     private Long currencyId;
-    @NotNull(message = "币别名称不能为空！")
-    private String currencyName;
-    @NotNull(message = "汇率不能为空！")
-    private BigDecimal rate;
-    @NotBlank(message = "请输入单位！")
-    private String unit;
     @NotNull(message = "请输入凭证日期！")
     private LocalDate voucherDate;
     private Integer attachmentNum;
@@ -40,7 +31,6 @@ public class AddVoucherRequest {
     @Data
     public static class Item {
 
-        @NotBlank(message = "请输入摘要！")
         private String summary;
         @NotNull(message = "请选择科目！")
         private Long subjectId;
@@ -81,30 +71,20 @@ public class AddVoucherRequest {
     }
 
     public BigDecimal getTotalLocalDebitAmount() {
-        return this.getTotalDebitAmount().multiply(this.getRate());
+        return this.getTotalDebitAmount();
     }
 
     public BigDecimal getTotalLocalCreditAmount() {
-        return this.getTotalCreditAmount().multiply(this.getRate());
+        return this.getTotalCreditAmount();
     }
 
     public Integer getAttachmentNum() {
         return this.attachmentNum == null ? 0 : this.attachmentNum;
     }
 
-    public String getCurrencyName() {
-        return StringUtils.isBlank(currencyName) ? Currency.LOCAL_CURRENCY.getName() : currencyName;
-    }
-
-    public BigDecimal getRate() {
-        return rate == null ? Currency.LOCAL_CURRENCY.getRate() : rate;
-    }
 
     public Long getCurrencyId() {
         return currencyId == null? Currency.LOCAL_CURRENCY.getId() : currencyId;
     }
 
-    public LocalDateTime getVoucherTime() {
-        return voucherDate.atStartOfDay();
-    }
 }
