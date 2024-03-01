@@ -1,0 +1,18 @@
+
+.inputNumber {
+  width: 100%;
+  :global {
+    .ant-input-number-handler-wrap {
+      display: none;
+    }
+    .ant-input-number-input-wrap {
+      border-bottom: 1px solid #C0C4CC;
+      &:focus-within {
+        border-bottom-color: #409EFF;
+      }
+      input {
+        text-align: right;
+      }
+    }
+  }
+}

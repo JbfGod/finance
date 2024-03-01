@@ -1,0 +1,39 @@
+div.voucherContainer {
+  :global {
+    div.ant-drawer-body {
+      padding: 15px;
+    }
+    div.ant-modal-body {
+      padding: 15px;
+    }
+    .ant-pro-card-body {
+      padding: 15px;
+    }
+  }
+  .selectedRow{
+    background-color: #f2f4f6;
+  }
+}
+
+div.voucherTbl {
+  :global{
+    .ant-table-thead > tr > th.ant-table-cell {
+      padding: 4px;
+      text-align: center;
+    }
+    .ant-table-tbody > tr > td.ant-table-cell {
+      padding: 8px 4px;
+      text-align: center;
+    }
+  }
+}
+
+div.signNameTitle {
+  &:after {
+    content: '';
+    vertical-align: sub;
+    display: inline-block;
+    border-bottom: 1px solid black;
+    width: 85px;
+  }
+}

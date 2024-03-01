@@ -1,0 +1,51 @@
+div.billDrawer {
+  :global {
+    div.ant-drawer-body {
+      padding: 15px;
+    }
+
+    .ant-pro-card-body {
+      padding: 0;
+    }
+  }
+
+  .selectedRow {
+    background-color: #f2f4f6;
+  }
+}
+
+div.expenseBill {
+  --common-font: 11px;
+  .commonFont {
+    font-size: var(--common-font) !important;
+  }
+  .selected {
+    background-color: #f7f7f7;
+  }
+  :global {
+    .ant-table-thead > tr > th.ant-table-cell {
+      padding: 4px;
+      text-align: center;
+    }
+
+    .ant-table-tbody > tr > td.ant-table-cell {
+      padding: 0;
+      text-align: center;
+      height: 24px;
+    }
+    .ant-table-summary > tr > td.ant-table-cell {
+      padding: 4px;
+      text-align: center;
+    }
+
+    .ant-table-small {
+      font-size: var(--common-font);
+      input, textarea {
+        border: none;
+      }
+      &, input, textarea, span {
+        font-size: var(--common-font);
+      }
+    }
+  }
+}
